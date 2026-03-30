@@ -41,7 +41,7 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
 .app { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
 .sidebar {
-  width: 340px; flex-shrink: 0; background: var(--surface);
+  width: 420px; flex-shrink: 0; background: var(--surface);
   border-right: 0.5px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
 }
 .tab-nav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 1rem; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
@@ -269,12 +269,12 @@ input[type=file] { display: none; }
 
 /* Design tab */
 .placement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
-.placement-opt { border: 0.5px solid var(--border2); border-radius: var(--r-md); padding: 8px 10px; font-size: 11px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: left; font-family: 'Instrument Sans', sans-serif; }
-.placement-opt:hover { border-color: var(--border3); }
+.placement-opt { border: 0.5px solid var(--border2); border-radius: var(--r-md); padding: 10px 14px; font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: left; font-family: 'Instrument Sans', sans-serif; }
+.placement-opt:hover { border-color: var(--border3); background: var(--surface2); }
 .placement-opt.selected { background: var(--text); color: #fff; border-color: var(--text); }
-.placement-opt b { display: block; font-weight: 500; font-size: 11px; margin-bottom: 1px; }
-.placement-opt span { opacity: 0.55; font-size: 10px; }
-.placement-opt.selected span { opacity: 0.6; }
+.placement-opt b { display: block; font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+.placement-opt span { opacity: 0.55; font-size: 11px; }
+.placement-opt.selected span { opacity: 0.65; }
 .range-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
 .range-row label { font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 52px; }
 .range-row input[type=range] { flex: 1; accent-color: var(--text); }
@@ -362,7 +362,7 @@ input[type=file] { display: none; }
 
       <div class="tab-pane" id="tab-design">
         <div class="section-title">Design</div>
-        <div class="section-sub">Available placements depend on the selected product. T-shirts, hoodies and sweatshirts support front top right, middle back, or both. Tote bags print on the front only.</div>
+        <div class="section-sub">Select one or both print positions. At least one must remain selected.</div>
         <div class="field-group">
           <span class="field-label">Placement</span>
           <div class="placement-grid" id="placement-grid"></div>
@@ -635,6 +635,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
+  if (id==='design') renderPlacementGrid();
 }
 
 function initProgress() {
