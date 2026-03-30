@@ -372,28 +372,9 @@ input[type=file] { display: none; }
 
       <div class="tab-pane" id="tab-order">
         <div class="section-title">Order details</div>
-        <div class="section-sub">Set sizes, run exclusivity, and pricing for this range.</div>
-        <div class="field-group">
-          <span class="field-label">Available sizes</span>
-          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Set sizes per product. Select products first.</div>
-          <div id="size-by-product"></div>
-        </div>
-        <div class="divider"></div>
-        <div class="field-group">
-          <span class="field-label">Run exclusivity</span>
-          <div class="excl-opts" id="excl-opts"></div>
-          <div id="excl-num-row" style="display:none;margin-top:8px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <input type="number" class="num-input" id="excl-number" min="1" value="100">
-              <span style="font-size:12px;color:var(--text2);">total items max</span>
-            </div>
-          </div>
-          <div class="notice" style="margin-top:10px;">Limits the total ever sold. Unlimited has no cap.</div>
-        </div>
-        <div class="divider"></div>
-        <div class="field-group">
-          <span class="field-label">Price per size</span>
-          <div class="price-grid" id="price-grid"></div>
+        <div class="section-sub">Set sizes, run exclusivity, and pricing per product.</div>
+        <div id="order-by-product">
+          <div style="font-size:14px;color:var(--text3);padding:4px 0;">No products selected yet.</div>
         </div>
       </div>
 
@@ -746,8 +727,7 @@ function toggleProduct(id) {
     }
   }
   renderPlacementGrid();
-  renderSizesByProduct();
-  buildPriceGrid();
+  renderOrderByProduct();
   refreshThumbs();
   refreshArtworkList();
   drawPreview();
@@ -1012,103 +992,129 @@ function updateLogoSize(v) {
 }
 
 // ─── Sizes & order ────────────────────────────────────────────────────────────
-function initSizes() {
-  renderSizesByProduct();
-}
+function initSizes() { renderOrderByProduct(); }
+function renderSizesByProduct() { renderOrderByProduct(); }
+function buildPriceGrid() { renderOrderByProduct(); }
 
-function renderSizesByProduct() {
-  const c = document.getElementById('size-by-product');
+function renderOrderByProduct() {
+  const c = document.getElementById('order-by-product');
   if (!c) return;
   c.innerHTML = '';
   const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
   if (!selected.length) {
-    c.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0;">No products selected yet.</div>';
+    c.innerHTML = '<div style="font-size:14px;color:var(--text3);padding:4px 0;">No products selected yet.</div>';
     return;
   }
   selected.forEach(pt => {
     const prod = S.products[pt.id];
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'margin-bottom:14px;';
-    const label = document.createElement('div');
-    label.style.cssText = 'font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px;';
-    label.textContent = pt.label;
-    wrap.appendChild(label);
+    if (!prod.prices)  prod.prices  = {};
+    if (!prod.excl)    prod.excl    = 'unlimited';
+    if (!prod.exclNum) prod.exclNum = 100;
+
+    const card = document.createElement('div');
+    card.style.cssText = 'border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-size:15px;font-weight:600;margin-bottom:16px;';
+    hdr.textContent = pt.label;
+    card.appendChild(hdr);
+
+    // SIZES
+    const szTitle = document.createElement('div');
+    szTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    szTitle.textContent = 'Available sizes';
+    card.appendChild(szTitle);
     if (prod.isTote) {
       const pill = document.createElement('div');
-      pill.style.cssText = 'font-size:11px;color:var(--text3);background:var(--surface2);padding:8px 10px;border-radius:var(--r-sm);';
+      pill.style.cssText = 'font-size:13px;color:var(--text3);background:var(--surface2);padding:8px 12px;border-radius:var(--r-sm);margin-bottom:16px;';
       pill.textContent = 'One size only';
-      wrap.appendChild(pill);
+      card.appendChild(pill);
     } else {
-      const grid = document.createElement('div');
-      grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;';
+      const szGrid = document.createElement('div');
+      szGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;margin-bottom:16px;';
       SIZES.forEach(sz => {
         const b = document.createElement('button');
         b.className = 'size-btn' + (prod.sizes.includes(sz) ? ' selected' : '');
         b.textContent = sz;
         b.onclick = () => {
           const i = prod.sizes.indexOf(sz);
-          if (i > -1) { prod.sizes.splice(i,1); b.classList.remove('selected'); }
-          else { prod.sizes.push(sz); b.classList.add('selected'); }
-          buildPriceGrid(); updateFooter();
+          if (i > -1) { prod.sizes.splice(i, 1); b.classList.remove('selected'); }
+          else         { prod.sizes.push(sz);      b.classList.add('selected'); }
+          refreshPriceRows(priceContainer, prod);
+          updateFooter();
         };
-        grid.appendChild(b);
+        szGrid.appendChild(b);
       });
-      wrap.appendChild(grid);
+      card.appendChild(szGrid);
     }
-    c.appendChild(wrap);
-  });
-}
 
-function initExcl() {
-  const c=document.getElementById('excl-opts');
-  ['Unlimited','Limited run'].forEach(opt=>{
-    const b=document.createElement('div');
-    b.className='chip'+(opt==='Unlimited'?' selected':''); b.textContent=opt;
-    b.onclick=()=>{
-      S.excl=opt==='Unlimited'?'unlimited':'limited';
-      c.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected')); b.classList.add('selected');
-      document.getElementById('excl-num-row').style.display=S.excl==='limited'?'block':'none';
-      updateFooter();
-    };
-    c.appendChild(b);
-  });
-  document.getElementById('excl-number').addEventListener('input',function(){S.exclNum=parseInt(this.value)||100;updateFooter();});
-}
-
-function buildPriceGrid() {
-  const c = document.getElementById('price-grid');
-  c.innerHTML = '';
-  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
-  if (!selected.length) { c.innerHTML='<div class="empty-state">Select products first.</div>'; return; }
-  let hasAnySizes = false;
-  selected.forEach(pt => {
-    const prod = S.products[pt.id];
-    const sizes = prod.isTote ? ['ONE SIZE'] : prod.sizes;
-    if (!sizes.length) return;
-    hasAnySizes = true;
-    if (!S.prices[pt.id]) S.prices[pt.id] = {};
-    const header = document.createElement('div');
-    header.style.cssText = 'font-size:11px;font-weight:500;color:var(--text2);margin:10px 0 6px;';
-    header.textContent = pt.label;
-    c.appendChild(header);
-    sizes.forEach(sz => {
-      const row = document.createElement('div');
-      row.className = 'price-row';
-      row.innerHTML = `<div class="price-row-label">${sz}</div><span class="price-prefix">$</span><input class="price-row-input" type="number" min="0" step="0.01" placeholder="0.00" value="${S.prices[pt.id][sz]||''}">`;
-      row.querySelector('input').addEventListener('input', function() {
-        if (!S.prices[pt.id]) S.prices[pt.id] = {};
-        S.prices[pt.id][sz] = this.value;
-      });
-      c.appendChild(row);
+    // RUN EXCLUSIVITY
+    const runTitle = document.createElement('div');
+    runTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    runTitle.textContent = 'Run exclusivity';
+    card.appendChild(runTitle);
+    const chips = document.createElement('div');
+    chips.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;';
+    const numRow = document.createElement('div');
+    numRow.style.cssText = 'display:' + (prod.excl==='limited'?'flex':'none') + ';align-items:center;gap:8px;margin-bottom:8px;';
+    numRow.innerHTML = '<input type="number" class="num-input" min="1" value="' + prod.exclNum + '" style="width:80px;"><span style="font-size:13px;color:var(--text2);">total max</span>';
+    numRow.querySelector('input').addEventListener('input', function() { prod.exclNum = parseInt(this.value)||100; updateFooter(); });
+    ['Unlimited','Limited run'].forEach(opt => {
+      const isU = opt === 'Unlimited';
+      const b = document.createElement('div');
+      b.className = 'chip' + ((isU && prod.excl==='unlimited')||(!isU && prod.excl==='limited')?' selected':'');
+      b.textContent = opt;
+      b.onclick = () => {
+        prod.excl = isU ? 'unlimited' : 'limited';
+        chips.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected')); b.classList.add('selected');
+        numRow.style.display = prod.excl==='limited' ? 'flex' : 'none';
+        updateFooter();
+      };
+      chips.appendChild(b);
     });
+    card.appendChild(chips);
+    card.appendChild(numRow);
+    const notice = document.createElement('div');
+    notice.className = 'notice'; notice.style.marginBottom = '16px';
+    notice.textContent = 'Limits the total ever sold for this product. Unlimited has no cap.';
+    card.appendChild(notice);
+
+    // PRICE PER SIZE
+    const priceTitle = document.createElement('div');
+    priceTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    priceTitle.textContent = 'Price per size';
+    card.appendChild(priceTitle);
+    const priceContainer = document.createElement('div');
+    card.appendChild(priceContainer);
+    refreshPriceRows(priceContainer, prod);
+
+    c.appendChild(card);
   });
-  if (!hasAnySizes) c.innerHTML='<div class="empty-state">Select sizes above to set prices.</div>';
 }
+
+function refreshPriceRows(container, prod) {
+  container.innerHTML = '';
+  const sizes = prod.isTote ? ['ONE SIZE'] : prod.sizes;
+  if (!sizes.length) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--text3);">Select sizes above to set prices.</div>';
+    return;
+  }
+  sizes.forEach(sz => {
+    const row = document.createElement('div');
+    row.className = 'price-row'; row.style.marginBottom = '6px';
+    row.innerHTML = '<div class="price-row-label">'+sz+'</div><span class="price-prefix">$</span><input class="price-row-input" type="number" min="0" step="0.01" placeholder="0.00" value="'+(prod.prices[sz]||'')+'">';
+    row.querySelector('input').addEventListener('input', function() { prod.prices[sz] = this.value; });
+    container.appendChild(row);
+  });
+}
+
 
 function updateFooter() {
   const _allSizes = PRODUCTS.filter(p=>S.products[p.id]?.selected).flatMap(p=>S.products[p.id].sizes);
   document.getElementById('pf-sizes').textContent = _allSizes.length ? [...new Set(_allSizes)].join(' ') : '—';
-  document.getElementById('pf-run').textContent=S.excl==='unlimited'?'Unlimited':`Max ${S.exclNum}`;
+  const _rSel = PRODUCTS.filter(p=>S.products[p.id]?.selected);
+  document.getElementById('pf-run').textContent = _rSel.length ? _rSel.map(p=>S.products[p.id].excl==='limited'?'Max '+S.products[p.id].exclNum:'Unlimited').join(' / ') : 'Unlimited';
   const _prod = S.products[S.activeProduct];
   const _pls = _prod ? [...(_prod.placements||[])] : [];
   document.getElementById('pf-placement').textContent = _pls.map(id=>PLACEMENTS.find(p=>p.id===id)?.label||id).join(' + ') || '—';
@@ -1140,7 +1146,7 @@ function buildSummary() {
     {label:'Small logo (front)',val:S.sharedSmall?.logoFile?.name||'None uploaded'},
     {label:'Large logo (back)',val:S.sharedLarge?.logoFile?.name||'None uploaded'},
     {label:'Overrides',val:sel.filter(p=>S.products[p.id].logoImg).map(p=>p.label).join(', ')||'None'},
-    {label:'Run',val:S.excl==='unlimited'?'Unlimited':`Max ${S.exclNum} items`},
+    {label:'Run', val:PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p=>p.label+': '+(S.products[p.id].excl==='limited'?'Max '+S.products[p.id].exclNum:'Unlimited')).join(', ')||'—'},
   ];
   document.getElementById('summary-rows').innerHTML=rows.map(r=>`<div class="summary-row"><span class="sr-label">${r.label}</span><span class="sr-val">${r.val}</span></div>`).join('');
 }
@@ -1157,9 +1163,10 @@ function publish() {
     variants: PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p => ({
       product: p.label,
       sizes: S.products[p.id].isTote ? ['ONE SIZE'] : S.products[p.id].sizes,
-      prices: S.prices[p.id] || {},
+      prices: S.products[p.id].prices || {},
+      run: S.products[p.id].excl==='limited' ? {limit:S.products[p.id].exclNum} : 'unlimited',
     })),
-    run:S.excl==='unlimited'?'unlimited':{limit:S.exclNum},
+
     status:'published',created_at:new Date().toISOString(),
   };
   document.getElementById('publish-success').style.display='block';
