@@ -305,33 +305,56 @@ input[type=file] { display: none; }
 
       <div class="tab-pane" id="tab-uploads">
         <div class="section-title">Artwork</div>
-        <div class="section-sub">Upload a shared logo applied to all products, or override it per product.</div>
+        <div class="section-sub">Upload a small logo (used on the front by default) and a large logo (used on the back by default). Override per product below.</div>
+
         <div class="field-group">
-          <span class="field-label">Shared logo</span>
-          <label for="shared-logo-upload" class="upload-zone" id="shared-upload-zone">
-            <div style="font-size:20px;margin-bottom:5px;">↑</div>
-            <strong>Upload shared logo</strong>
-            <p>PNG or SVG with transparent background recommended</p>
-          </label>
-          <input type="file" id="shared-logo-upload" accept=".png,.svg,.jpg,.jpeg">
-          <div id="shared-logo-preview" style="display:none;" class="logo-preview-row">
-            <canvas id="shared-logo-thumb" width="40" height="40" style="border-radius:5px;background:var(--surface3);flex-shrink:0;"></canvas>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="shared-logo-name"></div>
-              <div style="font-size:11px;color:var(--text3);" id="shared-logo-size-label"></div>
+          <span class="field-label">Shared artwork</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Small logo</div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Default — front (top right, ~8cm)</div>
+              <label for="shared-small-upload" class="upload-zone-sm" id="shared-small-zone">
+                <strong>Upload small logo</strong>
+                <p>PNG or SVG recommended</p>
+              </label>
+              <input type="file" id="shared-small-upload" accept=".png,.svg,.jpg,.jpeg">
+              <div id="shared-small-preview" style="display:none;" class="logo-preview-row">
+                <canvas id="shared-small-thumb" width="32" height="32" style="border-radius:4px;background:var(--surface3);flex-shrink:0;"></canvas>
+                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="shared-small-name"></div>
+                <button class="btn btn-ghost btn-sm" onclick="clearSharedSide('small')" style="font-size:10px;padding:3px 7px;">✕</button>
+              </div>
             </div>
-            <button class="btn btn-ghost btn-sm" onclick="clearSharedLogo()">Remove</button>
+
+            <div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Large logo</div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Default — back (middle back, ~30cm)</div>
+              <label for="shared-large-upload" class="upload-zone-sm" id="shared-large-zone">
+                <strong>Upload large logo</strong>
+                <p>PNG or SVG recommended</p>
+              </label>
+              <input type="file" id="shared-large-upload" accept=".png,.svg,.jpg,.jpeg">
+              <div id="shared-large-preview" style="display:none;" class="logo-preview-row">
+                <canvas id="shared-large-thumb" width="32" height="32" style="border-radius:4px;background:var(--surface3);flex-shrink:0;"></canvas>
+                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="shared-large-name"></div>
+                <button class="btn btn-ghost btn-sm" onclick="clearSharedSide('large')" style="font-size:10px;padding:3px 7px;">✕</button>
+              </div>
+            </div>
+
           </div>
         </div>
+
         <div class="field-group">
-          <span class="field-label">Logo colour</span>
+          <span class="field-label">Artwork colour</span>
           <div class="logo-color-grid" id="logo-color-grid"></div>
           <div style="font-size:11px;color:var(--text3);margin-top:7px;" id="logo-color-name">As uploaded</div>
         </div>
+
         <div class="divider"></div>
+
         <div class="field-group">
-          <span class="field-label">Per-product artwork</span>
-          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Override the shared logo for individual products.</div>
+          <span class="field-label">Per-product overrides</span>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Set different front/back artwork per product, overriding the shared logos.</div>
           <div class="artwork-list" id="artwork-list">
             <div class="empty-state">No products selected yet.</div>
           </div>
@@ -345,7 +368,7 @@ input[type=file] { display: none; }
           <span class="field-label">Placement</span>
           <div class="placement-grid" id="placement-grid"></div>
         </div>
-        <div class="notice">Click and drag the logo on the preview to fine-tune its position. Placement applies to all products.</div>
+        
       </div>
 
       <div class="tab-pane" id="tab-order">
@@ -471,7 +494,6 @@ const PRINT_ZONES = {
 const PLACEMENT_PRESETS = {
   'front-top-right': { cx: 0.558, cy: 0.252 },
   'back-center':     { cx: 0.509, cy: 0.434 },
-  'both':            { cx: 0.558, cy: 0.252 },
   'tote-front':      { cx: 0.50,  cy: 0.60  },
 };
 
@@ -527,16 +549,15 @@ const LOGO_COLORS = [
 ];
 
 const PRODUCT_PLACEMENTS = {
-  tshirt:     ['front-top-right', 'back-center', 'both'],
-  hoodie:     ['front-top-right', 'back-center', 'both'],
-  sweatshirt: ['front-top-right', 'back-center', 'both'],
+  tshirt:     ['front-top-right', 'back-center'],
+  hoodie:     ['front-top-right', 'back-center'],
+  sweatshirt: ['front-top-right', 'back-center'],
   totebag:    ['tote-front'],
 };
 
 const PLACEMENTS = [
   {id:'front-top-right', label:'Front top right', sub:'~8 cm' },
-  {id:'back-center',     label:'Middle back',     sub:'~30 cm'},
-  {id:'both',            label:'Front + back',    sub:'both'  },
+  {id:'back-center',     label:'Back',            sub:'~30 cm'},
   {id:'tote-front',      label:'Front',           sub:'centre'},
 ];
 const SIZES = ['2XS','XS','S','M','L','XL','2XL','3XL','4XL'];
@@ -650,7 +671,14 @@ function initProducts() {
     const availCols = getAvailableColors(pt.id, defaultWeight);
     const defaultColor = availCols[0] || PALETTE[0].key;
     const isTote = pt.id === 'totebag';
-    S.products[pt.id] = {selected:false, color: defaultColor, weight: defaultWeight, logoImg:null, logoFile:null, sizes: isTote ? ['ONE SIZE'] : [], isTote};
+    S.products[pt.id] = {
+      selected: false, color: defaultColor, weight: defaultWeight,
+      sizes: isTote ? ['ONE SIZE'] : [], isTote,
+      hasWeight: !!(AVAILABLE_COLOURS[pt.id] && !AVAILABLE_COLOURS[pt.id].default),
+      placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right']),
+      front: {logoImg: null, logoFile: null},
+      back:  {logoImg: null, logoFile: null},
+    };
 
     const thumb = document.createElement('div');
     thumb.className = 'product-thumb'; thumb.id = 'thumb-'+pt.id;
@@ -887,6 +915,7 @@ function clearProductLogo(ptId) {
 // ─── Logo colours ─────────────────────────────────────────────────────────────
 function initLogoColors() {
   const c=document.getElementById('logo-color-grid');
+  c.innerHTML = ''; // clear before re-rendering
   LOGO_COLORS.forEach(lc=>{
     const s=document.createElement('div');
     const isSel=(!S.logoColor&&!lc.hex)||(S.logoColor?.name===lc.name);
@@ -915,21 +944,49 @@ function renderPlacementGrid() {
   const c = document.getElementById('placement-grid');
   c.innerHTML = '';
   const ptId = S.activeProduct;
-  const allowed = ptId ? (PRODUCT_PLACEMENTS[ptId] || PLACEMENTS.map(p=>p.id)) : PLACEMENTS.map(p=>p.id);
-  const visible = PLACEMENTS.filter(p => allowed.includes(p.id));
-  if (!allowed.includes(S.placement)) {
-    S.placement = allowed[0];
-    S.dragX = null; S.dragY = null;
-    updateFooter();
+  const prod = ptId ? S.products[ptId] : null;
+
+  if (!ptId || !prod?.selected) {
+    c.style.gridTemplateColumns = '1fr';
+    c.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0;">Select a product in the Products tab first.</div>';
+    return;
   }
-  visible.forEach(p => {
+
+  // Ensure placements Set exists
+  if (!prod.placements) prod.placements = new Set();
+
+  // Tote: fixed single option
+  if (ptId === 'totebag') {
+    prod.placements = new Set(['tote-front']);
+    c.style.gridTemplateColumns = '1fr';
     const b = document.createElement('button');
-    b.className = 'placement-opt' + (p.id===S.placement?' selected':'');
+    b.className = 'placement-opt selected';
+    b.innerHTML = '<b>Front</b><span>Large — centre</span>';
+    c.appendChild(b);
+    return;
+  }
+
+  // For garments: two independent toggle buttons (multi-select)
+  c.style.gridTemplateColumns = '1fr 1fr';
+  const allowed = PRODUCT_PLACEMENTS[ptId] || [];
+  const visible = PLACEMENTS.filter(p => allowed.includes(p.id));
+
+  visible.forEach(p => {
+    const isSel = prod.placements.has(p.id);
+    const b = document.createElement('button');
+    b.className = 'placement-opt' + (isSel ? ' selected' : '');
     b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
     b.onclick = () => {
-      S.placement = p.id; S.dragX = null; S.dragY = null;
-      c.querySelectorAll('.placement-opt').forEach(x=>x.classList.remove('selected'));
-      b.classList.add('selected');
+      if (prod.placements.has(p.id)) {
+        // Only deselect if at least one other will remain
+        if (prod.placements.size > 1) {
+          prod.placements.delete(p.id);
+          b.classList.remove('selected');
+        }
+      } else {
+        prod.placements.add(p.id);
+        b.classList.add('selected');
+      }
       updateFooter(); refreshThumbs(); drawPreview();
     };
     c.appendChild(b);
@@ -1084,7 +1141,7 @@ function publish() {
       const colName=PALETTE.find(c=>c.key===prod.color)?.name||prod.color;
       return {type:p.label,color:colName,weight:prod.weight,artwork:prod.logoFile?{file:prod.logoFile.name,source:'custom'}:{file:S.sharedSmall?.logoFile?.name||null,source:'shared'}};
     }),
-    design:{placement:S.placement,size_pct:S.logoSize,logo_color:S.logoColor?.name||'as-uploaded'},
+    design:{placement:[...(S.products[sel[0]?.id]?.placements||[])].join('+'),logo_color:S.logoColor?.name||'as-uploaded'},
     variants: PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p => ({
       product: p.label,
       sizes: S.products[p.id].isTote ? ['ONE SIZE'] : S.products[p.id].sizes,
@@ -1227,17 +1284,19 @@ function drawFallbackShirt(ctx, W, H, isLight, type) {
 
 // ─── Main preview ─────────────────────────────────────────────────────────────
 function drawPreview() {
-  const canvas = document.getElementById('preview-canvas');
-  drawToCanvas(canvas, S.activeProduct, 320, 320).then(()=>{
-    const pt=S.activeProduct, prod=pt?S.products[pt]:null;
-    const ptData=PRODUCTS.find(p=>p.id===pt);
-    const colName=prod?PALETTE.find(p=>p.key===prod.color)?.name||prod.color:'';
-    document.getElementById('preview-name').textContent=ptData?`${ptData.label} — ${colName}`:'—';
-    document.getElementById('preview-sub').textContent=ptData?(prod.weight==='lightweight'?'Lightweight':'Heavyweight'):'Select a product to begin';
-    const tags=[];
-    if(prod){if(colName)tags.push(colName);S.sizes.slice(0,4).forEach(s=>tags.push(s));}
-    document.getElementById('preview-tags').innerHTML=tags.slice(0,6).map(t=>`<span class="preview-tag">${t}</span>`).join('');
-  });
+  const pt = S.activeProduct;
+  const prod = pt ? S.products[pt] : null;
+  const orig = S.view;
+  S.view = 'front';
+  drawToCanvas(document.getElementById('preview-canvas-front'), pt, 240, 240);
+  S.view = 'back';
+  drawToCanvas(document.getElementById('preview-canvas-back'), pt, 240, 240);
+  S.view = orig;
+  const ptData = PRODUCTS.find(p=>p.id===pt);
+  const colName = prod ? PALETTE.find(p=>p.key===prod.color)?.name||prod.color : '';
+  document.getElementById('preview-name').textContent = ptData ? `${ptData.label} — ${colName}` : '—';
+  document.getElementById('preview-sub').textContent = ptData ? (prod.weight==='lightweight'?'Lightweight':'Heavyweight') : 'Select a product to begin';
+  document.getElementById('preview-tags').innerHTML = [colName,...(prod?.sizes||[]).slice(0,4)].filter(Boolean).map(t=>`<span class="preview-tag">${t}</span>`).join('');
 }
 
 // ─── Thumbnails ───────────────────────────────────────────────────────────────
@@ -1256,7 +1315,9 @@ function refreshThumbs() {
     wrap.appendChild(cnv);
     const label=document.createElement('div'); label.className='thumb-label'; label.textContent=pt.label;
     wrap.appendChild(label);
+    const _sv = S.view; S.view = 'front';
     drawToCanvas(cnv, pt.id, 62, 62);
+    S.view = _sv;
     wrap.addEventListener('click',()=>{
       S.activeProduct=pt.id; S.dragX=null; S.dragY=null;
       refreshThumbs(); drawPreview();
@@ -1269,51 +1330,10 @@ function refreshThumbs() {
 }
 
 // ─── View toggle ──────────────────────────────────────────────────────────────
-function setView(v,btn) {
-  S.view=v;
-  document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  renderPlacementGrid(); updateFooter(); refreshThumbs(); drawPreview();
-}
+// setView removed — both views shown simultaneously
 
 // ─── Drag to reposition logo ──────────────────────────────────────────────────
-(function setupDrag(){
-  const canvas=document.getElementById('preview-canvas');
-  let dragging=false, off={x:0,y:0};
-  function sc(cx,cy){
-    const r=canvas.getBoundingClientRect();
-    return{x:(cx-r.left)/r.width, y:(cy-r.top)/r.height};
-  }
-  function nearLogo(p){
-    const anchor=getLogoAnchor(1,1,S.activeProduct);
-    return Math.abs(p.x-anchor.x)<0.18 && Math.abs(p.y-anchor.y)<0.18;
-  }
-  canvas.addEventListener('mousedown',e=>{
-    const p=sc(e.clientX,e.clientY);
-    if(nearLogo(p)){dragging=true;const a=getLogoAnchor(1,1,S.activeProduct);off={x:p.x-a.x,y:p.y-a.y};}
-  });
-  canvas.addEventListener('mousemove',e=>{
-    if(!dragging)return;
-    const p=sc(e.clientX,e.clientY);
-    S.dragX=Math.max(0.05,Math.min(0.95,p.x-off.x));
-    S.dragY=Math.max(0.05,Math.min(0.95,p.y-off.y));
-    drawPreview();
-  });
-  canvas.addEventListener('mouseup',()=>{if(dragging){dragging=false;refreshThumbs();}});
-  canvas.addEventListener('mouseleave',()=>{if(dragging){dragging=false;refreshThumbs();}});
-  canvas.addEventListener('touchstart',e=>{
-    e.preventDefault();const t=e.touches[0];
-    const p=sc(t.clientX,t.clientY);
-    if(nearLogo(p)){dragging=true;const a=getLogoAnchor(1,1,S.activeProduct);off={x:p.x-a.x,y:p.y-a.y};}
-  },{passive:false});
-  canvas.addEventListener('touchmove',e=>{
-    if(!dragging)return;e.preventDefault();
-    const t=e.touches[0];const p=sc(t.clientX,t.clientY);
-    S.dragX=Math.max(0.05,Math.min(0.95,p.x-off.x));
-    S.dragY=Math.max(0.05,Math.min(0.95,p.y-off.y));
-    drawPreview();
-  },{passive:false});
-  canvas.addEventListener('touchend',()=>{if(dragging){dragging=false;refreshThumbs();}});
-})();
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function drawLogoThumb(canvasOrId, img) {
