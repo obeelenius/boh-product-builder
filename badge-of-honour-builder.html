@@ -1031,28 +1031,31 @@ async function drawToCanvas(canvas, ptId, W, H) {
   }
 
   if (productImg) {
-    // Draw real photo
+    // Draw real product photo
     ctx.drawImage(productImg, 0, 0, W, H);
+  } else if (PRODUCT_PREVIEW_FALLBACKS[ptId]) {
+    // No colour-specific photo — use product fallback image
+    const fbKey = ptId;
+    if (!S.imgCache['__fb_'+fbKey]) {
+      const fbImg = new Image();
+      await new Promise(resolve => {
+        fbImg.onload = () => { S.imgCache['__fb_'+fbKey] = fbImg; resolve(); };
+        fbImg.src = PRODUCT_PREVIEW_FALLBACKS[fbKey];
+      });
+    }
+    if (S.imgCache['__fb_'+fbKey]) {
+      ctx.drawImage(S.imgCache['__fb_'+fbKey], 0, 0, W, H);
+    } else {
+      const palEntry = PALETTE.find(p=>p.key===prod?.color) || PALETTE[0];
+      ctx.fillStyle = palEntry.hex;
+      drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
+    }
   } else {
-    // No colour-specific photo — try product fallback image
-    if (PRODUCT_PREVIEW_FALLBACKS[ptId]) {
-      const fbKey = ptId;
-      if (!S.imgCache['__fb_'+fbKey]) {
-        const fbImg = new Image();
-        await new Promise(resolve => {
-          fbImg.onload = () => { S.imgCache['__fb_'+fbKey] = fbImg; resolve(); };
-          fbImg.src = PRODUCT_PREVIEW_FALLBACKS[fbKey];
-        });
-      }
-      if (S.imgCache['__fb_'+fbKey]) {
-        ctx.drawImage(S.imgCache['__fb_'+fbKey], 0, 0, W, H);
-      } else {
-        // Final fallback: coloured silhouette
+    // Final fallback: coloured silhouette
     const palEntry = PALETTE.find(p=>p.key===prod?.color) || PALETTE[0];
     ctx.fillStyle = palEntry.hex;
     drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
-      }
-    }
+  }
 
   // Draw logo overlay
   const logo = getEffectiveLogo(ptId);
