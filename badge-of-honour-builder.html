@@ -745,6 +745,9 @@ function toggleProduct(id) {
       else document.getElementById('product-config-panel').innerHTML='';
     }
   }
+  renderPlacementGrid();
+  renderSizesByProduct();
+  buildPriceGrid();
   refreshThumbs();
   refreshArtworkList();
   drawPreview();
@@ -950,55 +953,57 @@ function initPlacements() {
 function renderPlacementGrid() {
   const c = document.getElementById('placement-grid');
   c.innerHTML = '';
-  const ptId = S.activeProduct;
-  const prod = ptId ? S.products[ptId] : null;
+  c.style.gridTemplateColumns = '1fr';
 
-  if (!ptId || !prod?.selected) {
-    c.style.gridTemplateColumns = '1fr';
-    c.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0;">Select a product in the Products tab first.</div>';
+  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
+  if (!selected.length) {
+    c.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0;">Select products first.</div>';
     return;
   }
 
-  // Ensure placements Set exists
-  if (!prod.placements) prod.placements = new Set();
+  selected.forEach(pt => {
+    const prod = S.products[pt.id];
+    if (!prod.placements) prod.placements = new Set(['front-top-right']);
 
-  // Tote: fixed single option
-  if (ptId === 'totebag') {
-    prod.placements = new Set(['tote-front']);
-    c.style.gridTemplateColumns = '1fr';
-    const b = document.createElement('button');
-    b.className = 'placement-opt selected';
-    b.innerHTML = '<b>Front</b><span>Large — centre</span>';
-    c.appendChild(b);
-    return;
-  }
+    const section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:14px;';
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:11px;font-weight:500;color:var(--text2);margin-bottom:8px;';
+    lbl.textContent = pt.label;
+    section.appendChild(lbl);
 
-  // For garments: two independent toggle buttons (multi-select)
-  c.style.gridTemplateColumns = '1fr 1fr';
-  const allowed = PRODUCT_PLACEMENTS[ptId] || [];
-  const visible = PLACEMENTS.filter(p => allowed.includes(p.id));
-
-  visible.forEach(p => {
-    const isSel = prod.placements.has(p.id);
-    const b = document.createElement('button');
-    b.className = 'placement-opt' + (isSel ? ' selected' : '');
-    b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
-    b.onclick = () => {
-      if (prod.placements.has(p.id)) {
-        // Only deselect if at least one other will remain
-        if (prod.placements.size > 1) {
-          prod.placements.delete(p.id);
-          b.classList.remove('selected');
-        }
-      } else {
-        prod.placements.add(p.id);
-        b.classList.add('selected');
-      }
-      updateFooter(); refreshThumbs(); drawPreview();
-    };
-    c.appendChild(b);
+    if (pt.id === 'totebag') {
+      prod.placements = new Set(['tote-front']);
+      const b = document.createElement('button');
+      b.className = 'placement-opt selected';
+      b.style.cssText = 'width:100%;pointer-events:none;';
+      b.innerHTML = '<b>Front</b><span>Large — centre</span>';
+      section.appendChild(b);
+    } else {
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+      const allowed = PRODUCT_PLACEMENTS[pt.id] || [];
+      PLACEMENTS.filter(p => allowed.includes(p.id)).forEach(p => {
+        const isSel = prod.placements.has(p.id);
+        const b = document.createElement('button');
+        b.className = 'placement-opt' + (isSel ? ' selected' : '');
+        b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
+        b.onclick = () => {
+          if (prod.placements.has(p.id)) {
+            if (prod.placements.size > 1) { prod.placements.delete(p.id); b.classList.remove('selected'); }
+          } else {
+            prod.placements.add(p.id); b.classList.add('selected');
+          }
+          updateFooter(); refreshThumbs(); drawPreview();
+        };
+        grid.appendChild(b);
+      });
+      section.appendChild(grid);
+    }
+    c.appendChild(section);
   });
 }
+
 
 function updateLogoSize(v) {
   S.logoSize=parseInt(v);
@@ -1290,14 +1295,14 @@ function drawFallbackShirt(ctx, W, H, isLight, type) {
 }
 
 // ─── Main preview ─────────────────────────────────────────────────────────────
-function drawPreview() {
+async function drawPreview() {
   const pt = S.activeProduct;
   const prod = pt ? S.products[pt] : null;
   const orig = S.view;
   S.view = 'front';
-  drawToCanvas(document.getElementById('preview-canvas-front'), pt, 240, 240);
+  await drawToCanvas(document.getElementById('preview-canvas-front'), pt, 240, 240);
   S.view = 'back';
-  drawToCanvas(document.getElementById('preview-canvas-back'), pt, 240, 240);
+  await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 240, 240);
   S.view = orig;
   const ptData = PRODUCTS.find(p=>p.id===pt);
   const colName = prod ? PALETTE.find(p=>p.key===prod.color)?.name||prod.color : '';
@@ -1307,7 +1312,7 @@ function drawPreview() {
 }
 
 // ─── Thumbnails ───────────────────────────────────────────────────────────────
-function refreshThumbs() {
+async function refreshThumbs() {
   const strip = document.getElementById('preview-thumbs');
   strip.innerHTML='';
   const sel = PRODUCTS.filter(p=>S.products[p.id].selected);
@@ -1315,7 +1320,7 @@ function refreshThumbs() {
     strip.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px 0;align-self:center;">No products yet</div>';
     return;
   }
-  sel.forEach(pt => {
+  for (const pt of sel) {
     const wrap=document.createElement('div');
     wrap.className='thumb-wrap'+(S.activeProduct===pt.id?' active':'');
     const cnv=document.createElement('canvas'); cnv.width=62; cnv.height=62;
@@ -1323,14 +1328,14 @@ function refreshThumbs() {
     const label=document.createElement('div'); label.className='thumb-label'; label.textContent=pt.label;
     wrap.appendChild(label);
     const _sv = S.view; S.view = 'front';
-    drawToCanvas(cnv, pt.id, 62, 62);
+    await drawToCanvas(cnv, pt.id, 62, 62);
     S.view = _sv;
     wrap.addEventListener('click',()=>{
-      S.activeProduct=pt.id; S.dragX=null; S.dragY=null;
+      S.activeProduct=pt.id;
       refreshThumbs(); drawPreview();
     });
     strip.appendChild(wrap);
-  });
+  }
   const addBtn=document.createElement('div'); addBtn.className='thumb-add';
   addBtn.innerHTML='+<span>Add</span>'; addBtn.onclick=()=>switchTab('products');
   strip.appendChild(addBtn);
