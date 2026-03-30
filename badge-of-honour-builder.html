@@ -472,14 +472,14 @@ const PRODUCT_PREVIEW_FALLBACKS = {
 // These are tuned to the 600×600 AS Colour flat-lay shots.
 // Garment chest centre is approx 50% across, 35% down.
 const PRINT_ZONES = {
-  tshirt:     { cx: 0.558, cy: 0.252, maxLogoFrac: 0.26 },
-  hoodie:     { cx: 0.558, cy: 0.252, maxLogoFrac: 0.24 },
-  sweatshirt: { cx: 0.558, cy: 0.252, maxLogoFrac: 0.24 },
-  totebag:    { cx: 0.50,  cy: 0.60,  maxLogoFrac: 0.50 },
+  tshirt:     { cx: 0.64,  cy: 0.20,  maxLogoFrac: 0.10, backLogoFrac: 0.40 },
+  hoodie:     { cx: 0.64,  cy: 0.20,  maxLogoFrac: 0.09, backLogoFrac: 0.36 },
+  sweatshirt: { cx: 0.64,  cy: 0.20,  maxLogoFrac: 0.09, backLogoFrac: 0.36 },
+  totebag:    { cx: 0.50,  cy: 0.60,  maxLogoFrac: 0.50, backLogoFrac: 0.50 },
 };
 
 const PLACEMENT_PRESETS = {
-  'front-top-right': { cx: 0.558, cy: 0.252 },
+  'front-top-right': { cx: 0.64,  cy: 0.20  },
   'back-center':     { cx: 0.509, cy: 0.434 },
   'tote-front':      { cx: 0.50,  cy: 0.60  },
 };
@@ -572,7 +572,9 @@ function getProductImageKey(ptId, weight, colorKey, view) {
 }
 
 function loadProductImage(ptId, weight, colorKey) {
-  let key = getProductImageKey(ptId, weight, colorKey, S.view);
+  // Tote bag: always use front image for both views
+  let view = (ptId === 'totebag') ? 'front' : S.view;
+  let key = getProductImageKey(ptId, weight, colorKey, view);
   if (S.view === 'back' && !PRODUCT_IMAGES[key]) {
     key = getProductImageKey(ptId, weight, colorKey, 'front');
   }
@@ -663,7 +665,7 @@ function initProducts() {
       selected: false, color: defaultColor, weight: defaultWeight,
       sizes: isTote ? ['ONE SIZE'] : [], isTote,
       hasWeight: !!(AVAILABLE_COLOURS[pt.id] && !AVAILABLE_COLOURS[pt.id].default),
-      placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right']),
+      placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right', 'back-center']),
       front: {logoImg: null, logoFile: null},
       back:  {logoImg: null, logoFile: null},
     };
@@ -1191,10 +1193,13 @@ function getLogoAnchor(W, H, ptId) {
   const prod = ptId ? S.products[ptId] : null;
   const placements = prod?.placements || new Set();
   let pid;
-  if (S.view === 'back') {
-    pid = placements.has('back-center') ? 'back-center' : (placements.has('tote-front') ? 'tote-front' : null);
+  // Tote: always use tote-front preset regardless of view
+  if (ptId === 'totebag') {
+    pid = 'tote-front';
+  } else if (S.view === 'back') {
+    pid = placements.has('back-center') ? 'back-center' : null;
   } else {
-    pid = placements.has('front-top-right') ? 'front-top-right' : (placements.has('tote-front') ? 'tote-front' : null);
+    pid = placements.has('front-top-right') ? 'front-top-right' : null;
   }
   if (!pid && placements.size > 0) pid = [...placements][0];
   const preset = pid ? PLACEMENT_PRESETS[pid] : null;
@@ -1208,7 +1213,11 @@ function getEffectiveLogo(ptId, view) {
   const prod = ptId ? S.products[ptId] : null;
   // Per-product side override takes priority
   if (prod?.[side]?.logoImg) return prod[side].logoImg;
-  // Small logo for front, large for back (and tote front)
+  // Tote bag uses large logo on both sides (it's a large front print)
+  if (ptId === 'totebag') {
+    return S.sharedLarge?.logoImg || S.sharedSmall?.logoImg || null;
+  }
+  // Garments: small logo for front (top right ~8cm), large for back (middle back ~30cm)
   if (side === 'front') {
     return S.sharedSmall?.logoImg || S.sharedLarge?.logoImg || null;
   } else {
@@ -1280,7 +1289,8 @@ async function drawToCanvas(canvas, ptId, W, H) {
   const logo = viewHasPlacement ? getEffectiveLogo(ptId, S.view) : null;
   if (logo) {
     const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
-    const lw = zone.maxLogoFrac * W;
+    const frac = (S.view === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+    const lw = frac * W;
     const lh = lw * (logo.height / logo.width);
     const anchor = getLogoAnchor(W, H, ptId);
     ctx.save();
@@ -1377,7 +1387,7 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
 initTabs(); initProgress(); initProducts(); initLogoColors();
-initPlacements(); initSizes(); initExcl();
+initPlacements(); initSizes();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 </script>
