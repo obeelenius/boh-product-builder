@@ -63,20 +63,19 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
   border-left: 0.5px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
 }
 .preview-header { padding: 12px 1.25rem; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
-.preview-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.preview-header-row { display: flex; align-items: center; }
 .preview-title { font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text3); }
-.view-toggle { display: flex; background: var(--surface2); border-radius: var(--r-sm); padding: 2px; gap: 2px; }
-.view-btn { padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; background: none; border: none; color: var(--text3); font-family: 'Instrument Sans', sans-serif; transition: all 0.15s; }
-.view-btn.active { background: var(--surface); color: var(--text); font-weight: 500; }
 
-.preview-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.preview-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem 1.25rem 0.75rem; overflow: hidden; min-height: 0; }
-.preview-main-canvas-wrap { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; flex: 1; min-height: 0; }
 
-#preview-canvas {
-  border-radius: var(--r-lg); display: block; cursor: crosshair;
-  max-width: 100%; max-height: 100%;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+.preview-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
+.preview-side { padding: 0.75rem 1.25rem 0.5rem; flex-shrink: 0; }
+.preview-side + .preview-side { border-top: 0.5px solid var(--border); }
+.preview-side-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.preview-main-canvas-wrap { width: 100%; display: flex; justify-content: center; }
+#preview-canvas-front, #preview-canvas-back {
+  border-radius: var(--r-lg); display: block; cursor: default;
+  width: 100%; max-width: 220px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
 
 .preview-main-meta { width: 100%; padding-top: 8px; flex-shrink: 0; }
@@ -432,23 +431,30 @@ input[type=file] { display: none; }
     <div class="preview-header">
       <div class="preview-header-row">
         <div class="preview-title">Preview</div>
-        <div class="view-toggle">
-          <button class="view-btn active" onclick="setView('front',this)">Front</button>
-          <button class="view-btn" onclick="setView('back',this)">Back</button>
-        </div>
       </div>
     </div>
     <div class="preview-body">
-      <div class="preview-main">
+
+      <div class="preview-side">
+        <div class="preview-side-label">Front</div>
         <div class="preview-main-canvas-wrap">
-          <canvas id="preview-canvas" width="320" height="320"></canvas>
-        </div>
-        <div class="preview-main-meta">
-          <div class="preview-product-name" id="preview-name">—</div>
-          <div class="preview-product-sub" id="preview-sub">Select a product to begin</div>
-          <div class="preview-tags" id="preview-tags"></div>
+          <canvas id="preview-canvas-front" width="240" height="240"></canvas>
         </div>
       </div>
+
+      <div class="preview-side">
+        <div class="preview-side-label">Back</div>
+        <div class="preview-main-canvas-wrap">
+          <canvas id="preview-canvas-back" width="240" height="240"></canvas>
+        </div>
+      </div>
+
+      <div style="padding: 0.5rem 1.25rem 0.75rem; flex-shrink:0;">
+        <div class="preview-product-name" id="preview-name">—</div>
+        <div class="preview-product-sub" id="preview-sub">Select a product to begin</div>
+        <div class="preview-tags" id="preview-tags"></div>
+      </div>
+
       <div class="preview-thumbs" id="preview-thumbs"></div>
     </div>
     <div class="preview-footer">
@@ -560,7 +566,7 @@ const PLACEMENTS = [
   {id:'back-center',     label:'Back',            sub:'~30 cm'},
   {id:'tote-front',      label:'Front',           sub:'centre'},
 ];
-const SIZES = ['2XS','XS','S','M','L','XL','2XL','3XL','4XL'];
+const SIZES = ['2XS','XS','M','L','XL','2XL'];
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const S = {
