@@ -797,10 +797,17 @@ function setupSharedUpload(size) {
       const img = new Image();
       img.onload = () => {
         S[key] = {logoImg: img, logoFile: file};
-        drawLogoThumb('shared-' + size + '-thumb', img);
-        document.getElementById('shared-' + size + '-preview').style.display = 'flex';
-        document.getElementById('shared-' + size + '-name').textContent = file.name;
-        document.getElementById('shared-' + size + '-zone').innerHTML = `<strong style="color:var(--green-fg);font-size:12px;">✓ ${file.name}</strong><p>Click to replace</p>`;
+        // Update zone label text without destroying the element
+        const zt = document.getElementById('shared-' + size + '-zone-text');
+        if (zt) zt.textContent = 'Replace';
+        // Show preview below zone
+        const prev = document.getElementById('shared-' + size + '-preview');
+        if (prev) prev.style.display = 'flex';
+        const nameEl = document.getElementById('shared-' + size + '-name');
+        if (nameEl) nameEl.textContent = '✓ ' + file.name;
+        // Draw thumb after preview is visible
+        const thumb = document.getElementById('shared-' + size + '-thumb');
+        if (thumb) drawLogoThumb(thumb, img);
         refreshThumbs(); refreshArtworkList(); drawPreview();
       };
       img.src = ev.target.result;
@@ -814,9 +821,10 @@ function clearSharedSide(size) {
   S[key] = {logoImg: null, logoFile: null};
   const el = document.getElementById('shared-' + size + '-upload');
   if (el) el.value = '';
-  document.getElementById('shared-' + size + '-preview').style.display = 'none';
-  const label = size === 'small' ? 'small logo' : 'large logo';
-  document.getElementById('shared-' + size + '-zone').innerHTML = `<strong>Upload ${label}</strong><p>PNG or SVG recommended</p>`;
+  const prev = document.getElementById('shared-' + size + '-preview');
+  if (prev) prev.style.display = 'none';
+  const zt = document.getElementById('shared-' + size + '-zone-text');
+  if (zt) zt.textContent = 'Upload ' + (size === 'small' ? 'small logo' : 'large logo');
   refreshThumbs(); refreshArtworkList(); drawPreview();
 }
 
@@ -845,16 +853,16 @@ function refreshArtworkList() {
       <div class="artwork-item-body">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <div>
-            <div style="font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;">Front</div>
-            ${hasFront?`<div style="font-size:10px;color:var(--green-fg);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.front.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:10px;margin-bottom:5px;" onclick="clearProductSide('${pt.id}','front')">Remove</button>`:''}
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;">Front</div>
             <label for="aw-front-${pt.id}" class="upload-zone-sm"><strong>${hasFront?'Replace':'Upload front'}</strong><p>Overrides shared</p></label>
             <input type="file" id="aw-front-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="front">
+            ${hasFront?`<div style="font-size:12px;color:var(--green-fg);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.front.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:11px;margin-top:4px;" onclick="clearProductSide('${pt.id}','front')">Remove</button>`:''}
           </div>
           <div>
-            <div style="font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;">Back</div>
-            ${hasBack?`<div style="font-size:10px;color:var(--green-fg);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.back.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:10px;margin-bottom:5px;" onclick="clearProductSide('${pt.id}','back')">Remove</button>`:''}
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;">Back</div>
             <label for="aw-back-${pt.id}" class="upload-zone-sm"><strong>${hasBack?'Replace':'Upload back'}</strong><p>Overrides shared</p></label>
             <input type="file" id="aw-back-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="back">
+            ${hasBack?`<div style="font-size:12px;color:var(--green-fg);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.back.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:11px;margin-top:4px;" onclick="clearProductSide('${pt.id}','back')">Remove</button>`:''}
           </div>
         </div>
       </div>`;
