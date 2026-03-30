@@ -344,7 +344,7 @@ input[type=file] { display: none; }
 
       <div class="tab-pane" id="tab-design">
         <div class="section-title">Design</div>
-        <div class="section-sub">Set logo placement and scale. Click and drag the logo on the preview to reposition.</div>
+        <div class="section-sub">Available placements depend on the selected product. T-shirts, hoodies and sweatshirts support front top right, middle back, or both. Tote bags print on the front only.</div>
         <div class="field-group">
           <span class="field-label">Placement</span>
           <div class="placement-grid" id="placement-grid"></div>
@@ -442,7 +442,7 @@ input[type=file] { display: none; }
     <div class="preview-footer">
       <div class="pf-row"><span class="pf-label">Sizes</span><span class="pf-val" id="pf-sizes">—</span></div>
       <div class="pf-row"><span class="pf-label">Run</span><span class="pf-val" id="pf-run">Unlimited</span></div>
-      <div class="pf-row"><span class="pf-label">Placement</span><span class="pf-val" id="pf-placement">Chest centre</span></div>
+      <div class="pf-row"><span class="pf-label">Placement</span><span class="pf-val" id="pf-placement">Front top right</span></div>
     </div>
   </div>
 </div>
@@ -471,12 +471,10 @@ const PRODUCT_PREVIEW_FALLBACKS = {
 // These are tuned to the 600×600 AS Colour flat-lay shots.
 // Garment chest centre is approx 50% across, 35% down.
 const PRINT_ZONES = {
-  tshirt:     { cx: 0.50, cy: 0.355, maxW: 0.32 },
-  hoodie:     { cx: 0.50, cy: 0.38,  maxW: 0.30 },
-  sweatshirt: { cx: 0.50, cy: 0.38,  maxW: 0.30 },
-  longsleeve: { cx: 0.50, cy: 0.355, maxW: 0.32 },
-  totebag:    { cx: 0.50, cy: 0.50,  maxW: 0.38 },
-  dufflebag:  { cx: 0.50, cy: 0.50,  maxW: 0.40 },
+  tshirt:     { cx: 0.558, cy: 0.252, maxLogoFrac: 0.26 },
+  hoodie:     { cx: 0.558, cy: 0.252, maxLogoFrac: 0.24 },
+  sweatshirt: { cx: 0.558, cy: 0.252, maxLogoFrac: 0.24 },
+  totebag:    { cx: 0.50,  cy: 0.52,  maxLogoFrac: 0.42 },
 };
 
 const PLACEMENT_PRESETS = {
@@ -511,7 +509,6 @@ const AVAILABLE_COLOURS = {
     lightweight: ['white','green','red','brown'],
     heavyweight: ['white','brown'],
   },
-  // Other products use fallback image + palette colour tinting
 };
 
 // Full display palette (used for swatches; greyed out if no image available)
@@ -879,13 +876,26 @@ function initLogoColors() {
 
 // ─── Placements ───────────────────────────────────────────────────────────────
 function initPlacements() {
-  const c=document.getElementById('placement-grid');
-  PLACEMENTS.forEach(p=>{
-    const b=document.createElement('button');
-    b.className='placement-opt'+(p.id===S.placement?' selected':'');
-    b.innerHTML=`<b>${p.label}</b><span>${p.sub}</span>`;
-    b.onclick=()=>{
-      S.placement=p.id; S.dragX=null; S.dragY=null;
+  renderPlacementGrid();
+}
+
+function renderPlacementGrid() {
+  const c = document.getElementById('placement-grid');
+  c.innerHTML = '';
+  const ptId = S.activeProduct;
+  const allowed = ptId ? (PRODUCT_PLACEMENTS[ptId] || PLACEMENTS.map(p=>p.id)) : PLACEMENTS.map(p=>p.id);
+  const visible = PLACEMENTS.filter(p => allowed.includes(p.id));
+  if (!allowed.includes(S.placement)) {
+    S.placement = allowed[0];
+    S.dragX = null; S.dragY = null;
+    updateFooter();
+  }
+  visible.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'placement-opt' + (p.id===S.placement?' selected':'');
+    b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
+    b.onclick = () => {
+      S.placement = p.id; S.dragX = null; S.dragY = null;
       c.querySelectorAll('.placement-opt').forEach(x=>x.classList.remove('selected'));
       b.classList.add('selected');
       updateFooter(); refreshThumbs(); drawPreview();
@@ -944,7 +954,7 @@ function buildPriceGrid() {
 function updateFooter() {
   document.getElementById('pf-sizes').textContent=S.sizes.length?S.sizes.join(' '):'—';
   document.getElementById('pf-run').textContent=S.excl==='unlimited'?'Unlimited':`Max ${S.exclNum}`;
-  document.getElementById('pf-placement').textContent=PLACEMENTS.find(p=>p.id===S.placement)?.label||'—';
+  const pl=PLACEMENTS.find(p=>p.id===S.placement); document.getElementById('pf-placement').textContent=pl?.label||'—';
 }
 
 // ─── Summary ──────────────────────────────────────────────────────────────────
@@ -1140,8 +1150,11 @@ function setView(v,btn) {
   S.view=v;
   document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
   if(v==='back'){
-    S.placement='back-center'; S.dragX=null; S.dragY=null;
-    document.querySelectorAll('.placement-opt').forEach(b=>b.classList.toggle('selected',b.querySelector('b')?.textContent==='Back centre'));
+    const allowed = S.activeProduct ? (PRODUCT_PLACEMENTS[S.activeProduct]||[]) : [];
+    if (allowed.includes('back-center')) S.placement='back-center';
+    else if (allowed.includes('both')) S.placement='both';
+    S.dragX=null; S.dragY=null;
+    renderPlacementGrid();
     updateFooter();
   }
   refreshThumbs(); drawPreview();
