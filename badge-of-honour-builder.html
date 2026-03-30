@@ -17,20 +17,20 @@
 }
 
 html, body { height: 100%; overflow: hidden; }
-body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
 
 .header {
   height: var(--header-h); background: var(--surface); border-bottom: 0.5px solid var(--border2);
   display: flex; align-items: center; padding: 0 1.25rem; gap: 10px; flex-shrink: 0;
 }
 .logo-mark { width: 28px; height: 28px; background: var(--text); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
-.brand { font-family: Instrument Sans, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.brand { font-family: 'Instrument', sans; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .brand span { font-weight: 400; color: var(--text3); }
 .header-spacer { flex: 1; }
 .progress-steps { display: flex; align-items: center; }
 .ps-item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; cursor: pointer; transition: background 0.15s; }
 .ps-item:hover { background: var(--surface2); }
-.ps-dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border3); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; color: var(--text3); font-family: Instrument Sans, sans-serif; flex-shrink: 0; transition: all 0.2s; }
+.ps-dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border3); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; color: var(--text3); font-family: 'DM Mono', monospace; flex-shrink: 0; transition: all 0.2s; }
 .ps-item.active .ps-dot { background: var(--text); border-color: var(--text); color: #fff; }
 .ps-item.done .ps-dot { background: var(--green-bg); border-color: var(--green-fg); color: var(--green-fg); }
 .ps-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
@@ -50,7 +50,7 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
   padding: 11px 11px 10px; font-size: 12px; font-weight: 500; color: var(--text3);
   cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s;
   background: none; border-top: none; border-left: none; border-right: none;
-  font-family: Instrument Sans, sans-serif; margin-bottom: -0.5px;
+  font-family: 'DM Sans', sans-serif; margin-bottom: -0.5px;
 }
 .tab-btn:hover { color: var(--text2); }
 .tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
@@ -64,9 +64,9 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
 }
 .preview-header { padding: 12px 1.25rem; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
 .preview-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-.preview-title { font-family: Instrument Sans, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text3); }
+.preview-title { font-family: 'Instrument', sans; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text3); }
 .view-toggle { display: flex; background: var(--surface2); border-radius: var(--r-sm); padding: 2px; gap: 2px; }
-.view-btn { padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; background: none; border: none; color: var(--text3); font-family: Instrument Sans, sans-serif; transition: all 0.15s; }
+.view-btn { padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; background: none; border: none; color: var(--text3); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
 .view-btn.active { background: var(--surface); color: var(--text); font-weight: 500; }
 
 .preview-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -80,10 +80,10 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
 }
 
 .preview-main-meta { width: 100%; padding-top: 8px; flex-shrink: 0; }
-.preview-product-name { font-family: Instrument Sans, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); margin-bottom: 1px; }
+.preview-product-name { font-family: 'Instrument', sans; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); margin-bottom: 1px; }
 .preview-product-sub { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
 .preview-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-.preview-tag { font-size: 10px; padding: 2px 7px; background: var(--surface2); border-radius: 100px; color: var(--text2); font-family: Instrument Sans, sans-serif; }
+.preview-tag { font-size: 10px; padding: 2px 7px; background: var(--surface2); border-radius: 100px; color: var(--text2); font-family: 'DM Mono', monospace; }
 
 /* Thumbnail strip */
 .preview-thumbs {
@@ -104,7 +104,7 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
   position: absolute; bottom: 0; left: 0; right: 0;
   background: rgba(0,0,0,0.48); color: #fff; font-size: 8px;
   text-align: center; padding: 3px 2px; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; font-family: Instrument Sans, sans-serif;
+  overflow: hidden; text-overflow: ellipsis; font-family: 'DM Sans', sans-serif;
 }
 .thumb-add {
   flex-shrink: 0; width: 62px; height: 62px; border-radius: var(--r-md);
@@ -114,7 +114,7 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
   align-self: flex-start;
 }
 .thumb-add:hover { border-color: var(--border3); color: var(--text2); }
-.thumb-add span { font-size: 9px; margin-top: 2px; font-family: Instrument Sans, sans-serif; }
+.thumb-add span { font-size: 9px; margin-top: 2px; font-family: 'DM Sans', sans-serif; }
 
 /* Logo drag handle indicator */
 .drag-hint {
@@ -132,13 +132,13 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
 .pf-val { font-size: 11px; font-weight: 500; font-family: 'DM Mono', monospace; max-width: 200px; text-align: right; }
 
 /* Shared field styles */
-.section-title { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 3px; }
+.section-title { font-family: 'Instrument', sans; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 3px; }
 .section-sub { font-size: 12px; color: var(--text2); margin-bottom: 1.25rem; line-height: 1.5; }
 .field-group { margin-bottom: 1.4rem; }
 .field-label { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 8px; }
 
 .pill-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-.pill { padding: 6px 13px; border: 0.5px solid var(--border2); border-radius: 100px; font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; font-family: Instrument Sans, sans-serif; }
+.pill { padding: 6px 13px; border: 0.5px solid var(--border2); border-radius: 100px; font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
 .pill:hover { border-color: var(--border3); background: var(--surface2); }
 .pill.selected { background: var(--text); color: #fff; border-color: var(--text); }
 
@@ -179,7 +179,7 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
 .sr-label { color: var(--text2); font-size: 12px; white-space: nowrap; }
 .sr-val { font-weight: 500; font-size: 12px; text-align: right; }
 
-.btn { padding: 9px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: Instrument Sans, sans-serif; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn { padding: 9px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .btn:hover { background: var(--surface2); }
 .btn:active { transform: scale(0.98); }
 .btn-primary { background: var(--text); color: #fff; border-color: var(--text); width: 100%; padding: 11px 16px; font-size: 14px; }
@@ -193,7 +193,7 @@ body { font-family: Instrument Sans, sans-serif; background: var(--bg); color: v
 .empty-state { text-align: center; padding: 1.5rem 1rem; color: var(--text3); font-size: 12px; }
 
 .excl-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.chip { padding: 3px 8px; border-radius: 100px; font-size: 10px; border: 0.5px solid var(--border2); cursor: pointer; background: var(--surface); color: var(--text2); transition: all 0.12s; font-family: Instrument Sans, sans-serif; }
+.chip { padding: 3px 8px; border-radius: 100px; font-size: 10px; border: 0.5px solid var(--border2); cursor: pointer; background: var(--surface); color: var(--text2); transition: all 0.12s; font-family: 'DM Sans', sans-serif; }
 .chip:hover { border-color: var(--border3); }
 .chip.selected { background: var(--text); color: #fff; border-color: var(--text); }
 
@@ -218,7 +218,7 @@ input[type=file] { display: none; }
 .product-thumb-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .product-thumb-placeholder {
   width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-  font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 600; color: var(--text3);
+  font-family: 'Instrument', sans; font-size: 22px; font-weight: 600; color: var(--text3);
 }
 .product-thumb-check {
   position: absolute; top: 5px; right: 5px;
@@ -270,7 +270,7 @@ input[type=file] { display: none; }
 
 /* Design tab */
 .placement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
-.placement-opt { border: 0.5px solid var(--border2); border-radius: var(--r-md); padding: 8px 10px; font-size: 11px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: left; font-family: Instrument Sans, sans-serif; }
+.placement-opt { border: 0.5px solid var(--border2); border-radius: var(--r-md); padding: 8px 10px; font-size: 11px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: left; font-family: 'DM Sans', sans-serif; }
 .placement-opt:hover { border-color: var(--border3); }
 .placement-opt.selected { background: var(--text); color: #fff; border-color: var(--text); }
 .placement-opt b { display: block; font-weight: 500; font-size: 11px; margin-bottom: 1px; }
@@ -768,88 +768,106 @@ function toggleWeight(chip) {
 }
 
 // ─── Shared logo ──────────────────────────────────────────────────────────────
-document.getElementById('shared-logo-upload').addEventListener('change', function(e) {
-  const file=e.target.files[0]; if(!file) return;
-  S.sharedLogoFile=file;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      S.sharedLogoImg=img;
-      drawLogoThumb('shared-logo-thumb', img);
-      document.getElementById('shared-logo-preview').style.display='flex';
-      document.getElementById('shared-logo-name').textContent=file.name;
-      document.getElementById('shared-logo-size-label').textContent=formatBytes(file.size);
-      document.getElementById('shared-upload-zone').innerHTML=`<div style="font-size:16px;margin-bottom:4px;color:var(--green-fg);">✓</div><strong style="color:var(--green-fg);">${file.name}</strong><p>Click to replace</p>`;
-      refreshThumbs(); refreshArtworkList(); drawPreview();
+function setupSharedUpload(side) {
+  const el = document.getElementById('shared-' + side + '-upload');
+  if (!el) return;
+  el.addEventListener('change', function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const stateKey = 'shared' + side.charAt(0).toUpperCase() + side.slice(1);
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        S[stateKey] = {logoImg: img, logoFile: file};
+        drawLogoThumb('shared-' + side + '-thumb', img);
+        document.getElementById('shared-' + side + '-preview').style.display = 'flex';
+        document.getElementById('shared-' + side + '-name').textContent = file.name;
+        document.getElementById('shared-' + side + '-zone').innerHTML = `<strong style="color:var(--green-fg);font-size:12px;">✓ ${file.name}</strong><p>Click to replace</p>`;
+        refreshThumbs(); refreshArtworkList(); drawPreview();
+      };
+      img.src = ev.target.result;
     };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);
-});
+    reader.readAsDataURL(file);
+  });
+}
 
-function clearSharedLogo() {
-  S.sharedLogoImg=null; S.sharedLogoFile=null;
-  document.getElementById('shared-logo-upload').value='';
-  document.getElementById('shared-logo-preview').style.display='none';
-  document.getElementById('shared-upload-zone').innerHTML=`<div style="font-size:20px;margin-bottom:5px;">↑</div><strong>Upload shared logo</strong><p>PNG or SVG with transparent background recommended</p>`;
+function clearSharedSide(side) {
+  const stateKey = 'shared' + side.charAt(0).toUpperCase() + side.slice(1);
+  S[stateKey] = {logoImg: null, logoFile: null};
+  const el = document.getElementById('shared-' + side + '-upload');
+  if (el) el.value = '';
+  document.getElementById('shared-' + side + '-preview').style.display = 'none';
+  document.getElementById('shared-' + side + '-zone').innerHTML = `<strong>Upload ${side} artwork</strong><p>PNG or SVG recommended</p>`;
   refreshThumbs(); refreshArtworkList(); drawPreview();
 }
 
 // ─── Per-product logo ─────────────────────────────────────────────────────────
 function refreshArtworkList() {
   const c = document.getElementById('artwork-list');
-  const sel = PRODUCTS.filter(p=>S.products[p.id].selected);
+  const sel = PRODUCTS.filter(p => S.products[p.id].selected);
   if (!sel.length) { c.innerHTML='<div class="empty-state">No products selected yet.</div>'; return; }
-  c.innerHTML='';
+  c.innerHTML = '';
   sel.forEach(pt => {
-    const prod=S.products[pt.id];
-    const hasOverride=!!prod.logoImg;
-    const item=document.createElement('div');
-    item.className='artwork-item'; item.id='aw-'+pt.id;
-    const badge=hasOverride?`<span class="artwork-badge custom">Custom</span>`:`<span class="artwork-badge shared">Shared</span>`;
-    item.innerHTML=`
+    const prod = S.products[pt.id];
+    const hasFront = !!prod.front?.logoImg;
+    const hasBack  = !!prod.back?.logoImg;
+    const hasAny   = hasFront || hasBack;
+    const item = document.createElement('div');
+    item.className = 'artwork-item'; item.id = 'aw-'+pt.id;
+    const badge = hasAny ? `<span class="artwork-badge custom">Custom</span>` : `<span class="artwork-badge shared">Shared</span>`;
+    const subText = hasAny ? [(hasFront?'Front':''), (hasBack?'Back':'')].filter(Boolean).join(' + ') + ' custom' : 'Using shared artwork';
+    item.innerHTML = `
       <div class="artwork-item-header" onclick="toggleArtworkItem('${pt.id}')">
         <div class="artwork-item-left">
           <div class="artwork-item-thumb" id="aw-thumb-${pt.id}"><span style="font-size:14px;color:var(--text3);">◻</span></div>
-          <div>
-            <div class="artwork-item-name">${pt.label}</div>
-            <div class="artwork-item-sub">${hasOverride?prod.logoFile.name:(S.sharedLogoFile?.name||'No artwork yet')}</div>
-          </div>
-        </div>
-        ${badge}
+          <div><div class="artwork-item-name">${pt.label}</div><div class="artwork-item-sub">${subText}</div></div>
+        </div>${badge}
       </div>
       <div class="artwork-item-body">
-        ${hasOverride?`<div class="clear-override-row"><span class="clear-override-label">Custom: <strong>${prod.logoFile.name}</strong></span><button class="btn btn-ghost btn-sm" onclick="clearProductLogo('${pt.id}')">Use shared</button></div>`:''}
-        <label for="aw-upload-${pt.id}" class="upload-zone-sm">
-          <strong>${hasOverride?'Replace custom artwork':'Upload custom artwork'}</strong>
-          <p>Overrides shared logo for this product only</p>
-        </label>
-        <input type="file" id="aw-upload-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;">Front</div>
+            ${hasFront?`<div style="font-size:10px;color:var(--green-fg);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.front.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:10px;margin-bottom:5px;" onclick="clearProductSide('${pt.id}','front')">Remove</button>`:''}
+            <label for="aw-front-${pt.id}" class="upload-zone-sm"><strong>${hasFront?'Replace':'Upload front'}</strong><p>Overrides shared</p></label>
+            <input type="file" id="aw-front-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="front">
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;">Back</div>
+            ${hasBack?`<div style="font-size:10px;color:var(--green-fg);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.back.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:10px;margin-bottom:5px;" onclick="clearProductSide('${pt.id}','back')">Remove</button>`:''}
+            <label for="aw-back-${pt.id}" class="upload-zone-sm"><strong>${hasBack?'Replace':'Upload back'}</strong><p>Overrides shared</p></label>
+            <input type="file" id="aw-back-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="back">
+          </div>
+        </div>
       </div>`;
     c.appendChild(item);
-
-    const logoToUse = prod.logoImg || S.sharedLogoImg;
-    if (logoToUse) {
-      const thumbEl=document.getElementById('aw-thumb-'+pt.id);
-      const cnv=document.createElement('canvas'); cnv.width=32; cnv.height=32;
-      thumbEl.innerHTML=''; thumbEl.appendChild(cnv);
-      drawLogoThumb(cnv, logoToUse);
+    const thumbImg = prod.front?.logoImg || prod.back?.logoImg || S.sharedFront?.logoImg || S.sharedBack?.logoImg;
+    if (thumbImg) {
+      const thumbEl = document.getElementById('aw-thumb-'+pt.id);
+      const cnv = document.createElement('canvas'); cnv.width=32; cnv.height=32;
+      thumbEl.innerHTML=''; thumbEl.appendChild(cnv); drawLogoThumb(cnv, thumbImg);
     }
-
-    document.getElementById('aw-upload-'+pt.id).addEventListener('change', function(e) {
-      const file=e.target.files[0]; if(!file) return;
-      const ptId=this.dataset.ptid;
-      const reader=new FileReader();
-      reader.onload=ev=>{
-        const img=new Image();
-        img.onload=()=>{ S.products[ptId].logoImg=img; S.products[ptId].logoFile=file; refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview(); };
-        img.src=ev.target.result;
-      };
-      reader.readAsDataURL(file);
+    ['front','back'].forEach(side => {
+      document.getElementById(`aw-${side}-${pt.id}`).addEventListener('change', function(e) {
+        const file = e.target.files[0]; if (!file) return;
+        const ptId = this.dataset.ptid, sd = this.dataset.side;
+        const reader = new FileReader();
+        reader.onload = ev => { const img = new Image(); img.onload = () => {
+          S.products[ptId][sd] = {logoImg: img, logoFile: file};
+          refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview();
+        }; img.src = ev.target.result; };
+        reader.readAsDataURL(file);
+      });
     });
   });
 }
+
+function clearProductSide(ptId, side) {
+  S.products[ptId][side] = {logoImg: null, logoFile: null};
+  const inp = document.getElementById(`aw-${side}-${ptId}`);
+  if (inp) inp.value = '';
+  refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview();
+}
+
 
 function toggleArtworkItem(ptId) {
   const item=document.getElementById('aw-'+ptId);
@@ -1021,7 +1039,9 @@ function updateFooter() {
   const _allSizes = PRODUCTS.filter(p=>S.products[p.id]?.selected).flatMap(p=>S.products[p.id].sizes);
   document.getElementById('pf-sizes').textContent = _allSizes.length ? [...new Set(_allSizes)].join(' ') : '—';
   document.getElementById('pf-run').textContent=S.excl==='unlimited'?'Unlimited':`Max ${S.exclNum}`;
-  const pl=PLACEMENTS.find(p=>p.id===S.placement); document.getElementById('pf-placement').textContent=pl?.label||'—';
+  const _prod = S.products[S.activeProduct];
+  const _pls = _prod ? [...(_prod.placements||[])] : [];
+  document.getElementById('pf-placement').textContent = _pls.map(id=>PLACEMENTS.find(p=>p.id===id)?.label||id).join(' + ') || '—';
 }
 
 // ─── Summary ──────────────────────────────────────────────────────────────────
@@ -1042,7 +1062,10 @@ function buildSummary() {
         return p.label + ': ' + (szs.length ? szs.join(', ') : 'none selected');
       }).join(' | ');
     })()},
-    {label:'Placement',val:PLACEMENTS.find(p=>p.id===S.placement)?.label||'—'},
+    {label:'Placements', val: PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p => {
+      const pls = [...(S.products[p.id].placements||[])];
+      return p.label + ': ' + (pls.map(id=>PLACEMENTS.find(pl=>pl.id===id)?.label||id).join(' + ') || 'none');
+    }).join(' | ') || '—'},
     {label:'Logo scale',val:S.logoSize+'%'},
     {label:'Shared artwork',val:S.sharedLogoFile?S.sharedLogoFile.name:'None'},
     {label:'Overrides',val:sel.filter(p=>S.products[p.id].logoImg).map(p=>p.label).join(', ')||'None'},
@@ -1079,18 +1102,30 @@ function resetAll(){if(confirm('Start over?'))location.reload();}
 
 // ─── Canvas drawing ───────────────────────────────────────────────────────────
 function getLogoAnchor(W, H, ptId) {
-  if (S.dragX !== null) return {x: S.dragX * W, y: S.dragY * H};
-  // 'both' shows front position on front view, back position on back view
-  let pid = S.placement;
-  if (pid === 'both') pid = S.view === 'back' ? 'back-center' : 'front-top-right';
-  const preset = PLACEMENT_PRESETS[pid];
+  const prod = ptId ? S.products[ptId] : null;
+  const placements = prod?.placements || new Set();
+  let pid;
+  if (S.view === 'back') {
+    pid = placements.has('back-center') ? 'back-center' : (placements.has('tote-front') ? 'tote-front' : null);
+  } else {
+    pid = placements.has('front-top-right') ? 'front-top-right' : (placements.has('tote-front') ? 'tote-front' : null);
+  }
+  if (!pid && placements.size > 0) pid = [...placements][0];
+  const preset = pid ? PLACEMENT_PRESETS[pid] : null;
   if (preset) return {x: preset.cx * W, y: preset.cy * H};
   const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
   return {x: zone.cx * W, y: zone.cy * H};
 }
 
-function getEffectiveLogo(ptId) {
-  return (ptId && S.products[ptId]?.logoImg) || S.sharedLogoImg || null;
+function getEffectiveLogo(ptId, view) {
+  const side = view || S.view;
+  const prod = ptId ? S.products[ptId] : null;
+  if (prod?.[side]?.logoImg) return prod[side].logoImg;
+  const sharedKey = 'shared' + side.charAt(0).toUpperCase() + side.slice(1);
+  if (S[sharedKey]?.logoImg) return S[sharedKey].logoImg;
+  const otherKey = side === 'back' ? 'sharedFront' : 'sharedBack';
+  if (S[otherKey]?.logoImg) return S[otherKey].logoImg;
+  return null;
 }
 
 function applyLogoColor(ctx, logoImg, dx, dy, dw, dh) {
@@ -1150,18 +1185,20 @@ async function drawToCanvas(canvas, ptId, W, H) {
   }
 
   // Draw logo overlay
-  const logo = getEffectiveLogo(ptId);
+  const prod_placements = prod?.placements || new Set();
+  const viewHasPlacement = S.view === 'back'
+    ? (prod_placements.has('back-center') || prod_placements.has('tote-front'))
+    : (prod_placements.has('front-top-right') || prod_placements.has('tote-front'));
+  const logo = viewHasPlacement ? getEffectiveLogo(ptId, S.view) : null;
   if (logo) {
     const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
-    // logoSize slider goes 5-60, default 22. Scale so 22 = zone default width
-    const scaledFrac = zone.maxLogoFrac * (S.logoSize / 22);
-    const lw = Math.min(scaledFrac, 0.75) * W;
+    const lw = zone.maxLogoFrac * W;
     const lh = lw * (logo.height / logo.width);
     const anchor = getLogoAnchor(W, H, ptId);
     ctx.save();
     applyLogoColor(ctx, logo, anchor.x - lw/2, anchor.y - lh/2, lw, lh);
     ctx.restore();
-  } else if (prod) {
+  } else if (prod && viewHasPlacement) {
     // Show placement guide
     const anchor = getLogoAnchor(W, H, ptId);
     const pw = W * 0.22, ph = pw * 0.4;
@@ -1231,19 +1268,7 @@ function refreshThumbs() {
 function setView(v,btn) {
   S.view=v;
   document.querySelectorAll('.view-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
-  if(v==='back'){
-    // Switch to back-center; if 'both' is selected keep it (shows back logo position)
-    const allowed = S.activeProduct ? (PRODUCT_PLACEMENTS[S.activeProduct]||[]) : [];
-    if (allowed.includes('back-center') && S.placement==='front-top-right') S.placement='back-center';
-  } else {
-    // Switching to front — if on back-center, move to front-top-right
-    const allowed = S.activeProduct ? (PRODUCT_PLACEMENTS[S.activeProduct]||[]) : [];
-    if (S.placement==='back-center' && allowed.includes('front-top-right')) S.placement='front-top-right';
-  }
-  S.dragX=null; S.dragY=null;
-  renderPlacementGrid();
-  updateFooter();
-  refreshThumbs(); drawPreview();
+  renderPlacementGrid(); updateFooter(); refreshThumbs(); drawPreview();
 }
 
 // ─── Drag to reposition logo ──────────────────────────────────────────────────
@@ -1303,6 +1328,7 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
 initTabs(); initProgress(); initProducts(); initLogoColors();
 initPlacements(); initSizes(); initExcl();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
+setupSharedUpload('front'); setupSharedUpload('back');
 </script>
 </body>
 </html>
