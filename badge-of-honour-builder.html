@@ -368,7 +368,13 @@ input[type=file] { display: none; }
           <span class="field-label">Placement</span>
           <div class="placement-grid" id="placement-grid"></div>
         </div>
-        
+
+        <div class="field-group">
+          <span class="field-label">Position &amp; scale</span>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Drag the logo on the preview to reposition. Scroll over it to resize. Each product stores its own position and scale.</div>
+          <div id="logo-adjust-panel"></div>
+        </div>
+
       </div>
 
       <div class="tab-pane" id="tab-order">
@@ -619,7 +625,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
-  if (id==='design') renderPlacementGrid();
+  if (id==='design') { renderPlacementGrid(); renderLogoAdjustPanel(); }
 }
 
 function initProgress() {
@@ -669,6 +675,9 @@ function initProducts() {
       placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right', 'back-center']),
       front: {logoImg: null, logoFile: null},
       back:  {logoImg: null, logoFile: null},
+      excl: 'unlimited', exclNum: 100, prices: {},
+      logoPos:   {front: null, back: null},
+      logoScale: {front: 1.0,  back: 1.0},
     };
 
     const thumb = document.createElement('div');
@@ -730,6 +739,7 @@ function toggleProduct(id) {
     }
   }
   renderPlacementGrid();
+  renderLogoAdjustPanel();
   renderOrderByProduct();
   refreshThumbs();
   refreshArtworkList();
@@ -939,6 +949,45 @@ function initLogoColors() {
 // ─── Placements ───────────────────────────────────────────────────────────────
 function initPlacements() {
   renderPlacementGrid();
+}
+
+function renderLogoAdjustPanel() {
+  const c = document.getElementById('logo-adjust-panel');
+  if (!c) return;
+  c.innerHTML = '';
+  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
+  if (!selected.length) {
+    c.innerHTML = '<div style="font-size:13px;color:var(--text3);">Select products first.</div>';
+    return;
+  }
+  selected.forEach(pt => {
+    const prod = S.products[pt.id];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;';
+    const name = document.createElement('span');
+    name.style.cssText = 'font-size:13px;font-weight:500;flex:1;';
+    name.textContent = pt.label;
+    row.appendChild(name);
+    const sides = pt.id === 'totebag' ? ['front'] : ['front', 'back'];
+    sides.forEach(side => {
+      const hasCustomPos = prod.logoPos?.[side] != null;
+      const hasCustomScale = prod.logoScale?.[side] != null && prod.logoScale[side] !== 1.0;
+      const hasCustom = hasCustomPos || hasCustomScale;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost btn-sm';
+      btn.style.cssText = 'font-size:12px;opacity:' + (hasCustom ? '1' : '0.35') + ';';
+      btn.textContent = 'Reset ' + side;
+      btn.disabled = !hasCustom;
+      btn.onclick = () => {
+        prod.logoPos[side]   = null;
+        prod.logoScale[side] = 1.0;
+        renderLogoAdjustPanel();
+        drawPreview();
+      };
+      row.appendChild(btn);
+    });
+    c.appendChild(row);
+  });
 }
 
 function renderPlacementGrid() {
@@ -1192,12 +1241,17 @@ function resetAll(){if(confirm('Start over?'))location.reload();}
 // ─── Canvas drawing ───────────────────────────────────────────────────────────
 function getLogoAnchor(W, H, ptId) {
   const prod = ptId ? S.products[ptId] : null;
+  const side = S.view === 'back' ? 'back' : 'front';
+  // Use stored per-product position if dragged
+  if (prod?.logoPos?.[side]) {
+    return {x: prod.logoPos[side].cx * W, y: prod.logoPos[side].cy * H};
+  }
+  // Fall back to placement preset default
   const placements = prod?.placements || new Set();
   let pid;
-  // Tote: always use tote-front preset regardless of view
   if (ptId === 'totebag') {
     pid = 'tote-front';
-  } else if (S.view === 'back') {
+  } else if (side === 'back') {
     pid = placements.has('back-center') ? 'back-center' : null;
   } else {
     pid = placements.has('front-top-right') ? 'front-top-right' : null;
@@ -1290,8 +1344,10 @@ async function drawToCanvas(canvas, ptId, W, H) {
   const logo = viewHasPlacement ? getEffectiveLogo(ptId, S.view) : null;
   if (logo) {
     const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
-    const frac = (S.view === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
-    const lw = frac * W;
+    const baseFrac = (S.view === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+    const side = S.view === 'back' ? 'back' : 'front';
+    const logoScale = prod?.logoScale?.[side] ?? 1.0;
+    const lw = baseFrac * logoScale * W;
     const lh = lw * (logo.height / logo.width);
     const anchor = getLogoAnchor(W, H, ptId);
     ctx.save();
@@ -1387,6 +1443,166 @@ function drawLogoThumb(canvasOrId, img) {
 function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
+// ─── Drag + scroll logo positioning ─────────────────────────────────────────
+(function setupLogoInteraction() {
+  ['front', 'back'].forEach(side => {
+    const canvasId = 'preview-canvas-' + side;
+
+    function canvas()  { return document.getElementById(canvasId); }
+    function ptId()    { return S.activeProduct; }
+
+    function ensureState(prod) {
+      if (!prod.logoPos)   prod.logoPos   = {front: null, back: null};
+      if (!prod.logoScale) prod.logoScale = {front: 1.0,  back: 1.0};
+    }
+
+    function getRect(prod) {
+      const cv = canvas(); if (!cv) return null;
+      const W = cv.width, H = cv.height;
+      const pid = ptId();
+      const zone = PRINT_ZONES[pid] || PRINT_ZONES.tshirt;
+      const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+      const sc = prod.logoScale?.[side] ?? 1.0;
+      const lw = baseFrac * sc * W;
+      const viewSave = S.view; S.view = side;
+      const anchor = getLogoAnchor(W, H, pid);
+      S.view = viewSave;
+      const effLogo = getEffectiveLogo(pid, side);
+      const lh = effLogo ? lw * (effLogo.height / effLogo.width) : lw;
+      return {x: anchor.x - lw/2, y: anchor.y - lh/2, w: lw, h: lh, cx: anchor.x, cy: anchor.y};
+    }
+
+    function redraw(prod) {
+      const cv = canvas(); if (!cv) return;
+      const viewSave = S.view; S.view = side;
+      drawToCanvas(cv, ptId(), cv.width, cv.height);
+      S.view = viewSave;
+    }
+
+    function clientToCanvas(e, cv) {
+      const r = cv.getBoundingClientRect();
+      return {
+        x: (e.clientX - r.left) * (cv.width  / r.width),
+        y: (e.clientY - r.top)  * (cv.height / r.height),
+      };
+    }
+
+    // ── Mouse drag ────────────────────────────────────────────────────────────
+    let dragging = false, dragOff = {x: 0, y: 0};
+
+    function onDown(e) {
+      const pid = ptId(); if (!pid) return;
+      const prod = S.products[pid]; if (!prod?.selected) return;
+      const cv = canvas(); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const lr = getRect(prod); if (!lr) return;
+      if (m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
+          m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12) {
+        dragging = true;
+        dragOff  = {x: m.x - lr.cx, y: m.y - lr.cy};
+        cv.style.cursor = 'grabbing';
+        e.preventDefault();
+      }
+    }
+
+    function onMove(e) {
+      if (!dragging) return;
+      const pid = ptId(); if (!pid) return;
+      const prod = S.products[pid];
+      const cv = canvas(); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      ensureState(prod);
+      prod.logoPos[side] = {
+        cx: Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width)),
+        cy: Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height)),
+      };
+      redraw(prod);
+    }
+
+    function onUp() {
+      if (!dragging) return;
+      dragging = false;
+      const cv = canvas(); if (cv) cv.style.cursor = 'grab';
+      renderLogoAdjustPanel();
+    }
+
+    // ── Scroll to scale ───────────────────────────────────────────────────────
+    function onWheel(e) {
+      const pid = ptId(); if (!pid) return;
+      const prod = S.products[pid]; if (!prod?.selected) return;
+      const cv = canvas(); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const lr = getRect(prod); if (!lr) return;
+      if (m.x < lr.x - 20 || m.x > lr.x + lr.w + 20 ||
+          m.y < lr.y - 20 || m.y > lr.y + lr.h + 20) return;
+      e.preventDefault();
+      ensureState(prod);
+      const delta = e.deltaY > 0 ? 0.93 : 1.07;
+      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * delta));
+      redraw(prod);
+      renderLogoAdjustPanel();
+    }
+
+    // ── Touch drag ────────────────────────────────────────────────────────────
+    let touchTrack = null;
+    function onTouchStart(e) {
+      if (e.touches.length === 1) {
+        touchTrack = e.touches[0].identifier;
+        onDown({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, preventDefault: () => e.preventDefault()});
+      }
+    }
+    function onTouchMove(e) {
+      for (const t of e.touches) {
+        if (t.identifier === touchTrack) {
+          if (dragging) e.preventDefault();
+          onMove({clientX: t.clientX, clientY: t.clientY});
+          break;
+        }
+      }
+    }
+
+    // ── Pinch to scale ────────────────────────────────────────────────────────
+    let lastPinch = null;
+    function onPinchStart(e) {
+      if (e.touches.length === 2) {
+        lastPinch = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }
+    function onPinchMove(e) {
+      if (e.touches.length !== 2 || lastPinch === null) return;
+      const pid = ptId(); if (!pid) return;
+      const prod = S.products[pid]; if (!prod?.selected) return;
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      ensureState(prod);
+      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * (dist / lastPinch)));
+      lastPinch = dist;
+      redraw(prod);
+      e.preventDefault();
+    }
+
+    // Wire up after DOM ready
+    setTimeout(() => {
+      const cv = canvas(); if (!cv) return;
+      cv.style.cursor = 'grab';
+      cv.addEventListener('mousedown',   onDown,       false);
+      cv.addEventListener('wheel',       onWheel,      {passive: false});
+      cv.addEventListener('touchstart',  onTouchStart, {passive: false});
+      cv.addEventListener('touchstart',  onPinchStart, {passive: false});
+      cv.addEventListener('touchmove',   onTouchMove,  {passive: false});
+      cv.addEventListener('touchmove',   onPinchMove,  {passive: false});
+      cv.addEventListener('touchend',    onUp,         false);
+      document.addEventListener('mousemove', onMove,   false);
+      document.addEventListener('mouseup',   onUp,     false);
+    }, 0);
+  });
+})();
+
 initTabs(); initProgress(); initProducts(); initLogoColors();
 initPlacements(); initSizes();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
