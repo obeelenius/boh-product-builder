@@ -329,20 +329,23 @@ input[type=file] { display: none; }
       </div>
 
       
-<!-- ───────────────────────────────────────────────────────
-     HTML: TAB — ARTWORK
-     ─────────────────────────────────────────────────────── -->
-<div class="tab-pane" id="tab-uploads">
-        <div class="section-title">Artwork</div>
-        <div class="section-sub">Upload a small logo (used on the front by default) and a large logo (used on the back by default). Override per product below.</div>
 
+
+      
+<!-- ───────────────────────────────────────────────────────
+     HTML: TAB — DESIGN (artwork + placement combined)
+     ─────────────────────────────────────────────────────── -->
+<div class="tab-pane" id="tab-design">
+        <div class="section-title">Design</div>
+        <div class="section-sub">Upload artwork, set placement and scale per product.</div>
+
+        <!-- ARTWORK: Shared logos -->
         <div class="field-group">
           <span class="field-label">Shared artwork</span>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div style="display:flex;flex-direction:column;gap:10px;">
 
             <div>
-              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Small logo</div>
-              <div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Default — front (top right, ~8cm)</div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Small logo <span style="opacity:0.6;">— front (top right, ~8cm)</span></div>
               <label for="shared-small-upload" class="upload-zone-sm" id="shared-small-zone">
                 <strong>Upload small logo</strong>
                 <p>PNG or SVG recommended</p>
@@ -356,8 +359,7 @@ input[type=file] { display: none; }
             </div>
 
             <div>
-              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Large logo</div>
-              <div style="font-size:10px;color:var(--text3);margin-bottom:6px;">Default — back (middle back, ~30cm)</div>
+              <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Large logo <span style="opacity:0.6;">— back (middle back, ~30cm)</span></div>
               <label for="shared-large-upload" class="upload-zone-sm" id="shared-large-zone">
                 <strong>Upload large logo</strong>
                 <p>PNG or SVG recommended</p>
@@ -373,6 +375,7 @@ input[type=file] { display: none; }
           </div>
         </div>
 
+        <!-- ARTWORK: Colour -->
         <div class="field-group">
           <span class="field-label">Artwork colour</span>
           <div class="logo-color-grid" id="logo-color-grid"></div>
@@ -381,6 +384,7 @@ input[type=file] { display: none; }
 
         <div class="divider"></div>
 
+        <!-- ARTWORK: Per-product overrides -->
         <div class="field-group">
           <span class="field-label">Per-product overrides</span>
           <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Set different front/back artwork per product, overriding the shared logos.</div>
@@ -388,23 +392,13 @@ input[type=file] { display: none; }
             <div class="empty-state">No products selected yet.</div>
           </div>
         </div>
-      </div>
 
-      
-<!-- ───────────────────────────────────────────────────────
-     HTML: TAB — DESIGN
-     ─────────────────────────────────────────────────────── -->
-<div class="tab-pane" id="tab-design">
-        <div class="section-title">Design</div>
-        <div class="section-sub">Select one or both print positions. At least one must remain selected.</div>
-        <div class="field-group">
-          <span class="field-label">Placement</span>
-          <div class="placement-grid" id="placement-grid"></div>
-        </div>
+        <div class="divider"></div>
 
+        <!-- POSITION & SCALE -->
         <div class="field-group">
           <span class="field-label">Position &amp; scale</span>
-          <div style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Drag the logo on the preview to reposition. Scroll over it to resize. Each product stores its own position and scale.</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Drag the logo on the preview to reposition. Scroll over it to resize.</div>
           <div id="logo-adjust-panel"></div>
         </div>
 
@@ -651,7 +645,6 @@ const LOGO_COLORS = [
 // PLACEMENTS defined in CONSTANTS section below
 const TABS = [
   {id:'products', label:'Products'},
-  {id:'uploads',  label:'Artwork'},
   {id:'design',   label:'Design'},
   {id:'order',    label:'Order'},
   {id:'finalise', label:'Finalise'},
@@ -758,7 +751,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
-  if (id==='design') { renderPlacementGrid(); renderLogoAdjustPanel(); }
+  if (id==='design') { renderLogoAdjustPanel(); refreshArtworkList(); initLogoColors(); }
 }
 
 function initProgress() {
@@ -1584,135 +1577,131 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
 // #endregion
 // #region JS: DRAG + SCROLL LOGO INTERACTION
 // ─── Drag + scroll logo positioning ─────────────────────────────────────────
+// Single shared drag state — avoids double-firing across front/back canvases
 (function setupLogoInteraction() {
-  ['front', 'back'].forEach(side => {
-    const canvasId = 'preview-canvas-' + side;
+  let activeSide = null;   // which canvas is being dragged
+  let dragging   = false;
+  let dragOff    = {x: 0, y: 0};
+  let lastPinchDist = null;
 
-    function canvas()  { return document.getElementById(canvasId); }
-    function ptId()    { return S.activeProduct; }
+  function ptId() { return S.activeProduct; }
 
-    function ensureState(prod) {
-      if (!prod.logoPos)   prod.logoPos   = {front: null, back: null};
-      if (!prod.logoScale) prod.logoScale = {front: 1.0,  back: 1.0};
-    }
+  function canvasForSide(side) {
+    return document.getElementById('preview-canvas-' + side);
+  }
 
-    function getRect(prod) {
-      const cv = canvas(); if (!cv) return null;
-      const W = cv.width, H = cv.height;
-      const pid = ptId();
-      const zone = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
-      const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
-      const sc = prod.logoScale?.[side] ?? 1.0;
-      const lw = baseFrac * sc * W;
-      const viewSave = S.view; S.view = side;
-      const anchor = getLogoAnchor(W, H, pid);
-      S.view = viewSave;
-      const effLogo = getEffectiveLogo(pid, side);
-      const lh = effLogo ? lw * (effLogo.height / effLogo.width) : lw;
-      return {x: anchor.x - lw/2, y: anchor.y - lh/2, w: lw, h: lh, cx: anchor.x, cy: anchor.y};
-    }
+  function ensureState(prod) {
+    if (!prod.logoPos)   prod.logoPos   = {front: null, back: null};
+    if (!prod.logoScale) prod.logoScale = {front: 1.0,  back: 1.0};
+  }
 
-    function redraw(prod) {
-      const cv = canvas(); if (!cv) return;
-      const viewSave = S.view; S.view = side;
-      drawToCanvas(cv, ptId(), cv.width, cv.height);
-      S.view = viewSave;
-    }
+  function clientToCanvas(e, cv) {
+    const r = cv.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (cv.width  / r.width),
+      y: (e.clientY - r.top)  * (cv.height / r.height),
+    };
+  }
 
-    function clientToCanvas(e, cv) {
-      const r = cv.getBoundingClientRect();
-      return {
-        x: (e.clientX - r.left) * (cv.width  / r.width),
-        y: (e.clientY - r.top)  * (cv.height / r.height),
-      };
-    }
+  function getRect(prod, side) {
+    const cv = canvasForSide(side); if (!cv) return null;
+    const W = cv.width, H = cv.height;
+    const pid = ptId();
+    const zone = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
+    const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+    const sc = prod.logoScale?.[side] ?? 1.0;
+    const lw = baseFrac * sc * W;
+    const viewSave = S.view; S.view = side;
+    const anchor = getLogoAnchor(W, H, pid);
+    S.view = viewSave;
+    const effLogo = getEffectiveLogo(pid, side);
+    const lh = effLogo ? lw * (effLogo.height / effLogo.width) : lw;
+    return {x: anchor.x - lw/2, y: anchor.y - lh/2, w: lw, h: lh, cx: anchor.x, cy: anchor.y};
+  }
 
-    // ── Mouse drag ────────────────────────────────────────────────────────────
-    let dragging = false, dragOff = {x: 0, y: 0};
+  function redraw(side) {
+    const cv = canvasForSide(side); if (!cv) return;
+    const viewSave = S.view; S.view = side;
+    drawToCanvas(cv, ptId(), cv.width, cv.height);
+    S.view = viewSave;
+  }
 
-    function onDown(e) {
-      const pid = ptId(); if (!pid) return;
-      const prod = S.products[pid]; if (!prod?.selected) return;
-      const cv = canvas(); if (!cv) return;
-      const m = clientToCanvas(e, cv);
-      const lr = getRect(prod); if (!lr) return;
-      if (m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
-          m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12) {
-        dragging = true;
-        dragOff  = {x: m.x - lr.cx, y: m.y - lr.cy};
-        cv.style.cursor = 'grabbing';
-        e.preventDefault();
-      }
-    }
-
-    function onMove(e) {
-      if (!dragging) return;
-      const pid = ptId(); if (!pid) return;
-      const prod = S.products[pid];
-      const cv = canvas(); if (!cv) return;
-      const m = clientToCanvas(e, cv);
-      ensureState(prod);
-      prod.logoPos[side] = {
-        cx: Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width)),
-        cy: Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height)),
-      };
-      redraw(prod);
-    }
-
-    function onUp() {
-      if (!dragging) return;
-      dragging = false;
-      const cv = canvas(); if (cv) cv.style.cursor = 'grab';
-      renderLogoAdjustPanel();
-    }
-
-    // ── Scroll to scale ───────────────────────────────────────────────────────
-    function onWheel(e) {
-      const pid = ptId(); if (!pid) return;
-      const prod = S.products[pid]; if (!prod?.selected) return;
-      const cv = canvas(); if (!cv) return;
-      const m = clientToCanvas(e, cv);
-      const lr = getRect(prod); if (!lr) return;
-      if (m.x < lr.x - 20 || m.x > lr.x + lr.w + 20 ||
-          m.y < lr.y - 20 || m.y > lr.y + lr.h + 20) return;
+  // ── Mouse down — determine which canvas was clicked ───────────────────────
+  function onDown(e, side) {
+    const pid = ptId(); if (!pid) return;
+    const prod = S.products[pid]; if (!prod?.selected) return;
+    const cv = canvasForSide(side); if (!cv) return;
+    const m = clientToCanvas(e, cv);
+    const lr = getRect(prod, side); if (!lr) return;
+    if (m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
+        m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12) {
+      dragging   = true;
+      activeSide = side;
+      dragOff    = {x: m.x - lr.cx, y: m.y - lr.cy};
+      cv.style.cursor = 'grabbing';
       e.preventDefault();
-      ensureState(prod);
-      const delta = e.deltaY > 0 ? 0.93 : 1.07;
-      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * delta));
-      redraw(prod);
-      renderLogoAdjustPanel();
     }
+  }
 
-    // ── Touch drag ────────────────────────────────────────────────────────────
-    let touchTrack = null;
-    function onTouchStart(e) {
-      if (e.touches.length === 1) {
-        touchTrack = e.touches[0].identifier;
-        onDown({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, preventDefault: () => e.preventDefault()});
-      }
-    }
-    function onTouchMove(e) {
-      for (const t of e.touches) {
-        if (t.identifier === touchTrack) {
-          if (dragging) e.preventDefault();
-          onMove({clientX: t.clientX, clientY: t.clientY});
-          break;
-        }
-      }
-    }
+  // ── Mouse move — only move on the active side ─────────────────────────────
+  function onMove(e) {
+    if (!dragging || !activeSide) return;
+    const pid = ptId(); if (!pid) return;
+    const prod = S.products[pid];
+    const cv = canvasForSide(activeSide); if (!cv) return;
+    const m = clientToCanvas(e, cv);
+    ensureState(prod);
+    prod.logoPos[activeSide] = {
+      cx: Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width)),
+      cy: Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height)),
+    };
+    redraw(activeSide);
+  }
 
-    // ── Pinch to scale ────────────────────────────────────────────────────────
-    let lastPinch = null;
-    function onPinchStart(e) {
-      if (e.touches.length === 2) {
-        lastPinch = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
-        );
-      }
+  // ── Mouse up ──────────────────────────────────────────────────────────────
+  function onUp() {
+    if (!dragging) return;
+    dragging = false;
+    if (activeSide) {
+      const cv = canvasForSide(activeSide);
+      if (cv) cv.style.cursor = 'grab';
     }
-    function onPinchMove(e) {
-      if (e.touches.length !== 2 || lastPinch === null) return;
+    activeSide = null;
+    renderLogoAdjustPanel();
+  }
+
+  // ── Scroll to scale — per canvas ─────────────────────────────────────────
+  function onWheel(e, side) {
+    const pid = ptId(); if (!pid) return;
+    const prod = S.products[pid]; if (!prod?.selected) return;
+    const cv = canvasForSide(side); if (!cv) return;
+    const m = clientToCanvas(e, cv);
+    const lr = getRect(prod, side); if (!lr) return;
+    if (m.x < lr.x - 20 || m.x > lr.x + lr.w + 20 ||
+        m.y < lr.y - 20 || m.y > lr.y + lr.h + 20) return;
+    e.preventDefault();
+    ensureState(prod);
+    const delta = e.deltaY > 0 ? 0.93 : 1.07;
+    prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * delta));
+    redraw(side);
+    renderLogoAdjustPanel();
+  }
+
+  // ── Touch ─────────────────────────────────────────────────────────────────
+  function onTouchStart(e, side) {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      onDown({clientX: t.clientX, clientY: t.clientY, preventDefault: () => e.preventDefault()}, side);
+    } else if (e.touches.length === 2) {
+      lastPinchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }
+
+  function onTouchMove(e, side) {
+    if (e.touches.length === 2 && lastPinchDist !== null) {
       const pid = ptId(); if (!pid) return;
       const prod = S.products[pid]; if (!prod?.selected) return;
       const dist = Math.hypot(
@@ -1720,27 +1709,30 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
         e.touches[0].clientY - e.touches[1].clientY
       );
       ensureState(prod);
-      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * (dist / lastPinch)));
-      lastPinch = dist;
-      redraw(prod);
+      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * (dist / lastPinchDist)));
+      lastPinchDist = dist;
+      redraw(side);
       e.preventDefault();
+    } else if (e.touches.length === 1 && dragging && activeSide === side) {
+      e.preventDefault();
+      onMove({clientX: e.touches[0].clientX, clientY: e.touches[0].clientY});
     }
+  }
 
-    // Wire up after DOM ready
-    setTimeout(() => {
-      const cv = canvas(); if (!cv) return;
+  // ── Wire up ───────────────────────────────────────────────────────────────
+  setTimeout(() => {
+    ['front', 'back'].forEach(side => {
+      const cv = canvasForSide(side); if (!cv) return;
       cv.style.cursor = 'grab';
-      cv.addEventListener('mousedown',   onDown,       false);
-      cv.addEventListener('wheel',       onWheel,      {passive: false});
-      cv.addEventListener('touchstart',  onTouchStart, {passive: false});
-      cv.addEventListener('touchstart',  onPinchStart, {passive: false});
-      cv.addEventListener('touchmove',   onTouchMove,  {passive: false});
-      cv.addEventListener('touchmove',   onPinchMove,  {passive: false});
-      cv.addEventListener('touchend',    onUp,         false);
-      document.addEventListener('mousemove', onMove,   false);
-      document.addEventListener('mouseup',   onUp,     false);
-    }, 0);
-  });
+      cv.addEventListener('mousedown',  e => onDown(e, side),      false);
+      cv.addEventListener('wheel',      e => onWheel(e, side),     {passive: false});
+      cv.addEventListener('touchstart', e => onTouchStart(e, side),{passive: false});
+      cv.addEventListener('touchmove',  e => onTouchMove(e, side), {passive: false});
+      cv.addEventListener('touchend',   onUp,                       false);
+    });
+    document.addEventListener('mousemove', onMove, false);
+    document.addEventListener('mouseup',   onUp,   false);
+  }, 0);
 })();
 
 
@@ -1783,6 +1775,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-004</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-005</div>
 </body>
 </html>
