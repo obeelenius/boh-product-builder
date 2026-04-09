@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Badge of Honour — Product Builder</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -446,11 +446,10 @@ input[type=file] { display: none; }
 
       <div class="preview-thumbs" id="preview-thumbs"></div>
     </div>
-    <div class="preview-footer">
-      <div class="pf-row"><span class="pf-label">Sizes</span><span class="pf-val" id="pf-sizes">—</span></div>
-      <div class="pf-row"><span class="pf-label">Run</span><span class="pf-val" id="pf-run">Unlimited</span></div>
-      <div class="pf-row"><span class="pf-label">Placement</span><span class="pf-val" id="pf-placement">Front top right</span></div>
-    </div>
+    <!-- preview footer removed -->
+    <span id="pf-sizes" style="display:none"></span>
+    <span id="pf-run" style="display:none"></span>
+    <span id="pf-placement" style="display:none"></span>
   </div>
 </div>
 
@@ -1643,5 +1642,6 @@ initPlacements(); initSizes();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 </script>
+  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-001</div>
 </body>
 </html>
