@@ -649,6 +649,14 @@ const LOGO_COLORS = [
 // PRODUCT_PLACEMENTS defined below in CONSTANTS
 
 // PLACEMENTS defined in CONSTANTS section below
+const TABS = [
+  {id:'products', label:'Products'},
+  {id:'uploads',  label:'Artwork'},
+  {id:'design',   label:'Design'},
+  {id:'order',    label:'Order'},
+  {id:'finalise', label:'Finalise'},
+];
+
 const SIZES = ['2XS','XS','M','L','XL','2XL'];
 
 const PRODUCT_PLACEMENTS = {
@@ -1305,10 +1313,10 @@ function buildSummary() {
   const sel=PRODUCTS.filter(p=>S.products[p.id].selected);
   const ap=S.activeProduct;
   const aprod=ap?S.products[ap]:null;
-  const selCol=ap?PALETTE.find(p=>p.key===aprod.color):null;
+  const selCol=ap?(COLOUR_PALETTE[aprod?.color]||null):null;
   const rows=[
     {label:'Products',val:sel.length?sel.map(p=>p.label).join(', '):'None'},
-    {label:'Active colour',val:selCol?.name||'—'},
+    {label:'Active colour',val:selCol?.label||'—'},
     {label:'Sizes', val: (() => {
       const sel = PRODUCTS.filter(p=>S.products[p.id]?.selected);
       if (!sel.length) return 'None';
@@ -1336,7 +1344,7 @@ function publish() {
   const payload={
     products:sel.map(p=>{
       const prod=S.products[p.id];
-      const colName=PALETTE.find(c=>c.key===prod.color)?.name||prod.color;
+      const colName=COLOUR_PALETTE[prod.color]?.label||prod.color;
       return {type:p.label,color:colName,weight:prod.weight,artwork:prod.logoFile?{file:prod.logoFile.name,source:'custom'}:{file:S.sharedSmall?.logoFile?.name||null,source:'shared'}};
     }),
     design:{placement:[...(S.products[sel[0]?.id]?.placements||[])].join('+'),logo_color:S.logoColor?.name||'as-uploaded'},
@@ -1382,7 +1390,7 @@ function getLogoAnchor(W, H, ptId) {
   if (!pid && placements.size > 0) pid = [...placements][0];
   const preset = pid ? PLACEMENT_PRESETS[pid] : null;
   if (preset) return {x: preset.cx * W, y: preset.cy * H};
-  const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
+  const zone = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
   return {x: zone.cx * W, y: zone.cy * H};
 }
 
@@ -1454,7 +1462,7 @@ async function drawToCanvas(canvas, ptId, W, H) {
     }
   } else {
     // Final fallback: coloured silhouette
-    const palEntry = (COLOUR_PALETTE[prod?.color] || {name: prod?.color, label: prod?.color}) || PALETTE[0];
+    const palEntry = COLOUR_PALETTE[prod?.color] || {hex:'#CCCCCC', light:true};
     ctx.fillStyle = palEntry.hex;
     drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
   }
@@ -1466,7 +1474,7 @@ async function drawToCanvas(canvas, ptId, W, H) {
     : (prod_placements.has('front-top-right') || prod_placements.has('tote-front'));
   const logo = viewHasPlacement ? getEffectiveLogo(ptId, S.view) : null;
   if (logo) {
-    const zone = PRINT_ZONES[ptId] || PRINT_ZONES.tshirt;
+    const zone = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
     const baseFrac = (S.view === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
     const side = S.view === 'back' ? 'back' : 'front';
     const logoScale = prod?.logoScale?.[side] ?? 1.0;
@@ -1592,7 +1600,7 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
       const cv = canvas(); if (!cv) return null;
       const W = cv.width, H = cv.height;
       const pid = ptId();
-      const zone = PRINT_ZONES[pid] || PRINT_ZONES.tshirt;
+      const zone = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
       const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
       const sc = prod.logoScale?.[side] ?? 1.0;
       const lw = baseFrac * sc * W;
@@ -1775,6 +1783,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-003</div>
+  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-004</div>
 </body>
 </html>
