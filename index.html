@@ -366,29 +366,29 @@ input[type=file] { display: none; }
 
             <div>
               <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Small logo <span style="opacity:0.6;">— front (top right, ~8cm)</span></div>
-              <label for="shared-small-upload" class="upload-zone-sm" id="shared-small-zone">
+              <div class="upload-zone-sm" id="shared-small-zone" onclick="document.getElementById('shared-small-upload').click()" style="cursor:pointer;">
                 <strong>Upload small logo</strong>
-                <p>PNG or SVG recommended</p>
-              </label>
-              <input type="file" id="shared-small-upload" accept=".png,.svg,.jpg,.jpeg">
-              <div id="shared-small-preview" style="display:none;" class="logo-preview-row">
+                <p>PNG or SVG recommended — or drag &amp; drop</p>
+              </div>
+              <input type="file" id="shared-small-upload" accept=".png,.svg,.jpg,.jpeg" style="display:none;">
+              <div id="shared-small-preview" style="display:none;margin-top:6px;" class="logo-preview-row">
                 <canvas id="shared-small-thumb" width="32" height="32" style="border-radius:4px;background:var(--surface3);flex-shrink:0;"></canvas>
-                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="shared-small-name"></div>
-                <button class="btn btn-ghost btn-sm" onclick="clearSharedSide('small')" style="font-size:10px;padding:3px 7px;">✕</button>
+                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--green-fg);" id="shared-small-name"></div>
+                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearSharedSide('small')" style="font-size:10px;padding:3px 7px;">✕</button>
               </div>
             </div>
 
             <div>
               <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:0.04em;text-transform:uppercase;">Large logo <span style="opacity:0.6;">— back (middle back, ~30cm)</span></div>
-              <label for="shared-large-upload" class="upload-zone-sm" id="shared-large-zone">
+              <div class="upload-zone-sm" id="shared-large-zone" onclick="document.getElementById('shared-large-upload').click()" style="cursor:pointer;">
                 <strong>Upload large logo</strong>
-                <p>PNG or SVG recommended</p>
-              </label>
-              <input type="file" id="shared-large-upload" accept=".png,.svg,.jpg,.jpeg">
-              <div id="shared-large-preview" style="display:none;" class="logo-preview-row">
+                <p>PNG or SVG recommended — or drag &amp; drop</p>
+              </div>
+              <input type="file" id="shared-large-upload" accept=".png,.svg,.jpg,.jpeg" style="display:none;">
+              <div id="shared-large-preview" style="display:none;margin-top:6px;" class="logo-preview-row">
                 <canvas id="shared-large-thumb" width="32" height="32" style="border-radius:4px;background:var(--surface3);flex-shrink:0;"></canvas>
-                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="shared-large-name"></div>
-                <button class="btn btn-ghost btn-sm" onclick="clearSharedSide('large')" style="font-size:10px;padding:3px 7px;">✕</button>
+                <div style="flex:1;min-width:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--green-fg);" id="shared-large-name"></div>
+                <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearSharedSide('large')" style="font-size:10px;padding:3px 7px;">✕</button>
               </div>
             </div>
 
@@ -1815,12 +1815,17 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     const prod = S.products[pid]; if (!prod?.selected) return;
     const cv = canvasForSide(side); if (!cv) return;
     const m = clientToCanvas(e, cv);
-    const lr = getRect(prod, side); if (!lr) return;
-    if (m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
-        m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12) {
+    const lr = getRect(prod, side);
+    // Hit test: if logo exists check if clicking near it; otherwise allow drag anywhere
+    const hasLogo = !!getEffectiveLogo(pid, side);
+    const hit = !lr || !hasLogo || (
+      m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
+      m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12
+    );
+    if (hit) {
       dragging   = true;
       activeSide = side;
-      dragOff    = {x: m.x - lr.cx, y: m.y - lr.cy};
+      dragOff    = lr ? {x: m.x - lr.cx, y: m.y - lr.cy} : {x: 0, y: 0};
       cv.style.cursor = 'grabbing';
       e.preventDefault();
     }
@@ -1858,10 +1863,9 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     const pid = ptId(); if (!pid) return;
     const prod = S.products[pid]; if (!prod?.selected) return;
     const cv = canvasForSide(side); if (!cv) return;
-    const m = clientToCanvas(e, cv);
-    const lr = getRect(prod, side); if (!lr) return;
-    if (m.x < lr.x - 20 || m.x > lr.x + lr.w + 20 ||
-        m.y < lr.y - 20 || m.y > lr.y + lr.h + 20) return;
+    // Only prevent default (and scale) if there's a logo to scale
+    const hasLogo = !!getEffectiveLogo(pid, side);
+    if (!hasLogo) return;
     e.preventDefault();
     ensureState(prod);
     const delta = e.deltaY > 0 ? 0.93 : 1.07;
@@ -1958,6 +1962,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-009</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-010</div>
 </body>
 </html>
