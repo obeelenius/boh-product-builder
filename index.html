@@ -262,6 +262,8 @@ input[type=file] { display: none; }
 .product-category-chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
 .product-category.collapsed .product-category-chevron { transform: rotate(-90deg); }
 .product-category-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.product-category-body-wrap { padding-bottom: 4px; }
+.product-category.collapsed .product-category-body-wrap { display: none; }
 .product-category.collapsed .product-category-body { display: none; }
 .product-category-empty { font-size: 11px; color: var(--text3); padding: 4px 0 8px; font-style: italic; }
 
@@ -1858,6 +1860,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-007</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-008</div>
 </body>
 </html>
