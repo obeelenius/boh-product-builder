@@ -1513,7 +1513,7 @@ async function drawPreview() {
   await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 480, 480);
   S.view = orig;
   const ptData = PRODUCTS.find(p=>p.id===pt);
-  const colName = prod ? (COLOUR_PALETTE[prod.color] || {name: prod.color, label: prod.color});
+  const colName = prod ? (COLOUR_PALETTE[prod.color]?.label || prod.color) : '';
   document.getElementById('preview-name').textContent = ptData ? `${ptData.label} — ${colName}` : '—';
   document.getElementById('preview-sub').textContent = ptData ? (COLOUR_PALETTE[prod.color]?.label || prod.color) : 'Select a product to begin';
   document.getElementById('preview-tags').innerHTML = [colName,...(prod?.sizes||[]).slice(0,4)].filter(Boolean).map(t=>`<span class="preview-tag">${t}</span>`).join('');
