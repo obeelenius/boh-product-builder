@@ -508,17 +508,134 @@ const PRODUCT_THUMBNAILS = {};
 const PRODUCT_PREVIEW_FALLBACKS = {};
 // #endregion
 // #region JS: CONSTANTS — products, sizes, colours, placements
+const IMAGE_BASE_URL = 'https://obeelenius.github.io/boh-designer/images';
+
 const PRODUCTS = [
-  {id:'tshirt',     label:'T-shirt'},
-  {id:'hoodie',     label:'Hoodie'},
-  {id:'sweatshirt', label:'Sweatshirt'},
-  {id:'totebag',    label:'Tote bag'},
+  {id:'1001', label:'Carrie Tote Bag (1001)', code:'1001', name:'CARRIE_TOTE',     hasBack:true, isTote:true},
+  {id:'5001', label:'Staple Tee (5001)',       code:'5001', name:'STAPLE_TEE',      hasBack:true, isTote:false},
+  {id:'5082', label:'Heavy Faded Tee (5082)',  code:'5082', name:'HEAVY_FADED_TEE', hasBack:true, isTote:false},
+  {id:'5101', label:'Supply Hood (5101)',       code:'5101', name:'SUPPLY_HOOD',     hasBack:true, isTote:false},
+  {id:'5171', label:'Box Hood (5171)',          code:'5171', name:'BOX_HOOD',        hasBack:true, isTote:false},
 ];
 
-// AVAILABLE_COLOURS removed — using PRODUCT_COLOURS instead
+const PRODUCT_COLOURS = {
+  '1001': ['ARMY','BLACK','BONE','CAMEL','CARDINAL','COAL','CREAM','GRAPHITE','KHAKI','NAVY','PETROL_BLUE','PINK','SAGE','WALNUT'],
+  '5001': ['AQUA','ARCTIC_BLUE','ARMY','ASPHALT_MARLE','ATLANTIC','AUTUMN','BERRY','BLACK','BONE','BRIGHT_ROYAL','BUBBLEGUM','BURGUNDY','BUTTER','CAMEL','CARDINAL','CAROLINA_BLUE','CHARCOAL','CHARITY_PINK','CHARLOTTE','CHESTNUT','CITRUS','CLAY','COAL','COBALT','COCOA','COPPER','CORAL','CYPRESS','DARK_CHOCOLATE','ECRU','EUCALYPTUS','FIRE','FOG_BLUE','FOREST_GREEN','FOREST_MARLE','GOLD','GRANITE','GREY_MARLE','HYDRO','INDIGO','JADE','KELLY_GREEN','KHAKI','KIWI','LAPIS','LEMON','LEMONADE','LIGHT_GREY','LIME','MAUVE','MIDNIGHT_BLUE','MINERAL','MOSS','MUSHROOM','MUSTARD','NATURAL','NAVY','ORANGE','ORCHID','PALE_BLUE','PALE_PINK','PETROL_BLUE','PINE_GREEN','PINK','PISTACHIO','PLUM','POWDER','PURPLE','RED','ROSE','SAFARI','SAGE','SAND','SEAFOAM','SHADOW','SLATE_BLUE','SMOKE','SUNSET','TAN','TEAL','TOPAZ','WALNUT','WHITE','YELLOW'],
+  '5082': ['FADED_BLACK','FADED_BONE','FADED_BROWN','FADED_CARDINAL','FADED_COAL','FADED_ECRU','FADED_EUCALYPTUS','FADED_FOREST','FADED_GREY','FADED_INDIGO','FADED_KHAKI','FADED_MUSHROOM','FADED_PINK','FADED_POWDER','FADED_STORM','FADED_VIOLET','FADED_WHITE'],
+  '5101': ['ARMY','ASPHALT_MARLE','BLACK','BONE','BRIGHT_ROYAL','BURGUNDY','COAL','ECRU','FOREST_GREEN','GOLD','GREY_MARLE','LIGHT_NAVY','MIDNIGHT_BLUE','NAVY','ORANGE','PEACH','PINK','RED','TAN','WHITE','WHITE_MARLE'],
+  '5171': ['BLACK','ECRU','GREY_MARLE','INK_BLUE','MUSHROOM','SHADOW'],
+};
 
-// Full display palette (used for swatches; greyed out if no image available)
-const PALETTE = []; // removed — using COLOUR_PALETTE
+const COLOUR_PALETTE = {
+  'ARMY':          {label:'Army',           hex:'#4A4A2E'},
+  'ARCTIC_BLUE':   {label:'Arctic Blue',    hex:'#B8D4E8', light:true},
+  'ASPHALT_MARLE': {label:'Asphalt Marle',  hex:'#555555'},
+  'ATLANTIC':      {label:'Atlantic',       hex:'#2E5F7A'},
+  'AUTUMN':        {label:'Autumn',         hex:'#8B4513'},
+  'BERRY':         {label:'Berry',          hex:'#8B2252'},
+  'BLACK':         {label:'Black',          hex:'#111111'},
+  'BONE':          {label:'Bone',           hex:'#E8E0D0', light:true},
+  'BRIGHT_ROYAL':  {label:'Bright Royal',   hex:'#2045B8'},
+  'BUBBLEGUM':     {label:'Bubblegum',      hex:'#F9A8C9', light:true},
+  'BURGUNDY':      {label:'Burgundy',       hex:'#6B1A2A'},
+  'BUTTER':        {label:'Butter',         hex:'#F5E6A3', light:true},
+  'CAMEL':         {label:'Camel',          hex:'#C19A6B'},
+  'CARDINAL':      {label:'Cardinal',       hex:'#8B0000'},
+  'CAROLINA_BLUE': {label:'Carolina Blue',  hex:'#56A0D3'},
+  'CHARCOAL':      {label:'Charcoal',       hex:'#36454F'},
+  'CHARITY_PINK':  {label:'Charity Pink',   hex:'#F4A7B9', light:true},
+  'CHARLOTTE':     {label:'Charlotte',      hex:'#A8D5E2', light:true},
+  'CHESTNUT':      {label:'Chestnut',       hex:'#954535'},
+  'CITRUS':        {label:'Citrus',         hex:'#E8B84B'},
+  'CLAY':          {label:'Clay',           hex:'#B5651D'},
+  'COAL':          {label:'Coal',           hex:'#2C2C2C'},
+  'COBALT':        {label:'Cobalt',         hex:'#0047AB'},
+  'COCOA':         {label:'Cocoa',          hex:'#5C3317'},
+  'COPPER':        {label:'Copper',         hex:'#B87333'},
+  'CORAL':         {label:'Coral',          hex:'#FF7F6E'},
+  'CREAM':         {label:'Cream',          hex:'#F5F0E6', light:true},
+  'CYPRESS':       {label:'Cypress',        hex:'#3D5A40'},
+  'DARK_CHOCOLATE':{label:'Dark Chocolate', hex:'#3C1A0E'},
+  'ECRU':          {label:'Ecru',           hex:'#F0EBE0', light:true},
+  'EUCALYPTUS':    {label:'Eucalyptus',     hex:'#6B8F71'},
+  'FADED_BLACK':   {label:'Faded Black',    hex:'#3A3A3A'},
+  'FADED_BONE':    {label:'Faded Bone',     hex:'#E0D8C8', light:true},
+  'FADED_BROWN':   {label:'Faded Brown',    hex:'#8B7355'},
+  'FADED_CARDINAL':{label:'Faded Cardinal', hex:'#9B4444'},
+  'FADED_COAL':    {label:'Faded Coal',     hex:'#4A4A4A'},
+  'FADED_ECRU':    {label:'Faded Ecru',     hex:'#F2EDE3', light:true},
+  'FADED_EUCALYPTUS':{label:'Faded Eucalyptus',hex:'#7A9E82'},
+  'FADED_FOREST':  {label:'Faded Forest',   hex:'#4A6741'},
+  'FADED_GREY':    {label:'Faded Grey',     hex:'#9E9E9E'},
+  'FADED_INDIGO':  {label:'Faded Indigo',   hex:'#5C6B9E'},
+  'FADED_KHAKI':   {label:'Faded Khaki',    hex:'#C3B091'},
+  'FADED_MUSHROOM':{label:'Faded Mushroom', hex:'#B5A898'},
+  'FADED_PINK':    {label:'Faded Pink',     hex:'#D4A0A0', light:true},
+  'FADED_POWDER':  {label:'Faded Powder',   hex:'#C8D8E8', light:true},
+  'FADED_STORM':   {label:'Faded Storm',    hex:'#7A8A9A'},
+  'FADED_VIOLET':  {label:'Faded Violet',   hex:'#8A7AAA'},
+  'FADED_WHITE':   {label:'Faded White',    hex:'#F5F5F0', light:true},
+  'FIRE':          {label:'Fire',           hex:'#CC3300'},
+  'FOG_BLUE':      {label:'Fog Blue',       hex:'#A8B8C8', light:true},
+  'FOREST_GREEN':  {label:'Forest Green',   hex:'#228B22'},
+  'FOREST_MARLE':  {label:'Forest Marle',   hex:'#4A6741'},
+  'GOLD':          {label:'Gold',           hex:'#C9A84C'},
+  'GRANITE':       {label:'Granite',        hex:'#676767'},
+  'GRAPHITE':      {label:'Graphite',       hex:'#4A4A4A'},
+  'GREY_MARLE':    {label:'Grey Marle',     hex:'#A0A0A0'},
+  'HYDRO':         {label:'Hydro',          hex:'#4A90A4'},
+  'INDIGO':        {label:'Indigo',         hex:'#3F51B5'},
+  'INK_BLUE':      {label:'Ink Blue',       hex:'#1A2A4A'},
+  'JADE':          {label:'Jade',           hex:'#00A86B'},
+  'KELLY_GREEN':   {label:'Kelly Green',    hex:'#4CBB17'},
+  'KHAKI':         {label:'Khaki',          hex:'#C3B091'},
+  'KIWI':          {label:'Kiwi',           hex:'#8EBE3F'},
+  'LAPIS':         {label:'Lapis',          hex:'#1A4A7A'},
+  'LEMON':         {label:'Lemon',          hex:'#FFF44F', light:true},
+  'LEMONADE':      {label:'Lemonade',       hex:'#FFF0A0', light:true},
+  'LIGHT_GREY':    {label:'Light Grey',     hex:'#D3D3D3', light:true},
+  'LIGHT_NAVY':    {label:'Light Navy',     hex:'#2A4A6A'},
+  'LIME':          {label:'Lime',           hex:'#9DC73A'},
+  'MAUVE':         {label:'Mauve',          hex:'#C8A0B0'},
+  'MIDNIGHT_BLUE': {label:'Midnight Blue',  hex:'#191970'},
+  'MINERAL':       {label:'Mineral',        hex:'#5A7A8A'},
+  'MOSS':          {label:'Moss',           hex:'#8A9A5B'},
+  'MUSHROOM':      {label:'Mushroom',       hex:'#B5A898'},
+  'MUSTARD':       {label:'Mustard',        hex:'#FFDB58'},
+  'NATURAL':       {label:'Natural',        hex:'#F0EBE0', light:true},
+  'NAVY':          {label:'Navy',           hex:'#1E2D4A'},
+  'ORANGE':        {label:'Orange',         hex:'#FF6600'},
+  'ORCHID':        {label:'Orchid',         hex:'#DA70D6'},
+  'PALE_BLUE':     {label:'Pale Blue',      hex:'#AECFE8', light:true},
+  'PALE_PINK':     {label:'Pale Pink',      hex:'#FADADD', light:true},
+  'PEACH':         {label:'Peach',          hex:'#FFCBA4', light:true},
+  'PETROL_BLUE':   {label:'Petrol Blue',    hex:'#1B4F6E'},
+  'PINE_GREEN':    {label:'Pine Green',     hex:'#1A4A2A'},
+  'PINK':          {label:'Pink',           hex:'#E8A0B0', light:true},
+  'PISTACHIO':     {label:'Pistachio',      hex:'#93C572', light:true},
+  'PLUM':          {label:'Plum',           hex:'#5A1A4A'},
+  'POWDER':        {label:'Powder',         hex:'#C8D8E8', light:true},
+  'PURPLE':        {label:'Purple',         hex:'#6B2D8B'},
+  'RED':           {label:'Red',            hex:'#CC0000'},
+  'ROSE':          {label:'Rose',           hex:'#E88A9A'},
+  'SAFARI':        {label:'Safari',         hex:'#8A7A5A'},
+  'SAGE':          {label:'Sage',           hex:'#8A9E7A'},
+  'SAND':          {label:'Sand',           hex:'#C2B280', light:true},
+  'SEAFOAM':       {label:'Seafoam',        hex:'#71EEB8', light:true},
+  'SHADOW':        {label:'Shadow',         hex:'#6A6A6A'},
+  'SLATE_BLUE':    {label:'Slate Blue',     hex:'#4A6A8A'},
+  'SMOKE':         {label:'Smoke',          hex:'#848484'},
+  'SUNSET':        {label:'Sunset',         hex:'#E8704A'},
+  'TAN':           {label:'Tan',            hex:'#D2B48C'},
+  'TEAL':          {label:'Teal',           hex:'#008080'},
+  'TOPAZ':         {label:'Topaz',          hex:'#0C7B93'},
+  'WALNUT':        {label:'Walnut',         hex:'#5C4033'},
+  'WHITE':         {label:'White',          hex:'#FFFFFF', light:true},
+  'WHITE_MARLE':   {label:'White Marle',    hex:'#F0F0F0', light:true},
+  'YELLOW':        {label:'Yellow',         hex:'#FFD700', light:true},
+};
+
+const PALETTE = []; // stub — using COLOUR_PALETTE
 
 const LOGO_COLORS = [
   {name:'As uploaded',hex:null},
@@ -543,6 +660,34 @@ const PLACEMENTS = [
 ];
 const SIZES = ['2XS','XS','M','L','XL','2XL'];
 
+const PRODUCT_PLACEMENTS = {
+  '1001': ['tote-front'],
+  '5001': ['front-top-right','back-center'],
+  '5082': ['front-top-right','back-center'],
+  '5101': ['front-top-right','back-center'],
+  '5171': ['front-top-right','back-center'],
+};
+
+const PLACEMENTS = [
+  {id:'front-top-right', label:'Front top right', sub:'~8 cm'},
+  {id:'back-center',     label:'Middle back',     sub:'~30 cm'},
+  {id:'tote-front',      label:'Front',           sub:'centre'},
+];
+
+const PLACEMENT_PRESETS = {
+  'front-top-right': {cx:0.64, cy:0.33},
+  'back-center':     {cx:0.509, cy:0.434},
+  'tote-front':      {cx:0.50, cy:0.60},
+};
+
+const PRINT_ZONES = {
+  '1001': {cx:0.50, cy:0.60, maxLogoFrac:0.50, backLogoFrac:0.50},
+  '5001': {cx:0.64, cy:0.33, maxLogoFrac:0.10, backLogoFrac:0.40},
+  '5082': {cx:0.64, cy:0.33, maxLogoFrac:0.10, backLogoFrac:0.40},
+  '5101': {cx:0.64, cy:0.33, maxLogoFrac:0.09, backLogoFrac:0.36},
+  '5171': {cx:0.64, cy:0.33, maxLogoFrac:0.09, backLogoFrac:0.36},
+};
+
 // ─── State ───────────────────────────────────────────────────────────────────
 
 // #endregion
@@ -564,35 +709,37 @@ const S = {
 
 // #endregion
 // #region JS: IMAGE LOADING
-// getProductImageKey removed — using getImageUrl() instead
+
+function getImageUrl(ptId, colourKey, view) {
+  const prod = PRODUCTS.find(p => p.id === ptId);
+  if (!prod) return null;
+  const folder = view === 'back' ? 'BACKSHOTS' : 'FRONTSHOTS';
+  const suffix = view === 'back' ? '_BACK' : '';
+  return `${IMAGE_BASE_URL}/${prod.code}/${folder}/${prod.code}_${prod.name}_${colourKey}${suffix}.jpg`;
+}
 
 function loadProductImage(ptId, weight, colorKey) {
-  // Tote bag: always use front image for both views
-  let view = (ptId === 'totebag') ? 'front' : S.view;
-  let key = getProductImageKey(ptId, weight, colorKey, view);
-  if (S.view === 'back' && !PRODUCT_IMAGES[key]) {
-    key = getProductImageKey(ptId, weight, colorKey, 'front');
-  }
-  if (S.imgCache[key]) return Promise.resolve(S.imgCache[key]);
-  const dataUrl = PRODUCT_IMAGES[key];
-  if (!dataUrl) return Promise.resolve(null);
+  const prod = PRODUCTS.find(p => p.id === ptId);
+  const view = prod?.isTote ? 'front' : S.view;
+  const url = getImageUrl(ptId, colorKey, view);
+  if (!url) return Promise.resolve(null);
+  const cacheKey = `${ptId}-${colorKey}-${view}`;
+  if (S.imgCache[cacheKey]) return Promise.resolve(S.imgCache[cacheKey]);
   return new Promise(resolve => {
     const img = new Image();
-    img.onload = () => { S.imgCache[key] = img; resolve(img); };
+    img.onload  = () => { S.imgCache[cacheKey] = img; resolve(img); };
     img.onerror = () => resolve(null);
-    img.src = dataUrl;
+    img.src = url;
   });
+}
+
+function hasProductImage(ptId, weight, colourKey) {
+  return PRODUCT_COLOURS[ptId]?.includes(colourKey) ?? false;
 }
 
 function getAvailableColors(ptId, weight) {
   return PRODUCT_COLOURS[ptId] || [];
 }
-
-function hasProductImage(ptId, weight, colorKey) {
-  return !!PRODUCT_IMAGES[getProductImageKey(ptId, weight, colorKey)];
-}
-
-// ─── Tabs ────────────────────────────────────────────────────────────────────
 
 // #endregion
 // #region JS: INIT FUNCTIONS
@@ -1310,13 +1457,13 @@ async function drawToCanvas(canvas, ptId, W, H) {
     if (S.imgCache['__fb_'+fbKey]) {
       ctx.drawImage(S.imgCache['__fb_'+fbKey], 0, 0, W, H);
     } else {
-      const palEntry = PALETTE.find(p=>p.key===prod?.color) || PALETTE[0];
+      const palEntry = COLOUR_PALETTE[prod?.color] || {hex:'#CCCCCC', light:true};
       ctx.fillStyle = palEntry.hex;
       drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
     }
   } else {
     // Final fallback: coloured silhouette
-    const palEntry = PALETTE.find(p=>p.key===prod?.color) || PALETTE[0];
+    const palEntry = (COLOUR_PALETTE[prod?.color] || {name: prod?.color, label: prod?.color}) || PALETTE[0];
     ctx.fillStyle = palEntry.hex;
     drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
   }
@@ -1375,7 +1522,7 @@ async function drawPreview() {
   await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 480, 480);
   S.view = orig;
   const ptData = PRODUCTS.find(p=>p.id===pt);
-  const colName = prod ? PALETTE.find(p=>p.key===prod.color)?.name||prod.color : '';
+  const colName = prod ? (COLOUR_PALETTE[prod.color] || {name: prod.color, label: prod.color});
   document.getElementById('preview-name').textContent = ptData ? `${ptData.label} — ${colName}` : '—';
   document.getElementById('preview-sub').textContent = ptData ? (COLOUR_PALETTE[prod.color]?.label || prod.color) : 'Select a product to begin';
   document.getElementById('preview-tags').innerHTML = [colName,...(prod?.sizes||[]).slice(0,4)].filter(Boolean).map(t=>`<span class="preview-tag">${t}</span>`).join('');
@@ -1637,6 +1784,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.2 · 20260409-002</div>
+  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-003</div>
 </body>
 </html>
