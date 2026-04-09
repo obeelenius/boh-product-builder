@@ -315,6 +315,9 @@ input[type=file] { display: none; }
 .range-row input[type=range] { flex: 1; accent-color: var(--text); }
 .range-row span { font-size: 11px; font-family: 'DM Mono', monospace; min-width: 30px; text-align: right; }
 .logo-color-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.font-chip { padding: 5px 10px; border: 0.5px solid var(--border2); border-radius: var(--r-sm); font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.12s; white-space: nowrap; }
+.font-chip:hover { border-color: var(--border3); }
+.font-chip.selected { background: var(--text); color: #fff; border-color: var(--text); }
 /* #endregion */
 </style>
 </head>
@@ -408,6 +411,24 @@ input[type=file] { display: none; }
           <div class="artwork-list" id="artwork-list">
             <div class="empty-state">No products selected yet.</div>
           </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- CUSTOM TEXT -->
+        <div class="field-group">
+          <span class="field-label">Custom text</span>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Add a line of custom text as an additional design element. It can be dragged and scaled on the preview just like artwork.</div>
+          <textarea id="custom-text-input" placeholder="e.g. Yeah this is custom" rows="2" style="width:100%;padding:9px 11px;border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface);color:var(--text);margin-bottom:8px;"></textarea>
+          <div class="field-label" style="margin-bottom:6px;">Font</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="text-font-grid"></div>
+          <div class="field-label" style="margin-bottom:6px;">Show on</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div class="chip selected" id="text-side-front" onclick="setTextSide('front')">Front</div>
+            <div class="chip" id="text-side-back" onclick="setTextSide('back')">Back</div>
+            <div class="chip" id="text-side-both" onclick="setTextSide('both')">Both</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="clearCustomText()" style="width:100%;">Clear text</button>
         </div>
 
         <div class="divider"></div>
@@ -669,6 +690,15 @@ const TABS = [
 
 const SIZES = ['2XS','XS','M','L','XL','2XL'];
 
+const TEXT_FONTS = [
+  {label: 'Helvetica',      value: 'Helvetica, Arial, sans-serif'},
+  {label: 'Times New Roman',value: 'Times New Roman, Times, serif'},
+  {label: 'Courier New',    value: 'Courier New, Courier, monospace'},
+  {label: 'Georgia',        value: 'Georgia, serif'},
+  {label: 'Futura',         value: 'Futura, Century Gothic, sans-serif'},
+  {label: 'Garamond',       value: 'Garamond, EB Garamond, serif'},
+];
+
 const MIN_PRICES = {
   '1001': 20,
   '5001': 25,
@@ -687,11 +717,11 @@ const PRODUCT_CATEGORIES = [
 ];
 
 const PRODUCT_DESCRIPTIONS = {
-  '5001': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. A premium weight ringspun cotton tee with a relaxed, everyday fit.',
-  '5082': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation. A heavier garment-dyed tee with a lived-in, vintage feel.',
-  '5101': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis aute irure dolor in reprehenderit in voluptate. A mid-weight pullover hood with a spacious kangaroo pocket and adjustable drawcord.',
-  '5171': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Excepteur sint occaecat cupidatat non proident. A boxy, oversized hood with dropped shoulders and a relaxed silhouette.',
-  '1001': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sunt in culpa qui officia deserunt mollit anim. A sturdy canvas tote with long handles and a generous main compartment.',
+  '5001': `<p>The AS Colour Staple Tee. Enduring comfort in a regular fit, crafted from 180 GSM 100% combed cotton. Featuring neck ribbing, side seams, and double needle hems for durability and minimal shrinkage, it's a timeless choice for comfort and style. Available in 70+ colours. Built to last.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Regular</li><li><b>Fabric:</b> Mid weight, 180 GSM, 28-singles, 100% combed cotton (marles 15% viscose)</li><li><b>Construction:</b> Neck ribbing, side seamed, shoulder to shoulder tape, double needle hems, preshrunk to minimise shrinkage</li></ul>`,
+  '5082': `<p>The AS Colour Heavy Faded Tee, crafted from 100% carded cotton for durability and comfort. With a heavy 240 GSM weight and garment dyed finish, it features a relaxed fit, dropped shoulders, and twin-stitched wide neck ribbing. Built to last for a timeless, relaxed look. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Relaxed</li><li><b>Fabric:</b> Heavy weight, 240 GSM, 16-singles, 100% carded cotton</li><li><b>Construction:</b> Dropped shoulders, wide neck ribbing with twin stitching, side seamed, shoulder to shoulder tape, double needle hems, garment dyed, preshrunk to minimise shrinkage</li></ul>`,
+  '5171': `<p>The Box Hood offers a modern silhouette in 350 GSM, mid-heavyweight anti-pill CVC fleece. With a relaxed fit, drop shoulder, and kangaroo pocket, it's built for comfort and durability. Preshrunk to minimise shrinkage and perfect for screen printing, DTG, and embroidery. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Relaxed</li><li><b>Fabric:</b> Mid-heavy weight, 350 GSM 80% Cotton 20% Recycled Polyester anti-pill CVC fleece</li><li><b>Construction:</b> Pullover hood, drop shoulder, inset sleeves, kangaroo pocket, no drawcord, hem and sleeve 2x2 ribbing, self-fabric lined hood, preshrunk to minimise shrinkage</li></ul>`,
+  '5101': `<p>Elevate your casual wardrobe with the AS Colour Supply Hood. This essential hoodie offers a regular fit with a mid-weight feel, crafted from 80% cotton and 20% polyester anti-pill fleece. It includes a cozy hood, ribbed cuffs, and a tear-out label for added comfort and style. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Regular</li><li><b>Fabric:</b> Mid weight, 290 GSM, 80% cotton 20% polyester anti-pill CVC fleece</li><li><b>Construction:</b> Pullover hood, raglan sleeves, kangaroo pocket, lined hood, tonal drawcord, sleeve cuff ribbing, preshrunk to minimise shrinkage</li></ul>`,
+  '1001': `<p>The AS Colour Carrie Tote Bag. A classic canvas tote with a generous main compartment, long handles, and a clean, minimal design. Available in a wide range of colours, it's the perfect canvas for your brand. Built to last.</p>`,
 };
 
 const PRODUCT_PLACEMENTS = {
@@ -734,6 +764,9 @@ const S = {
   sharedSmall: {logoImg: null, logoFile: null},  // small logo — default for front (top right)
   sharedLarge: {logoImg: null, logoFile: null},  // large logo — default for back (middle back)
   logoColor: null,
+  customText: '',        // custom text overlay
+  customTextFont: 'Helvetica, Arial, sans-serif',
+  customTextSide: 'front', // which canvas the text appears on
   view: 'front',
   excl: 'unlimited', exclNum: 100, prices: {},
   imgCache: {},
@@ -793,7 +826,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
-  if (id==='design') { renderLogoAdjustPanel(); refreshArtworkList(); initLogoColors(); }
+  if (id==='design') { renderLogoAdjustPanel(); refreshArtworkList(); initLogoColors(); initCustomText(); }
 }
 
 function initProgress() {
@@ -1238,6 +1271,50 @@ function renderPlacementGrid() {
 }
 
 
+function initCustomText() {
+  const input = document.getElementById('custom-text-input');
+  if (input) {
+    input.addEventListener('input', () => {
+      S.customText = input.value;
+      drawPreview();
+    });
+  }
+  const grid = document.getElementById('text-font-grid');
+  if (grid) {
+    TEXT_FONTS.forEach(f => {
+      const chip = document.createElement('div');
+      chip.className = 'font-chip' + (S.customTextFont === f.value ? ' selected' : '');
+      chip.textContent = f.label;
+      chip.style.fontFamily = f.value;
+      chip.onclick = () => {
+        S.customTextFont = f.value;
+        grid.querySelectorAll('.font-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        drawPreview();
+      };
+      grid.appendChild(chip);
+    });
+  }
+}
+
+function setTextSide(side) {
+  S.customTextSide = side;
+  ['front','back','both'].forEach(s => {
+    const el = document.getElementById('text-side-' + s);
+    if (el) el.classList.toggle('selected', s === side);
+  });
+  drawPreview();
+}
+
+function clearCustomText() {
+  S.customText = '';
+  S.customTextSide = 'front';
+  const input = document.getElementById('custom-text-input');
+  if (input) input.value = '';
+  setTextSide('front');
+  drawPreview();
+}
+
 function updateLogoSize(v) {
   S.logoSize=parseInt(v);
   document.getElementById('logo-size-val').textContent=v+'%';
@@ -1574,6 +1651,27 @@ async function drawToCanvas(canvas, ptId, W, H) {
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('logo here', anchor.x, anchor.y);
   }
+
+  // Draw custom text overlay
+  const showText = S.customText && (
+    S.customTextSide === 'both' ||
+    (S.customTextSide === 'front' && S.view === 'front') ||
+    (S.customTextSide === 'back'  && S.view === 'back')
+  );
+  if (showText) {
+    const fontSize = Math.round(W * 0.06);
+    const textColor = S.logoColor?.hex || '#000000';
+    ctx.save();
+    ctx.font = `${fontSize}px ${S.customTextFont}`;
+    ctx.fillStyle = textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Position: below logo anchor, or centre bottom third
+    const anchor = getLogoAnchor(W, H, ptId);
+    const textY = Math.min(anchor.y + (logo ? Math.round(W * 0.08) : 0) + fontSize * 1.2, H * 0.88);
+    ctx.fillText(S.customText, W / 2, textY);
+    ctx.restore();
+  }
 }
 
 function drawFallbackShirt(ctx, W, H, isLight, type) {
@@ -1855,11 +1953,11 @@ function processImageFile(file, onImg) {
 // #endregion
 // #region JS: BOOT
 initTabs(); initProgress(); initProducts(); initLogoColors();
-initPlacements(); initSizes();
+initPlacements(); initSizes(); initCustomText();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-008</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-009</div>
 </body>
 </html>
