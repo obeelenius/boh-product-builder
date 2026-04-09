@@ -684,14 +684,13 @@ function initProducts() {
   c.appendChild(configPanel);
 
   PRODUCTS.forEach(pt => {
-    const defaultWeight = 'lightweight';
-    const availCols = getAvailableColors(pt.id, defaultWeight);
-    const defaultColor = availCols[0] || PALETTE[0].key;
-    const isTote = pt.id === 'totebag';
+    const isTote = pt.isTote || false;
+    const availCols = PRODUCT_COLOURS[pt.id] || [];
+    const defaultColor = availCols[0] || 'BLACK';
     S.products[pt.id] = {
-      selected: false, color: defaultColor, weight: defaultWeight,
+      selected: false, color: defaultColor, weight: 'default',
       sizes: isTote ? ['ONE SIZE'] : [], isTote,
-      hasWeight: !!(AVAILABLE_COLOURS[pt.id] && !AVAILABLE_COLOURS[pt.id].default),
+      hasWeight: false,
       placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right', 'back-center']),
       front: {logoImg: null, logoFile: null},
       back:  {logoImg: null, logoFile: null},
@@ -704,10 +703,11 @@ function initProducts() {
     thumb.className = 'product-thumb'; thumb.id = 'thumb-'+pt.id;
     thumb.title = pt.label;
 
-    const imgSrc = PRODUCT_THUMBNAILS[pt.id] || '';
+    const _thumbColour = (PRODUCT_COLOURS[pt.id] || [])[0] || '';
+    const _thumbUrl = _thumbColour ? getImageUrl(pt.id, _thumbColour, 'front') : '';
     thumb.innerHTML = `
       <div class="product-thumb-img-wrap">
-        ${imgSrc ? `<img src="${imgSrc}" alt="${pt.label}">` : `<div class="product-thumb-placeholder">${pt.label[0]}</div>`}
+        ${_thumbUrl ? `<img src="${_thumbUrl}" alt="${pt.label}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r-md);">` : `<div class="product-thumb-placeholder">${pt.label[0]}</div>`}
         <div class="product-thumb-check" id="pchk-${pt.id}"></div>
       </div>
       <div class="product-thumb-label">${pt.label}</div>`;
