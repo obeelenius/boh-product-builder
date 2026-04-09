@@ -826,7 +826,7 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
-  if (id==='design') { renderLogoAdjustPanel(); refreshArtworkList(); initLogoColors(); initCustomText(); }
+  if (id==='design') { renderLogoAdjustPanel(); refreshArtworkList(); initLogoColors(); initCustomText(); setupSharedUploadOnce(); }
 }
 
 function initProgress() {
@@ -1959,9 +1959,16 @@ function processImageFile(file, onImg) {
 initTabs(); initProgress(); initProducts(); initLogoColors();
 initPlacements(); initSizes(); initCustomText();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
-setupSharedUpload('small'); setupSharedUpload('large');
+// Shared upload zones wired when Design tab first opens (elements hidden at boot)
+let _sharedUploadWired = false;
+function setupSharedUploadOnce() {
+  if (_sharedUploadWired) return;
+  _sharedUploadWired = true;
+  setupSharedUpload('small');
+  setupSharedUpload('large');
+}
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-010</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-011</div>
 </body>
 </html>
