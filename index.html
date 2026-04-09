@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Badge of Honour — Product Builder</title>
-<link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,7 +60,7 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
 .tab-pane.active { display: block; }
 
 .preview-panel {
-  width: 380px; flex-shrink: 0; background: var(--surface);
+  flex: 1; min-width: 320px; background: var(--surface);
   border-left: 0.5px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
 }
 .preview-header { padding: 12px 1.25rem; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
@@ -69,14 +69,14 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
 
 
 .preview-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
-.preview-side { padding: 0.75rem 1.25rem 0.5rem; flex-shrink: 0; }
+.preview-side { padding: 1rem 1.5rem 0.75rem; flex-shrink: 0; }
 .preview-side + .preview-side { border-top: 0.5px solid var(--border); }
 .preview-side-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
 .preview-main-canvas-wrap { width: 100%; display: flex; justify-content: center; }
 #preview-canvas-front, #preview-canvas-back {
-  border-radius: var(--r-lg); display: block; cursor: default;
-  width: 100%; max-width: 220px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  border-radius: var(--r-lg); display: block; cursor: grab;
+  width: 100%; max-width: 460px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.09);
 }
 
 .preview-main-meta { width: 100%; padding-top: 8px; flex-shrink: 0; }
@@ -263,6 +263,7 @@ input[type=file] { display: none; }
 .artwork-item.open .artwork-item-body { display: block; }
 .upload-zone-sm { border: 1.5px dashed var(--border2); border-radius: var(--r-md); padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); display: block; margin-bottom: 10px; }
 .upload-zone-sm:hover { border-color: var(--border3); }
+.upload-zone-sm.dragover { border-color: var(--text); background: var(--surface3); }
 .upload-zone-sm strong { font-size: 12px; font-weight: 500; display: block; margin-bottom: 2px; }
 .upload-zone-sm p { font-size: 10px; color: var(--text2); }
 .clear-override-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
@@ -426,14 +427,14 @@ input[type=file] { display: none; }
       <div class="preview-side">
         <div class="preview-side-label">Front</div>
         <div class="preview-main-canvas-wrap">
-          <canvas id="preview-canvas-front" width="240" height="240"></canvas>
+          <canvas id="preview-canvas-front" width="480" height="480"></canvas>
         </div>
       </div>
 
       <div class="preview-side">
         <div class="preview-side-label">Back</div>
         <div class="preview-main-canvas-wrap">
-          <canvas id="preview-canvas-back" width="240" height="240"></canvas>
+          <canvas id="preview-canvas-back" width="480" height="480"></canvas>
         </div>
       </div>
 
@@ -800,33 +801,28 @@ function toggleWeight(chip) {
 
 // ─── Shared logo ──────────────────────────────────────────────────────────────
 function setupSharedUpload(size) {
-  const el = document.getElementById('shared-' + size + '-upload');
+  const el    = document.getElementById('shared-' + size + '-upload');
+  const zone  = document.getElementById('shared-' + size + '-zone');
   if (!el) return;
-  el.addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return;
+
+  function applyFile(file) {
     const key = size === 'small' ? 'sharedSmall' : 'sharedLarge';
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = () => {
-        S[key] = {logoImg: img, logoFile: file};
-        // Update zone label text without destroying the element
-        const zt = document.getElementById('shared-' + size + '-zone-text');
-        if (zt) zt.textContent = 'Replace';
-        // Show preview below zone
-        const prev = document.getElementById('shared-' + size + '-preview');
-        if (prev) prev.style.display = 'flex';
-        const nameEl = document.getElementById('shared-' + size + '-name');
-        if (nameEl) nameEl.textContent = '✓ ' + file.name;
-        // Draw thumb after preview is visible
-        const thumb = document.getElementById('shared-' + size + '-thumb');
-        if (thumb) drawLogoThumb(thumb, img);
-        refreshThumbs(); refreshArtworkList(); drawPreview();
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+    processImageFile(file, (img, f) => {
+      S[key] = {logoImg: img, logoFile: f};
+      const zt = document.getElementById('shared-' + size + '-zone-text');
+      if (zt) zt.textContent = 'Replace';
+      const prev = document.getElementById('shared-' + size + '-preview');
+      if (prev) prev.style.display = 'flex';
+      const nameEl = document.getElementById('shared-' + size + '-name');
+      if (nameEl) nameEl.textContent = '✓ ' + f.name;
+      const thumb = document.getElementById('shared-' + size + '-thumb');
+      if (thumb) drawLogoThumb(thumb, img);
+      refreshThumbs(); refreshArtworkList(); drawPreview();
+    });
+  }
+
+  el.addEventListener('change', e => { if (e.target.files[0]) applyFile(e.target.files[0]); });
+  addDropZone(zone, applyFile);
 }
 
 function clearSharedSide(size) {
@@ -887,16 +883,27 @@ function refreshArtworkList() {
       thumbEl.innerHTML=''; thumbEl.appendChild(cnv); drawLogoThumb(cnv, thumbImg);
     }
     ['front','back'].forEach(side => {
-      document.getElementById(`aw-${side}-${pt.id}`).addEventListener('change', function(e) {
-        const file = e.target.files[0]; if (!file) return;
-        const ptId = this.dataset.ptid, sd = this.dataset.side;
-        const reader = new FileReader();
-        reader.onload = ev => { const img = new Image(); img.onload = () => {
-          S.products[ptId][sd] = {logoImg: img, logoFile: file};
-          refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview();
-        }; img.src = ev.target.result; };
-        reader.readAsDataURL(file);
-      });
+      const inputEl = document.getElementById(`aw-${side}-${pt.id}`);
+      const zoneEl  = inputEl?.previousElementSibling; // the label above the input
+
+      function applyArtFile(file, pid, sd) {
+        processImageFile(file, (img, f) => {
+          S.products[pid][sd] = {logoImg: img, logoFile: f};
+          refreshArtworkList(); refreshThumbs();
+          if (S.activeProduct === pid) drawPreview();
+        });
+      }
+
+      if (inputEl) {
+        inputEl.addEventListener('change', function(e) {
+          if (e.target.files[0]) applyArtFile(e.target.files[0], this.dataset.ptid, this.dataset.side);
+        });
+      }
+      // Wire the label (zone) for drag-and-drop
+      const pid = pt.id;
+      if (zoneEl && zoneEl.tagName === 'LABEL') {
+        addDropZone(zoneEl, file => applyArtFile(file, pid, side));
+      }
     });
   });
 }
@@ -1382,9 +1389,9 @@ async function drawPreview() {
   const prod = pt ? S.products[pt] : null;
   const orig = S.view;
   S.view = 'front';
-  await drawToCanvas(document.getElementById('preview-canvas-front'), pt, 240, 240);
+  await drawToCanvas(document.getElementById('preview-canvas-front'), pt, 480, 480);
   S.view = 'back';
-  await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 240, 240);
+  await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 480, 480);
   S.view = orig;
   const ptData = PRODUCTS.find(p=>p.id===pt);
   const colName = prod ? PALETTE.find(p=>p.key===prod.color)?.name||prod.color : '';
@@ -1602,6 +1609,34 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     }, 0);
   });
 })();
+
+// ─── Drag-and-drop upload helper ─────────────────────────────────────────────
+function addDropZone(zoneEl, onFile) {
+  if (!zoneEl) return;
+  zoneEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    zoneEl.classList.add('dragover');
+  });
+  zoneEl.addEventListener('dragleave', e => {
+    if (!zoneEl.contains(e.relatedTarget)) zoneEl.classList.remove('dragover');
+  });
+  zoneEl.addEventListener('drop', e => {
+    e.preventDefault();
+    zoneEl.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && /\.(png|svg|jpe?g)$/i.test(file.name)) onFile(file);
+  });
+}
+
+function processImageFile(file, onImg) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => onImg(img, file);
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
 initTabs(); initProgress(); initProducts(); initLogoColors();
 initPlacements(); initSizes();
