@@ -324,7 +324,7 @@ input[type=file] { display: none; }
 
       <div class="tab-pane active" id="tab-products">
         <div class="section-title">Products</div>
-        <div class="section-sub">Select garments for this range. Choose colours and weight per product.</div>
+        <div class="section-sub">Select products for this range and choose a colour per product.</div>
         <div id="product-cards"></div>
       </div>
 
@@ -515,34 +515,10 @@ const PRODUCTS = [
   {id:'totebag',    label:'Tote bag'},
 ];
 
-// Colours available per product+weight — derived from uploaded images
-// Format: productId → weight → [colour names]
-const AVAILABLE_COLOURS = {
-  tshirt:     { lightweight: ['white','green','red','brown'], heavyweight: ['white','brown'] },
-  hoodie:     { default: ['natural','grey','black'] },
-  sweatshirt: { default: ['natural','grey','black'] },
-  totebag:    { default: ['cream'] },
-};
-
-const BACK_COLOURS = {
-  tshirt:     { lightweight: ['white','green','brown'], heavyweight: ['white','brown','red'] },
-  hoodie:     { default: ['natural','grey','black'] },
-  sweatshirt: { default: ['natural','grey','black'] },
-  totebag:    { default: ['cream'] },
-};
+// AVAILABLE_COLOURS removed — using PRODUCT_COLOURS instead
 
 // Full display palette (used for swatches; greyed out if no image available)
-const PALETTE = [
-  {name:'White',   key:'white',   hex:'#FFFFFF', light:true},
-  {name:'Natural', key:'natural', hex:'#F0EBE0', light:true},
-  {name:'Cream',   key:'cream',   hex:'#F5F0E6', light:true},
-  {name:'Grey',    key:'grey',    hex:'#9E9E9E'},
-  {name:'Black',   key:'black',   hex:'#111111'},
-  {name:'Brown',   key:'brown',   hex:'#8B7355'},
-  {name:'Green',   key:'green',   hex:'#5BAD91'},
-  {name:'Red',     key:'red',     hex:'#C0392B'},
-  {name:'Navy',    key:'navy',    hex:'#1E2D4A'},
-];
+const PALETTE = []; // removed — using COLOUR_PALETTE
 
 const LOGO_COLORS = [
   {name:'As uploaded',hex:null},
@@ -588,12 +564,7 @@ const S = {
 
 // #endregion
 // #region JS: IMAGE LOADING
-function getProductImageKey(ptId, weight, colorKey, view) {
-  const entry = AVAILABLE_COLOURS[ptId];
-  const noWeight = entry && entry.default && !entry[weight];
-  const base = noWeight ? `${ptId}-${colorKey}` : `${ptId}-${weight}-${colorKey}`;
-  return view === 'back' ? `${base}-back` : base;
-}
+// getProductImageKey removed — using getImageUrl() instead
 
 function loadProductImage(ptId, weight, colorKey) {
   // Tote bag: always use front image for both views
@@ -614,11 +585,7 @@ function loadProductImage(ptId, weight, colorKey) {
 }
 
 function getAvailableColors(ptId, weight) {
-  const entry = AVAILABLE_COLOURS[ptId];
-  if (!entry) return [];
-  if (entry[weight]) return entry[weight];
-  if (entry.default) return entry.default;
-  return [];
+  return PRODUCT_COLOURS[ptId] || [];
 }
 
 function hasProductImage(ptId, weight, colorKey) {
@@ -1670,6 +1637,6 @@ buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
 setupSharedUpload('small'); setupSharedUpload('large');
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260409-001</div>
+  <div style="position:fixed;bottom:10px;right:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.2 · 20260409-002</div>
 </body>
 </html>
