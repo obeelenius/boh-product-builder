@@ -1,3 +1,1854 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- ───────────────────────────────────────────────────────
+     HEAD — fonts, favicon, meta
+     ─────────────────────────────────────────────────────── -->
+<meta charset="UTF-8">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Badge of Honour — Product Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* #region CSS: VARIABLES & RESET */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f8f7f4; --surface: #ffffff; --surface2: #f2f1ee; --surface3: #e8e7e3;
+  --text: #141414; --text2: #6b6b67; --text3: #a8a8a4;
+  --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14); --border3: rgba(0,0,0,0.24);
+  --green: #1a7a4a; --green-bg: #eaf5ee; --green-fg: #1a7a4a;
+  --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --header-h: 52px;
+}
+
+html, body { height: 100%; overflow: hidden; }
+body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; }
+
+.header {
+  height: var(--header-h); background: var(--surface); border-bottom: 0.5px solid var(--border2);
+  display: flex; align-items: center; padding: 0 1.25rem; gap: 10px; flex-shrink: 0;
+}
+.logo-mark { width: 28px; height: 28px; background: var(--text); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.brand { font-family: 'Instrument Sans', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.brand span { font-weight: 400; color: var(--text3); }
+.header-spacer { flex: 1; }
+.progress-steps { display: flex; align-items: center; }
+.ps-item { display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 100px; cursor: pointer; transition: background 0.15s; }
+.ps-item:hover { background: var(--surface2); }
+.ps-dot { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border3); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 500; color: var(--text3); font-family: 'DM Mono', monospace; flex-shrink: 0; transition: all 0.2s; }
+.ps-item.active .ps-dot { background: var(--text); border-color: var(--text); color: #fff; }
+.ps-item.done .ps-dot { background: var(--green-bg); border-color: var(--green-fg); color: var(--green-fg); }
+.ps-label { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.ps-item.active .ps-label { color: var(--text); font-weight: 500; }
+.ps-item.done .ps-label { color: var(--text2); }
+.ps-line { width: 18px; height: 0.5px; background: var(--border2); }
+
+.app { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+/* #endregion */
+/* #region CSS: LAYOUT — app shell, sidebar, preview panel */
+.sidebar {
+  width: 420px; flex-shrink: 0; background: var(--surface);
+  border-right: 0.5px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
+}
+.tab-nav { display: flex; border-bottom: 0.5px solid var(--border); padding: 0 1rem; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+.tab-nav::-webkit-scrollbar { display: none; }
+/* #endregion */
+/* #region CSS: TABS & NAVIGATION */
+.tab-btn {
+  padding: 11px 11px 10px; font-size: 12px; font-weight: 500; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all 0.15s;
+  background: none; border-top: none; border-left: none; border-right: none;
+  font-family: 'Instrument Sans', sans-serif; margin-bottom: -0.5px;
+}
+.tab-btn:hover { color: var(--text2); }
+.tab-btn.active { color: var(--text); border-bottom-color: var(--text); }
+.tab-content { flex: 1; overflow-y: auto; padding: 1.25rem; scrollbar-width: thin; scrollbar-color: var(--surface3) transparent; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* #endregion */
+/* #region CSS: PREVIEW PANEL */
+.preview-panel {
+  flex: 1; min-width: 320px; background: var(--surface);
+  border-left: 0.5px solid var(--border2); display: flex; flex-direction: column; overflow: hidden;
+}
+.preview-header { padding: 12px 1.25rem; border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+.preview-header-row { display: flex; align-items: center; }
+.preview-title { font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text3); }
+
+
+.preview-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
+.preview-side { padding: 1rem 1.5rem 0.75rem; flex-shrink: 0; }
+.preview-side + .preview-side { border-top: 0.5px solid var(--border); }
+.preview-side-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.preview-main-canvas-wrap { width: 100%; display: flex; justify-content: center; position: relative; }
+.canvas-remove-btn {
+  display: none; position: absolute;
+  width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(0,0,0,0.55); color: #fff; font-size: 14px; line-height: 1;
+  align-items: center; justify-content: center; z-index: 10;
+  transition: background 0.15s;
+  pointer-events: auto;
+}
+.canvas-remove-btn:hover { background: rgba(0,0,0,0.8); }
+.canvas-remove-btn.visible { display: flex; }
+#preview-canvas-front, #preview-canvas-back {
+  border-radius: var(--r-lg); display: block; cursor: grab;
+  width: 100%; max-width: 460px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.09);
+}
+
+.preview-main-meta { width: 100%; padding-top: 8px; flex-shrink: 0; }
+.preview-product-name { font-family: 'Instrument Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); margin-bottom: 1px; }
+.preview-product-sub { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+.preview-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.preview-tag { font-size: 10px; padding: 2px 7px; background: var(--surface2); border-radius: 100px; color: var(--text2); font-family: 'DM Mono', monospace; }
+
+/* Thumbnail strip */
+.preview-thumbs {
+  flex-shrink: 0; padding: 0.75rem 1.25rem 1rem; border-top: 0.5px solid var(--border);
+  display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; min-height: 96px; align-items: flex-start;
+}
+.preview-thumbs::-webkit-scrollbar { display: none; }
+
+.thumb-wrap {
+  flex-shrink: 0; position: relative; cursor: pointer;
+  border-radius: var(--r-md); overflow: hidden; border: 2px solid transparent;
+  transition: all 0.15s; width: 62px; background: var(--surface2);
+}
+.thumb-wrap:hover { border-color: var(--border3); }
+.thumb-wrap.active { border-color: var(--text); }
+.thumb-wrap canvas { width: 100%; display: block; aspect-ratio: 1; }
+.thumb-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.48); color: #fff; font-size: 8px;
+  text-align: center; padding: 3px 2px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; font-family: 'Instrument Sans', sans-serif;
+}
+.thumb-add {
+  flex-shrink: 0; width: 62px; height: 62px; border-radius: var(--r-md);
+  border: 1.5px dashed var(--border2); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer;
+  color: var(--text3); font-size: 18px; transition: all 0.15s; background: var(--surface2);
+  align-self: flex-start;
+}
+.thumb-add:hover { border-color: var(--border3); color: var(--text2); }
+.thumb-add span { font-size: 9px; margin-top: 2px; font-family: 'Instrument Sans', sans-serif; }
+
+/* Logo drag handle indicator */
+.drag-hint {
+  position: absolute; pointer-events: none; border: 1.5px dashed rgba(255,255,255,0.7);
+  border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  transition: opacity 0.2s;
+}
+
+.preview-footer {
+  padding: 10px 1.25rem; border-top: 0.5px solid var(--border); flex-shrink: 0;
+}
+.pf-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.pf-row + .pf-row { border-top: 0.5px solid var(--border); }
+.pf-label { font-size: 11px; color: var(--text3); }
+.pf-val { font-size: 11px; font-weight: 500; font-family: 'DM Mono', monospace; max-width: 200px; text-align: right; }
+
+/* Shared field styles */
+.section-title { font-family: 'Instrument Sans', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 3px; }
+.section-sub { font-size: 12px; color: var(--text2); margin-bottom: 1.25rem; line-height: 1.5; }
+.field-group { margin-bottom: 1.4rem; }
+.field-label { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; display: block; margin-bottom: 8px; }
+
+.pill-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill { padding: 6px 13px; border: 0.5px solid var(--border2); border-radius: 100px; font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; font-family: 'Instrument Sans', sans-serif; }
+.pill:hover { border-color: var(--border3); background: var(--surface2); }
+.pill.selected { background: var(--text); color: #fff; border-color: var(--text); }
+
+/* Colour swatches */
+.color-grid { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.color-swatch {
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  transition: all 0.15s; outline: 2.5px solid transparent; outline-offset: 3px;
+  border: 1.5px solid transparent; position: relative;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.selected { outline-color: var(--text); }
+.color-swatch.unavailable { opacity: 0.2; cursor: not-allowed; }
+.color-swatch.unavailable:hover { transform: none; }
+.color-name-label { font-size: 11px; color: var(--text3); margin-top: 8px; }
+
+.size-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px,1fr)); gap: 6px; }
+.size-btn { padding: 7px 0; border: 0.5px solid var(--border2); border-radius: var(--r-sm); font-size: 11px; font-weight: 500; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: center; font-family: 'DM Mono', monospace; }
+.size-btn:hover { border-color: var(--border3); background: var(--surface2); }
+.size-btn.selected { background: var(--text); color: #fff; border-color: var(--text); }
+
+.divider { height: 0.5px; background: var(--border); margin: 1.25rem 0; }
+.notice { font-size: 11px; color: var(--text2); background: var(--surface2); padding: 8px 11px; border-radius: var(--r-sm); line-height: 1.5; }
+
+.num-input { width: 88px; padding: 7px 10px; border: 0.5px solid var(--border2); border-radius: var(--r-sm); font-size: 13px; font-family: 'DM Mono', monospace; background: var(--surface); color: var(--text); }
+.num-input:focus { outline: none; border-color: var(--border3); }
+
+.price-grid { display: flex; flex-direction: column; gap: 5px; }
+/* #endregion */
+/* #region CSS: ORDER / PRICING */
+.price-row { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--surface2); border-radius: var(--r-sm); }
+.price-row-label { font-size: 12px; font-weight: 500; min-width: 38px; font-family: 'DM Mono', monospace; }
+.price-row-input { flex: 1; padding: 5px 8px; border: 0.5px solid var(--border2); border-radius: var(--r-sm); font-size: 12px; font-family: 'DM Mono', monospace; background: var(--surface); color: var(--text); }
+.price-row-input:focus { outline: none; border-color: var(--border3); }
+.price-prefix { font-size: 12px; color: var(--text3); }
+
+.summary-rows { display: flex; flex-direction: column; border: 0.5px solid var(--border); border-radius: var(--r-md); overflow: hidden; margin-bottom: 1.25rem; }
+.summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 12px; background: var(--surface); gap: 12px; }
+.summary-row + .summary-row { border-top: 0.5px solid var(--border); }
+.sr-label { color: var(--text2); font-size: 12px; white-space: nowrap; }
+.sr-val { font-weight: 500; font-size: 12px; text-align: right; }
+
+.btn { padding: 9px 16px; border-radius: var(--r-md); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'Instrument Sans', sans-serif; border: 0.5px solid var(--border2); background: var(--surface); color: var(--text); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn:hover { background: var(--surface2); }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--text); color: #fff; border-color: var(--text); width: 100%; padding: 11px 16px; font-size: 14px; }
+.btn-primary:hover { opacity: 0.82; background: var(--text); }
+.btn-publish { background: var(--green); color: #fff; border-color: var(--green); width: 100%; padding: 11px 16px; font-size: 14px; }
+.btn-publish:hover { opacity: 0.88; background: var(--green); }
+.btn-ghost { border-color: transparent; color: var(--text2); }
+.btn-ghost:hover { color: var(--text); background: var(--surface2); border-color: transparent; }
+.btn-sm { padding: 6px 11px; font-size: 11px; }
+.action-row { display: flex; flex-direction: column; gap: 8px; }
+.empty-state { text-align: center; padding: 1.5rem 1rem; color: var(--text3); font-size: 12px; }
+
+.excl-opts { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.chip { padding: 3px 8px; border-radius: 100px; font-size: 10px; border: 0.5px solid var(--border2); cursor: pointer; background: var(--surface); color: var(--text2); transition: all 0.12s; font-family: 'Instrument Sans', sans-serif; }
+.chip:hover { border-color: var(--border3); }
+.chip.selected { background: var(--text); color: #fff; border-color: var(--text); }
+
+.success-banner { background: var(--green-bg); border: 0.5px solid rgba(26,122,74,0.2); border-radius: var(--r-md); padding: 1rem; text-align: center; margin-bottom: 1rem; }
+.success-icon { width: 36px; height: 36px; background: white; border-radius: 50%; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; }
+.payload-pre { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text2); background: var(--surface2); padding: 10px 12px; border-radius: var(--r-sm); overflow: auto; white-space: pre; max-height: 140px; }
+
+input[type=file] { display: none; }
+
+/* Product thumbnail grid */
+.product-thumb {
+  cursor: pointer; border-radius: var(--r-md); overflow: hidden;
+  border: 2px solid transparent; transition: all 0.15s;
+  background: var(--surface2);
+}
+.product-thumb:hover { border-color: var(--border3); }
+.product-thumb.selected { border-color: var(--text); }
+.product-thumb-img-wrap {
+  position: relative; aspect-ratio: 1; overflow: hidden;
+  background: var(--surface2);
+}
+.product-thumb-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.product-thumb-placeholder {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Sans', sans-serif; font-size: 22px; font-weight: 600; color: var(--text3);
+}
+.product-thumb-check {
+  position: absolute; top: 5px; right: 5px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.85); border: 1.5px solid var(--border3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; transition: all 0.15s; backdrop-filter: blur(2px);
+}
+.product-thumb.selected .product-thumb-check {
+  background: var(--text); border-color: var(--text); color: #fff;
+}
+.product-thumb-label {
+  font-size: 10px; font-weight: 500; text-align: center;
+  padding: 5px 4px; color: var(--text2); white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.product-thumb.selected .product-thumb-label { color: var(--text); }
+.pc-weight { display: flex; gap: 5px; }
+
+/* Product category sections */
+.product-category { margin-bottom: 1.25rem; }
+.product-category-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; cursor: pointer; user-select: none;
+  border-bottom: 0.5px solid var(--border); margin-bottom: 10px;
+}
+.product-category-header:hover { opacity: 0.75; }
+.product-category-label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text2); }
+.product-category-chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
+.product-category.collapsed .product-category-chevron { transform: rotate(-90deg); }
+.product-category-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.product-category-body:has(.product-category-empty) { display: block; }
+.product-category-body-wrap { padding-bottom: 4px; }
+.product-category.collapsed .product-category-body-wrap { display: none; }
+.product-category.collapsed .product-category-body { display: none; }
+.product-category-empty { font-size: 11px; color: var(--text3); padding: 4px 0 8px; font-style: italic; }
+
+/* Uploads */
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--r-lg); padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); display: block; margin-bottom: 1rem; }
+.upload-zone:hover { border-color: var(--border3); background: var(--surface3); }
+.upload-zone strong { font-size: 13px; font-weight: 500; display: block; margin-bottom: 3px; }
+.upload-zone p { font-size: 11px; color: var(--text2); }
+.logo-preview-row { display: flex; align-items: center; gap: 10px; background: var(--surface2); border-radius: var(--r-md); padding: 10px; margin-bottom: 1rem; }
+
+/* Artwork list */
+.artwork-list { display: flex; flex-direction: column; gap: 8px; }
+.artwork-item { border: 0.5px solid var(--border2); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+.artwork-item-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; cursor: pointer; gap: 8px; }
+.artwork-item-header:hover { background: var(--surface2); }
+.artwork-item.open .artwork-item-header { background: var(--surface2); }
+.artwork-item-left { display: flex; align-items: center; gap: 8px; }
+.artwork-item-thumb { width: 32px; height: 32px; border-radius: 5px; background: var(--surface2); border: 0.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
+.artwork-item-thumb canvas { width: 100%; height: 100%; display: block; }
+.artwork-item-name { font-size: 12px; font-weight: 500; }
+.artwork-item-sub { font-size: 10px; color: var(--text3); margin-top: 1px; }
+.artwork-badge { font-size: 9px; padding: 2px 7px; border-radius: 100px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
+.artwork-badge.shared { background: var(--surface2); color: var(--text2); }
+.artwork-badge.custom { background: var(--text); color: #fff; }
+.artwork-item-body { padding: 0 12px 12px; display: none; }
+.artwork-item.open .artwork-item-body { display: block; }
+/* #endregion */
+/* #region CSS: UPLOAD ZONES */
+.upload-zone-sm { border: 1.5px dashed var(--border2); border-radius: var(--r-md); padding: 1rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); display: block; margin-bottom: 10px; }
+.upload-zone-sm:hover { border-color: var(--border3); }
+.upload-zone-sm.dragover { border-color: var(--text); background: var(--surface3); }
+.upload-zone-sm strong { font-size: 12px; font-weight: 500; display: block; margin-bottom: 2px; }
+.upload-zone-sm p { font-size: 10px; color: var(--text2); }
+.clear-override-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.clear-override-label { font-size: 11px; color: var(--text2); }
+
+/* Design tab */
+.placement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 1rem; }
+/* #endregion */
+/* #region CSS: PLACEMENT OPTIONS */
+.placement-opt { border: 0.5px solid var(--border2); border-radius: var(--r-md); padding: 10px 14px; font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.15s; text-align: left; font-family: 'Instrument Sans', sans-serif; }
+.placement-opt:hover { border-color: var(--border3); background: var(--surface2); }
+.placement-opt.selected { background: var(--text); color: #fff; border-color: var(--text); }
+.placement-opt b { display: block; font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+.placement-opt span { opacity: 0.55; font-size: 11px; }
+.placement-opt.selected span { opacity: 0.65; }
+.range-row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+.range-row label { font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 52px; }
+.range-row input[type=range] { flex: 1; accent-color: var(--text); }
+.range-row span { font-size: 11px; font-family: 'DM Mono', monospace; min-width: 30px; text-align: right; }
+.logo-color-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.font-chip { padding: 5px 10px; border: 0.5px solid var(--border2); border-radius: var(--r-sm); font-size: 12px; cursor: pointer; background: var(--surface); color: var(--text); transition: all 0.12s; white-space: nowrap; }
+.font-chip:hover { border-color: var(--border3); }
+.font-chip.selected { background: var(--text); color: #fff; border-color: var(--text); }
+/* #endregion */
+</style>
+</head>
+<body>
+<!-- ───────────────────────────────────────────────────────
+     HTML: HEADER / TOP NAV
+     ─────────────────────────────────────────────────────── -->
+
+<div class="header">
+  <img src="data:image/png;base64,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zQRn0bxmcu8xDfl+H2Hf+lWA0Xa+spmsbI/UMtd8TNuFObhmutxHo/iN8TIa7kfV5eXf3ILZeFXe+T/if/qL6SIOeeqrPu5pHqg1Fr/SW3WobjJT3uulo5X2OqmppmSeJHyBYByBa8kEHHke6z9w7h1Pb20dNpa66BuVuoGzCZ8LbTJQQyPHZrpJJz3Dck4DgO+SCQMX9RBH3Tvt/NtltNadJ1lVFVV0PiTVksQPhmWRxcQ3PctbkNBOM8c4GcCQURAREQUd3m0ZrneLqwpqWu0jqOl0lS1cduZWz22eKD0SIl0zxKW8fXd4vF2Rnkwe5Tp+tU2Pz9ylR/OlV/eKbkQUf6eNJa82g6nq61HSepajStbUTWx9wjts8lM6FzuVPOXtbw7EMBcThoc/JGCrwIiAiIg0nfqirblsrrK326kqKysqLNUxwU8EZkkleYyA1rRkkk+wKkey196hdpbTcLZpnaq9TQ187Z5TW6brZHBwbxGOPHAx+FdEkQc/9QaQ6keoHUNuZq2xVdnt1K8tY6tpDQ01IHY5PEb/ALZITgexx/AMq8e32l6DReibRpW2FzqW2UrKdj3AB0hA9Z5x2y52XH6yV91EBERAVTernp71Hf8AVo3M22D5LyfDfXUcU/hTGWMAMnhcSAHANbloIOWgjJJVskQUit/UP1J2ugjtFw20fW3KNgYKiqsFWyaT2cnMYWtJP7kNH1LN2Z2h3W3D3not3N1WTWdlHVRVkcM0IhqJnxEGKJsOPtcbcDJdhxA9pcXC6CICIiAiIg5n6QtO/W32uLrqHReiNX0VZUianM32NyzB0LpQ8gB8Th3LGnI79vrW7ndDrFx/kTVw/wBzh/8AXV+UQV++yreT/Qrz/Mg/u0VgUQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQatuRuFo/buzNuur73BbYJCWwsIL5ZnDHZkbQXO8xkgYGckgKGYOszaWS4ilfRaphh5cfSn0MRix+2wJS/H/lz9Sr3d6a49Q3V5UWW41tRFamV01M0x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" alt="Badge of Honour" style="height:28px;width:28px;object-fit:contain;display:block;">
+  <div class="brand">Badge of Honour <span style="font-family:'Instrument Sans',sans-serif;font-weight:300;">/ Product Builder</span></div>
+  <div class="header-spacer"></div>
+  <div class="progress-steps" id="progress-steps"></div>
+</div>
+
+<div class="app">
+  
+<!-- ───────────────────────────────────────────────────────
+     HTML: SIDEBAR
+     ─────────────────────────────────────────────────────── -->
+<div class="sidebar">
+    <div class="tab-nav" id="tab-nav"></div>
+    <div class="tab-content">
+
+      <div class="tab-pane active" id="tab-products">
+        <div class="section-title">Products</div>
+        <div class="section-sub">Select products for this range and choose a colour per product.</div>
+        <div id="product-cards"></div>
+      </div>
+
+      
+
+
+      
+<!-- ───────────────────────────────────────────────────────
+     HTML: TAB — DESIGN (artwork + placement combined)
+     ─────────────────────────────────────────────────────── -->
+<div class="tab-pane" id="tab-design">
+        <div class="section-title">Design</div>
+        <div class="section-sub">Upload artwork, then drag thumbnails onto the front or back preview to place them.</div>
+
+        <!-- ARTWORK -->
+        <div class="field-group">
+          <span class="field-label">Artwork</span>
+          <div>
+              <div class="upload-zone-sm" id="shared-artwork-zone" onclick="document.getElementById('shared-artwork-upload').click()" style="cursor:pointer;">
+                <strong>Upload artwork</strong>
+                <p>PNG or SVG recommended — or drag &amp; drop</p>
+              </div>
+              <input type="file" id="shared-artwork-upload" accept=".png,.svg,.jpg,.jpeg" multiple style="display:none;">
+              <div id="shared-artwork-thumbs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;"></div>
+              <div style="font-size:11px;color:var(--text3);margin-top:8px;line-height:1.5;" id="artwork-drag-hint" style="display:none;">Drag a thumbnail onto the front or back preview to place it.</div>
+            </div>
+        </div>
+
+        <!-- ARTWORK: Colour -->
+        <div class="field-group">
+          <span class="field-label">Artwork colour</span>
+          <div class="logo-color-grid" id="logo-color-grid"></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:7px;" id="logo-color-name">As uploaded</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- CUSTOM TEXT -->
+        <div class="field-group">
+          <span class="field-label">Custom text</span>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Add a line of custom text as an additional design element. It can be dragged and scaled on the preview just like artwork.</div>
+          <textarea id="custom-text-input" placeholder="e.g. Yeah this is custom" rows="2" style="width:100%;padding:9px 11px;border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface);color:var(--text);margin-bottom:8px;"></textarea>
+          <div class="field-label" style="margin-bottom:6px;">Font</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="text-font-grid"></div>
+          <div class="field-label" style="margin-bottom:6px;">Show on</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px;">
+            <div class="chip selected" id="text-side-front" onclick="setTextSide('front')">Front</div>
+            <div class="chip" id="text-side-back" onclick="setTextSide('back')">Back</div>
+            <div class="chip" id="text-side-both" onclick="setTextSide('both')">Both</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="clearCustomText()" style="width:100%;">Clear text</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- POSITION & SCALE -->
+        <div class="field-group">
+          <span class="field-label">Position &amp; scale</span>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Drag the logo on the preview to reposition. Scroll over it to resize.</div>
+          <div id="logo-adjust-panel"></div>
+        </div>
+
+      </div>
+
+      
+<!-- ───────────────────────────────────────────────────────
+     HTML: TAB — ORDER
+     ─────────────────────────────────────────────────────── -->
+<div class="tab-pane" id="tab-order">
+        <div class="section-title">Order details</div>
+        <div class="section-sub">Set sizes, run exclusivity, and pricing per product.</div>
+        <div id="order-by-product">
+          <div style="font-size:14px;color:var(--text3);padding:4px 0;">No products selected yet.</div>
+        </div>
+      </div>
+
+      
+<!-- ───────────────────────────────────────────────────────
+     HTML: TAB — FINALISE
+     ─────────────────────────────────────────────────────── -->
+<div class="tab-pane" id="tab-finalise">
+        <div class="section-title">Finalise</div>
+        <div class="section-sub">Review your range before saving, publishing, or sharing.</div>
+        <div id="summary-rows" class="summary-rows"></div>
+        <div id="publish-success" style="display:none;" class="success-banner">
+          <div class="success-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M5 13L9 17L19 7" stroke="#1a7a4a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div style="font-size:13px;font-weight:500;color:var(--green-fg);margin-bottom:3px;">Published to store</div>
+          <div style="font-size:11px;color:var(--green-fg);opacity:0.7;">Your product is now live in Medusa.</div>
+        </div>
+        <div id="payload-wrap" style="display:none;margin-bottom:1.25rem;">
+          <div style="font-size:10px;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;">Medusa payload</div>
+          <div class="payload-pre" id="medusa-payload"></div>
+        </div>
+        <div class="action-row">
+          <button class="btn btn-publish" onclick="publish()">Publish to store</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" style="flex:1;" onclick="saveDraft(this)">Save draft</button>
+            <button class="btn" style="flex:1;" onclick="shareLink(this)">Share link</button>
+          </div>
+          <button class="btn btn-ghost" style="font-size:12px;" onclick="resetAll()">Start over</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+<!-- ───────────────────────────────────────────────────────
+     HTML: PREVIEW PANEL
+     ─────────────────────────────────────────────────────── -->
+<div class="preview-panel">
+    <div class="preview-header">
+      <div class="preview-header-row">
+        <div class="preview-title">Preview</div>
+      </div>
+    </div>
+    <div class="preview-body">
+
+      <div class="preview-side">
+        <div class="preview-side-label">Front</div>
+        <div class="preview-main-canvas-wrap">
+          <canvas id="preview-canvas-front" width="480" height="480"></canvas>
+          <button class="canvas-remove-btn" id="remove-artwork-front" title="Remove artwork from front">×</button>
+        </div>
+      </div>
+
+      <div class="preview-side">
+        <div class="preview-side-label">Back</div>
+        <div class="preview-main-canvas-wrap">
+          <canvas id="preview-canvas-back" width="480" height="480"></canvas>
+          <button class="canvas-remove-btn" id="remove-artwork-back" title="Remove artwork from back">×</button>
+        </div>
+      </div>
+
+      <div style="padding: 0.5rem 1.25rem 0.75rem; flex-shrink:0;">
+        <div class="preview-product-name" id="preview-name">—</div>
+        <div class="preview-product-sub" id="preview-sub">Select a product to begin</div>
+        <div class="preview-tags" id="preview-tags"></div>
+      </div>
+
+      <div class="preview-thumbs" id="preview-thumbs"></div>
+    </div>
+    <!-- preview footer removed -->
+    <span id="pf-sizes" style="display:none"></span>
+    <span id="pf-run" style="display:none"></span>
+    <span id="pf-placement" style="display:none"></span>
+  </div>
+</div>
+
+<script>
+// #region JS: PRODUCT IMAGES
+const PRODUCT_IMAGES = {};
+// #endregion
+// #region JS: PRODUCT THUMBNAILS
+const PRODUCT_THUMBNAILS = {};
+// #endregion
+// #region JS: PRODUCT FALLBACK IMAGES
+const PRODUCT_PREVIEW_FALLBACKS = {};
+// #endregion
+// #region JS: CONSTANTS — products, sizes, colours, placements
+const IMAGE_BASE_URL = 'https://obeelenius.github.io/boh-designer/images';
+
+const PRODUCTS = [
+  {id:'1001', label:'Carrie Tote Bag (1001)', code:'1001', name:'CARRIE_TOTE',     hasBack:true, isTote:true},
+  {id:'5001', label:'Staple Tee (5001)',       code:'5001', name:'STAPLE_TEE',      hasBack:true, isTote:false},
+  {id:'5082', label:'Heavy Faded Tee (5082)',  code:'5082', name:'HEAVY_FADED_TEE', hasBack:true, isTote:false},
+  {id:'5101', label:'Supply Hood (5101)',       code:'5101', name:'SUPPLY_HOOD',     hasBack:true, isTote:false},
+  {id:'5171', label:'Box Hood (5171)',          code:'5171', name:'BOX_HOOD',        hasBack:true, isTote:false},
+];
+
+const PRODUCT_COLOURS = {
+  '1001': ['ARMY','BLACK','BONE','CAMEL','CARDINAL','COAL','CREAM','GRAPHITE','KHAKI','NAVY','PETROL_BLUE','PINK','SAGE','WALNUT'],
+  '5001': ['AQUA','ARCTIC_BLUE','ARMY','ASPHALT_MARLE','ATLANTIC','AUTUMN','BERRY','BLACK','BONE','BRIGHT_ROYAL','BUBBLEGUM','BURGUNDY','BUTTER','CAMEL','CARDINAL','CAROLINA_BLUE','CHARCOAL','CHARITY_PINK','CHARLOTTE','CHESTNUT','CITRUS','CLAY','COAL','COBALT','COCOA','COPPER','CORAL','CYPRESS','DARK_CHOCOLATE','ECRU','EUCALYPTUS','FIRE','FOG_BLUE','FOREST_GREEN','FOREST_MARLE','GOLD','GRANITE','GREY_MARLE','HYDRO','INDIGO','JADE','KELLY_GREEN','KHAKI','KIWI','LAPIS','LEMON','LEMONADE','LIGHT_GREY','LIME','MAUVE','MIDNIGHT_BLUE','MINERAL','MOSS','MUSHROOM','MUSTARD','NATURAL','NAVY','ORANGE','ORCHID','PALE_BLUE','PALE_PINK','PETROL_BLUE','PINE_GREEN','PINK','PISTACHIO','PLUM','POWDER','PURPLE','RED','ROSE','SAFARI','SAGE','SAND','SEAFOAM','SHADOW','SLATE_BLUE','SMOKE','SUNSET','TAN','TEAL','TOPAZ','WALNUT','WHITE','YELLOW'],
+  '5082': ['FADED_BLACK','FADED_BONE','FADED_BROWN','FADED_CARDINAL','FADED_COAL','FADED_ECRU','FADED_EUCALYPTUS','FADED_FOREST','FADED_GREY','FADED_INDIGO','FADED_KHAKI','FADED_MUSHROOM','FADED_PINK','FADED_POWDER','FADED_STORM','FADED_VIOLET','FADED_WHITE'],
+  '5101': ['ARMY','ASPHALT_MARLE','BLACK','BONE','BRIGHT_ROYAL','BURGUNDY','COAL','ECRU','FOREST_GREEN','GOLD','GREY_MARLE','LIGHT_NAVY','MIDNIGHT_BLUE','NAVY','ORANGE','PEACH','PINK','RED','TAN','WHITE','WHITE_MARLE'],
+  '5171': ['BLACK','ECRU','GREY_MARLE','INK_BLUE','MUSHROOM','SHADOW'],
+};
+
+const COLOUR_PALETTE = {
+  'ARMY':          {label:'Army',           hex:'#4A4A2E'},
+  'ARCTIC_BLUE':   {label:'Arctic Blue',    hex:'#B8D4E8', light:true},
+  'ASPHALT_MARLE': {label:'Asphalt Marle',  hex:'#555555'},
+  'ATLANTIC':      {label:'Atlantic',       hex:'#2E5F7A'},
+  'AUTUMN':        {label:'Autumn',         hex:'#8B4513'},
+  'BERRY':         {label:'Berry',          hex:'#8B2252'},
+  'BLACK':         {label:'Black',          hex:'#111111'},
+  'BONE':          {label:'Bone',           hex:'#E8E0D0', light:true},
+  'BRIGHT_ROYAL':  {label:'Bright Royal',   hex:'#2045B8'},
+  'BUBBLEGUM':     {label:'Bubblegum',      hex:'#F9A8C9', light:true},
+  'BURGUNDY':      {label:'Burgundy',       hex:'#6B1A2A'},
+  'BUTTER':        {label:'Butter',         hex:'#F5E6A3', light:true},
+  'CAMEL':         {label:'Camel',          hex:'#C19A6B'},
+  'CARDINAL':      {label:'Cardinal',       hex:'#8B0000'},
+  'CAROLINA_BLUE': {label:'Carolina Blue',  hex:'#56A0D3'},
+  'CHARCOAL':      {label:'Charcoal',       hex:'#36454F'},
+  'CHARITY_PINK':  {label:'Charity Pink',   hex:'#F4A7B9', light:true},
+  'CHARLOTTE':     {label:'Charlotte',      hex:'#A8D5E2', light:true},
+  'CHESTNUT':      {label:'Chestnut',       hex:'#954535'},
+  'CITRUS':        {label:'Citrus',         hex:'#E8B84B'},
+  'CLAY':          {label:'Clay',           hex:'#B5651D'},
+  'COAL':          {label:'Coal',           hex:'#2C2C2C'},
+  'COBALT':        {label:'Cobalt',         hex:'#0047AB'},
+  'COCOA':         {label:'Cocoa',          hex:'#5C3317'},
+  'COPPER':        {label:'Copper',         hex:'#B87333'},
+  'CORAL':         {label:'Coral',          hex:'#FF7F6E'},
+  'CREAM':         {label:'Cream',          hex:'#F5F0E6', light:true},
+  'CYPRESS':       {label:'Cypress',        hex:'#3D5A40'},
+  'DARK_CHOCOLATE':{label:'Dark Chocolate', hex:'#3C1A0E'},
+  'ECRU':          {label:'Ecru',           hex:'#F0EBE0', light:true},
+  'EUCALYPTUS':    {label:'Eucalyptus',     hex:'#6B8F71'},
+  'FADED_BLACK':   {label:'Faded Black',    hex:'#3A3A3A'},
+  'FADED_BONE':    {label:'Faded Bone',     hex:'#E0D8C8', light:true},
+  'FADED_BROWN':   {label:'Faded Brown',    hex:'#8B7355'},
+  'FADED_CARDINAL':{label:'Faded Cardinal', hex:'#9B4444'},
+  'FADED_COAL':    {label:'Faded Coal',     hex:'#4A4A4A'},
+  'FADED_ECRU':    {label:'Faded Ecru',     hex:'#F2EDE3', light:true},
+  'FADED_EUCALYPTUS':{label:'Faded Eucalyptus',hex:'#7A9E82'},
+  'FADED_FOREST':  {label:'Faded Forest',   hex:'#4A6741'},
+  'FADED_GREY':    {label:'Faded Grey',     hex:'#9E9E9E'},
+  'FADED_INDIGO':  {label:'Faded Indigo',   hex:'#5C6B9E'},
+  'FADED_KHAKI':   {label:'Faded Khaki',    hex:'#C3B091'},
+  'FADED_MUSHROOM':{label:'Faded Mushroom', hex:'#B5A898'},
+  'FADED_PINK':    {label:'Faded Pink',     hex:'#D4A0A0', light:true},
+  'FADED_POWDER':  {label:'Faded Powder',   hex:'#C8D8E8', light:true},
+  'FADED_STORM':   {label:'Faded Storm',    hex:'#7A8A9A'},
+  'FADED_VIOLET':  {label:'Faded Violet',   hex:'#8A7AAA'},
+  'FADED_WHITE':   {label:'Faded White',    hex:'#F5F5F0', light:true},
+  'FIRE':          {label:'Fire',           hex:'#CC3300'},
+  'FOG_BLUE':      {label:'Fog Blue',       hex:'#A8B8C8', light:true},
+  'FOREST_GREEN':  {label:'Forest Green',   hex:'#228B22'},
+  'FOREST_MARLE':  {label:'Forest Marle',   hex:'#4A6741'},
+  'GOLD':          {label:'Gold',           hex:'#C9A84C'},
+  'GRANITE':       {label:'Granite',        hex:'#676767'},
+  'GRAPHITE':      {label:'Graphite',       hex:'#4A4A4A'},
+  'GREY_MARLE':    {label:'Grey Marle',     hex:'#A0A0A0'},
+  'HYDRO':         {label:'Hydro',          hex:'#4A90A4'},
+  'INDIGO':        {label:'Indigo',         hex:'#3F51B5'},
+  'INK_BLUE':      {label:'Ink Blue',       hex:'#1A2A4A'},
+  'JADE':          {label:'Jade',           hex:'#00A86B'},
+  'KELLY_GREEN':   {label:'Kelly Green',    hex:'#4CBB17'},
+  'KHAKI':         {label:'Khaki',          hex:'#C3B091'},
+  'KIWI':          {label:'Kiwi',           hex:'#8EBE3F'},
+  'LAPIS':         {label:'Lapis',          hex:'#1A4A7A'},
+  'LEMON':         {label:'Lemon',          hex:'#FFF44F', light:true},
+  'LEMONADE':      {label:'Lemonade',       hex:'#FFF0A0', light:true},
+  'LIGHT_GREY':    {label:'Light Grey',     hex:'#D3D3D3', light:true},
+  'LIGHT_NAVY':    {label:'Light Navy',     hex:'#2A4A6A'},
+  'LIME':          {label:'Lime',           hex:'#9DC73A'},
+  'MAUVE':         {label:'Mauve',          hex:'#C8A0B0'},
+  'MIDNIGHT_BLUE': {label:'Midnight Blue',  hex:'#191970'},
+  'MINERAL':       {label:'Mineral',        hex:'#5A7A8A'},
+  'MOSS':          {label:'Moss',           hex:'#8A9A5B'},
+  'MUSHROOM':      {label:'Mushroom',       hex:'#B5A898'},
+  'MUSTARD':       {label:'Mustard',        hex:'#FFDB58'},
+  'NATURAL':       {label:'Natural',        hex:'#F0EBE0', light:true},
+  'NAVY':          {label:'Navy',           hex:'#1E2D4A'},
+  'ORANGE':        {label:'Orange',         hex:'#FF6600'},
+  'ORCHID':        {label:'Orchid',         hex:'#DA70D6'},
+  'PALE_BLUE':     {label:'Pale Blue',      hex:'#AECFE8', light:true},
+  'PALE_PINK':     {label:'Pale Pink',      hex:'#FADADD', light:true},
+  'PEACH':         {label:'Peach',          hex:'#FFCBA4', light:true},
+  'PETROL_BLUE':   {label:'Petrol Blue',    hex:'#1B4F6E'},
+  'PINE_GREEN':    {label:'Pine Green',     hex:'#1A4A2A'},
+  'PINK':          {label:'Pink',           hex:'#E8A0B0', light:true},
+  'PISTACHIO':     {label:'Pistachio',      hex:'#93C572', light:true},
+  'PLUM':          {label:'Plum',           hex:'#5A1A4A'},
+  'POWDER':        {label:'Powder',         hex:'#C8D8E8', light:true},
+  'PURPLE':        {label:'Purple',         hex:'#6B2D8B'},
+  'RED':           {label:'Red',            hex:'#CC0000'},
+  'ROSE':          {label:'Rose',           hex:'#E88A9A'},
+  'SAFARI':        {label:'Safari',         hex:'#8A7A5A'},
+  'SAGE':          {label:'Sage',           hex:'#8A9E7A'},
+  'SAND':          {label:'Sand',           hex:'#C2B280', light:true},
+  'SEAFOAM':       {label:'Seafoam',        hex:'#71EEB8', light:true},
+  'SHADOW':        {label:'Shadow',         hex:'#6A6A6A'},
+  'SLATE_BLUE':    {label:'Slate Blue',     hex:'#4A6A8A'},
+  'SMOKE':         {label:'Smoke',          hex:'#848484'},
+  'SUNSET':        {label:'Sunset',         hex:'#E8704A'},
+  'TAN':           {label:'Tan',            hex:'#D2B48C'},
+  'TEAL':          {label:'Teal',           hex:'#008080'},
+  'TOPAZ':         {label:'Topaz',          hex:'#0C7B93'},
+  'WALNUT':        {label:'Walnut',         hex:'#5C4033'},
+  'WHITE':         {label:'White',          hex:'#FFFFFF', light:true},
+  'WHITE_MARLE':   {label:'White Marle',    hex:'#F0F0F0', light:true},
+  'YELLOW':        {label:'Yellow',         hex:'#FFD700', light:true},
+};
+
+const PALETTE = []; // stub — using COLOUR_PALETTE
+
+const LOGO_COLORS = [
+  {name:'As uploaded',hex:null},
+  {name:'White',hex:'#FFFFFF',light:true},
+  {name:'Black',hex:'#111111'},
+  {name:'Navy', hex:'#1E2D4A'},
+  {name:'Gold', hex:'#C9972C'},
+  {name:'Red',  hex:'#C0392B'},
+];
+
+// PRODUCT_PLACEMENTS defined below in CONSTANTS
+
+// PLACEMENTS defined in CONSTANTS section below
+const TABS = [
+  {id:'products', label:'Products'},
+  {id:'design',   label:'Design'},
+  {id:'order',    label:'Order'},
+  {id:'finalise', label:'Finalise'},
+];
+
+const SIZES = ['2XS','XS','S','M','L','XL','2XL'];
+
+const TEXT_FONTS = [
+  {label: 'Helvetica',      value: 'Helvetica, Arial, sans-serif'},
+  {label: 'Times New Roman',value: 'Times New Roman, Times, serif'},
+  {label: 'Courier New',    value: 'Courier New, Courier, monospace'},
+  {label: 'Georgia',        value: 'Georgia, serif'},
+  {label: 'Futura',         value: 'Futura, Century Gothic, sans-serif'},
+  {label: 'Garamond',       value: 'Garamond, EB Garamond, serif'},
+];
+
+const MIN_PRICES = {
+  '1001': 20,
+  '5001': 25,
+  '5082': 28,
+  '5101': 40,
+  '5171': 38,
+};
+
+const PRODUCT_CATEGORIES = [
+  { id: 'tees',       label: 'Tee Shirts',           products: ['5001','5082'] },
+  { id: 'longsleeve', label: 'Long Sleeve Shirts',    products: [] },
+  { id: 'hoods',      label: 'Hoods & Sweatshirts',   products: ['5101','5171'] },
+  { id: 'bags',       label: 'Bags',                  products: ['1001'] },
+  { id: 'homewares',  label: 'Homewares',             products: [] },
+  { id: 'accessories',label: 'Accessories',           products: [] },
+];
+
+const PRODUCT_DESCRIPTIONS = {
+  '5001': `<p>The AS Colour Staple Tee. Enduring comfort in a regular fit, crafted from 180 GSM 100% combed cotton. Featuring neck ribbing, side seams, and double needle hems for durability and minimal shrinkage, it's a timeless choice for comfort and style. Available in 70+ colours. Built to last.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Regular</li><li><b>Fabric:</b> Mid weight, 180 GSM, 28-singles, 100% combed cotton (marles 15% viscose)</li><li><b>Construction:</b> Neck ribbing, side seamed, shoulder to shoulder tape, double needle hems, preshrunk to minimise shrinkage</li></ul>`,
+  '5082': `<p>The AS Colour Heavy Faded Tee, crafted from 100% carded cotton for durability and comfort. With a heavy 240 GSM weight and garment dyed finish, it features a relaxed fit, dropped shoulders, and twin-stitched wide neck ribbing. Built to last for a timeless, relaxed look. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Relaxed</li><li><b>Fabric:</b> Heavy weight, 240 GSM, 16-singles, 100% carded cotton</li><li><b>Construction:</b> Dropped shoulders, wide neck ribbing with twin stitching, side seamed, shoulder to shoulder tape, double needle hems, garment dyed, preshrunk to minimise shrinkage</li></ul>`,
+  '5171': `<p>The Box Hood offers a modern silhouette in 350 GSM, mid-heavyweight anti-pill CVC fleece. With a relaxed fit, drop shoulder, and kangaroo pocket, it's built for comfort and durability. Preshrunk to minimise shrinkage and perfect for screen printing, DTG, and embroidery. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Relaxed</li><li><b>Fabric:</b> Mid-heavy weight, 350 GSM 80% Cotton 20% Recycled Polyester anti-pill CVC fleece</li><li><b>Construction:</b> Pullover hood, drop shoulder, inset sleeves, kangaroo pocket, no drawcord, hem and sleeve 2x2 ribbing, self-fabric lined hood, preshrunk to minimise shrinkage</li></ul>`,
+  '5101': `<p>Elevate your casual wardrobe with the AS Colour Supply Hood. This essential hoodie offers a regular fit with a mid-weight feel, crafted from 80% cotton and 20% polyester anti-pill fleece. It includes a cozy hood, ribbed cuffs, and a tear-out label for added comfort and style. Tear-out AS Colour label.</p><ul style="margin:8px 0 0 16px;"><li><b>Fit:</b> Regular</li><li><b>Fabric:</b> Mid weight, 290 GSM, 80% cotton 20% polyester anti-pill CVC fleece</li><li><b>Construction:</b> Pullover hood, raglan sleeves, kangaroo pocket, lined hood, tonal drawcord, sleeve cuff ribbing, preshrunk to minimise shrinkage</li></ul>`,
+  '1001': `<p>The AS Colour Carrie Tote Bag. A classic canvas tote with a generous main compartment, long handles, and a clean, minimal design. Available in a wide range of colours, it's the perfect canvas for your brand. Built to last.</p>`,
+};
+
+const PRODUCT_PLACEMENTS = {
+  '1001': ['tote-front'],
+  '5001': ['front-top-right','back-center'],
+  '5082': ['front-top-right','back-center'],
+  '5101': ['front-top-right','back-center'],
+  '5171': ['front-top-right','back-center'],
+};
+
+const PLACEMENTS = [
+  {id:'front-top-right', label:'Front top right', sub:'~8 cm'},
+  {id:'back-center',     label:'Middle back',     sub:'~30 cm'},
+  {id:'tote-front',      label:'Front',           sub:'centre'},
+];
+
+const PLACEMENT_PRESETS = {
+  'front-top-right': {cx:0.64, cy:0.33},
+  'back-center':     {cx:0.509, cy:0.434},
+  'tote-front':      {cx:0.50, cy:0.60},
+};
+
+const PRINT_ZONES = {
+  '1001': {cx:0.50, cy:0.60, maxLogoFrac:0.50, backLogoFrac:0.50},
+  '5001': {cx:0.64, cy:0.33, maxLogoFrac:0.10, backLogoFrac:0.40},
+  '5082': {cx:0.64, cy:0.33, maxLogoFrac:0.10, backLogoFrac:0.40},
+  '5101': {cx:0.64, cy:0.33, maxLogoFrac:0.09, backLogoFrac:0.36},
+  '5171': {cx:0.64, cy:0.33, maxLogoFrac:0.09, backLogoFrac:0.36},
+};
+
+// ─── State ───────────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: STATE
+const S = {
+  products: {},      // id → {selected, color, weight, sizes, isTote, hasWeight,
+                    //        front:{logoImg,logoFile}, back:{logoImg,logoFile},
+                    //        placements: Set of active placement ids}
+  activeProduct: null,
+  sharedArtwork: [],  // [{id, logoImg, logoFile}] — shared artwork library
+  logoColor: null,
+  customText: '',        // custom text overlay
+  customTextFont: 'Helvetica, Arial, sans-serif',
+  customTextSide: 'front', // which canvas the text appears on
+  view: 'front',
+  excl: 'unlimited', exclNum: 100, prices: {},
+  imgCache: {},
+};
+
+// ─── Image loading ────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: IMAGE LOADING
+
+function getImageUrl(ptId, colourKey, view) {
+  const prod = PRODUCTS.find(p => p.id === ptId);
+  if (!prod) return null;
+  const folder = view === 'back' ? 'BACKSHOTS' : 'FRONTSHOTS';
+  const suffix = view === 'back' ? '_BACK' : '';
+  return `${IMAGE_BASE_URL}/${prod.code}/${folder}/${prod.code}_${prod.name}_${colourKey}${suffix}.jpg`;
+}
+
+function loadProductImage(ptId, weight, colorKey) {
+  const prod = PRODUCTS.find(p => p.id === ptId);
+  const view = prod?.isTote ? 'front' : S.view;
+  const url = getImageUrl(ptId, colorKey, view);
+  if (!url) return Promise.resolve(null);
+  const cacheKey = `${ptId}-${colorKey}-${view}`;
+  if (S.imgCache[cacheKey]) return Promise.resolve(S.imgCache[cacheKey]);
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload  = () => { S.imgCache[cacheKey] = img; resolve(img); };
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+function hasProductImage(ptId, weight, colourKey) {
+  return PRODUCT_COLOURS[ptId]?.includes(colourKey) ?? false;
+}
+
+function getAvailableColors(ptId, weight) {
+  return PRODUCT_COLOURS[ptId] || [];
+}
+
+// #endregion
+// #region JS: INIT FUNCTIONS
+function initTabs() {
+  const nav = document.getElementById('tab-nav');
+  TABS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'tab-btn' + (t.id==='products'?' active':'');
+    b.textContent = t.label; b.dataset.tab = t.id;
+    b.onclick = () => switchTab(t.id);
+    nav.appendChild(b);
+  });
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
+  updateProgress(id);
+  if (id==='finalise') buildSummary();
+  if (id==='design') { renderLogoAdjustPanel(); initLogoColors(); initCustomText(); setupSharedUploadOnce(); renderSharedArtworkThumbs(); }
+}
+
+function initProgress() {
+  const c = document.getElementById('progress-steps');
+  TABS.forEach((t,i) => {
+    if (i>0) { const l=document.createElement('div'); l.className='ps-line'; c.appendChild(l); }
+    const item = document.createElement('div');
+    item.className='ps-item'+(i===0?' active':''); item.id='psi-'+t.id;
+    item.onclick = () => switchTab(t.id);
+    item.innerHTML=`<div class="ps-dot" id="psd-${t.id}">${i+1}</div><div class="ps-label">${t.label}</div>`;
+    c.appendChild(item);
+  });
+}
+
+function updateProgress(activeId) {
+  const order=TABS.map(t=>t.id), ai=order.indexOf(activeId);
+  TABS.forEach((t,i) => {
+    const item=document.getElementById('psi-'+t.id), dot=document.getElementById('psd-'+t.id);
+    item.className='ps-item'+(t.id===activeId?' active':i<ai?' done':'');
+    dot.className='ps-dot'+(t.id===activeId?' active':i<ai?' done':'');
+    dot.textContent=i<ai?'✓':i+1;
+  });
+}
+
+// ─── Products ────────────────────────────────────────────────────────────────
+function initProducts() {
+  const c = document.getElementById('product-cards');
+
+  // Initialise state for all products
+  PRODUCTS.forEach(pt => {
+    const isTote = pt.isTote || false;
+    const availCols = PRODUCT_COLOURS[pt.id] || [];
+    const defaultColor = availCols.includes('BLACK') ? 'BLACK' : (availCols.includes('FADED_BLACK') ? 'FADED_BLACK' : (availCols[0] || 'BLACK'));
+    S.products[pt.id] = {
+      selected: false, color: defaultColor, weight: 'default',
+      sizes: isTote ? ['ONE SIZE'] : [], isTote,
+      hasWeight: false,
+      placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right', 'back-center']),
+      front: {logoImg: null, logoFile: null},
+      back:  {logoImg: null, logoFile: null},
+      excl: 'unlimited', exclNum: 100, price: '', shipping: '',
+      logoPos:   {front: null, back: null},
+      logoScale: {front: 1.0,  back: 1.0},
+    };
+  });
+
+  // Render collapsible categories
+  PRODUCT_CATEGORIES.forEach(cat => {
+    const section = document.createElement('div');
+    section.className = 'product-category';
+    section.id = 'cat-' + cat.id;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'product-category-header';
+    header.innerHTML = `<span class="product-category-label">${cat.label}</span><span class="product-category-chevron">▼</span>`;
+    header.addEventListener('click', () => {
+      section.classList.toggle('collapsed');
+    });
+    section.appendChild(header);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'product-category-body';
+
+    if (cat.products.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'product-category-empty';
+      empty.textContent = 'Coming soon';
+      body.appendChild(empty);
+    } else {
+      cat.products.forEach(pid => {
+        const pt = PRODUCTS.find(p => p.id === pid);
+        if (!pt) return;
+
+        const thumb = document.createElement('div');
+        thumb.className = 'product-thumb'; thumb.id = 'thumb-' + pt.id;
+        thumb.title = pt.label;
+
+        const _thumbColour = PRODUCT_COLOURS[pt.id]?.includes('BLACK') ? 'BLACK' : (PRODUCT_COLOURS[pt.id]?.includes('FADED_BLACK') ? 'FADED_BLACK' : (PRODUCT_COLOURS[pt.id] || [])[0] || '');
+        const _thumbUrl = _thumbColour ? getImageUrl(pt.id, _thumbColour, 'front') : '';
+        thumb.innerHTML = `
+          <div class="product-thumb-img-wrap">
+            ${_thumbUrl ? `<img src="${_thumbUrl}" alt="${pt.label}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r-md);">` : `<div class="product-thumb-placeholder">${pt.label[0]}</div>`}
+            <div class="product-thumb-check" id="pchk-${pt.id}"></div>
+          </div>
+          <div class="product-thumb-label">${pt.label}</div>`;
+
+        thumb.addEventListener('click', () => toggleProduct(pt.id));
+        body.appendChild(thumb);
+      });
+    }
+
+    section.appendChild(body);
+    c.appendChild(section);
+  });
+
+  // Config panel appended at bottom (shown when product selected)
+  const configPanel = document.createElement('div');
+  configPanel.id = 'product-config-panel';
+  configPanel.style.marginTop = '1rem';
+  c.appendChild(configPanel);
+}
+
+
+// #endregion
+// #region JS: PRODUCT CONFIG
+function renderConfigPanel(ptId) {
+  const panel = document.getElementById('product-config-panel');
+  const pt = PRODUCTS.find(p=>p.id===ptId);
+  if (!pt) { panel.innerHTML=''; return; }
+
+  // Move panel to sit directly after the category that contains this product
+  const cat = PRODUCT_CATEGORIES.find(c => c.products.includes(ptId));
+  if (cat) {
+    const catEl = document.getElementById('cat-' + cat.id);
+    if (catEl && catEl.nextSibling !== panel) {
+      catEl.parentNode.insertBefore(panel, catEl.nextSibling);
+    }
+  }
+  const prod = S.products[ptId];
+
+  const desc = PRODUCT_DESCRIPTIONS[ptId] || '';
+  panel.innerHTML = `
+    <div style="border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:14px;background:var(--surface);">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px;">${pt.label}</div>
+      <div class="field-label" style="margin-bottom:8px;">Colour</div>
+      <div class="color-grid" id="pclr-${ptId}"></div>
+      <div class="color-name-label" id="pclr-name-${ptId}"></div>
+      ${desc ? `<div style="font-size:11px;color:var(--text2);margin-top:12px;line-height:1.6;border-top:0.5px solid var(--border);padding-top:10px;">${desc}</div>` : ''}
+    </div>`;
+
+  renderProductColors(ptId);
+}
+
+function toggleProduct(id) {
+  const p = S.products[id];
+  p.selected = !p.selected;
+  document.getElementById('thumb-'+id).classList.toggle('selected', p.selected);
+  document.getElementById('pchk-'+id).textContent = p.selected ? '✓' : '';
+  if (p.selected) {
+    S.activeProduct = id;
+    renderConfigPanel(id);
+  } else {
+    if (S.activeProduct===id) {
+      S.activeProduct = Object.keys(S.products).find(k=>S.products[k].selected) || null;
+      if (S.activeProduct) renderConfigPanel(S.activeProduct);
+      else document.getElementById('product-config-panel').innerHTML='';
+    }
+  }
+  renderPlacementGrid();
+  renderLogoAdjustPanel();
+  renderOrderByProduct();
+  refreshThumbs();
+  drawPreview();
+}
+
+function renderProductColors(ptId) {
+  const c = document.getElementById('pclr-'+ptId);
+  if (!c) return;
+  c.innerHTML = '';
+  const prod = S.products[ptId];
+  const colours = PRODUCT_COLOURS[ptId] || [];
+  colours.forEach(colKey => {
+    const palEntry = COLOUR_PALETTE[colKey] || {label: colKey, hex: '#888888'};
+    const isSel = prod.color === colKey;
+    const s = document.createElement('div');
+    s.className = 'color-swatch' + (palEntry.light?' light-swatch':'') + (isSel?' selected':'');
+    Object.assign(s.style, {
+      width:'28px', height:'28px', background: palEntry.hex,
+      border: palEntry.light?'1.5px solid rgba(0,0,0,0.15)':'1.5px solid transparent',
+    });
+    s.title = palEntry.label;
+    s.addEventListener('click', () => {
+      prod.color = colKey;
+      renderProductColors(ptId);
+      const nameEl = document.getElementById('pclr-name-'+ptId);
+      if (nameEl) nameEl.textContent = palEntry.label;
+      if (S.activeProduct===ptId) drawPreview();
+      refreshThumbs();
+    });
+    c.appendChild(s);
+  });
+  const selEntry = COLOUR_PALETTE[prod.color];
+  const nameEl = document.getElementById('pclr-name-'+ptId);
+  if (nameEl) nameEl.textContent = selEntry?.label || prod.color;
+}
+// toggleWeight removed — no weight variants
+
+// ─── Shared logo ──────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: ARTWORK UPLOAD
+function setupSharedArtworkUpload() {
+  const el   = document.getElementById('shared-artwork-upload');
+  const zone = document.getElementById('shared-artwork-zone');
+  if (!el) return;
+
+  function applyFile(file) {
+    processImageFile(file, (img, f) => {
+      const id = Date.now() + '_' + Math.random().toString(36).slice(2);
+      S.sharedArtwork.push({id, logoImg: img, logoFile: f});
+      renderSharedArtworkThumbs();
+      refreshThumbs(); drawPreview();
+    });
+  }
+
+  el.addEventListener('change', e => {
+    [...e.target.files].forEach(f => applyFile(f));
+    el.value = '';
+  });
+  addDropZone(zone, applyFile);
+}
+
+function renderSharedArtworkThumbs() {
+  const container = document.getElementById('shared-artwork-thumbs');
+  if (!container) return;
+  container.innerHTML = '';
+  const hint = document.getElementById('artwork-drag-hint');
+  if (hint) hint.style.display = S.sharedArtwork.length ? 'block' : 'none';
+  S.sharedArtwork.forEach(art => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;width:56px;cursor:grab;';
+    wrap.draggable = true;
+    wrap.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('artworkId', art.id);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    const cnv = document.createElement('canvas');
+    cnv.width = 56; cnv.height = 56;
+    cnv.style.cssText = 'border-radius:8px;background:var(--surface2);display:block;border:1.5px solid var(--border2);pointer-events:none;';
+    drawLogoThumb(cnv, art.logoImg);
+    wrap.appendChild(cnv);
+    const rm = document.createElement('button');
+    rm.style.cssText = 'position:absolute;top:-5px;right:-5px;width:16px;height:16px;padding:0;font-size:8px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;';
+    rm.textContent = '✕';
+    rm.title = 'Remove';
+    rm.onclick = e => {
+      e.stopPropagation();
+      S.sharedArtwork = S.sharedArtwork.filter(a => a.id !== art.id);
+      renderSharedArtworkThumbs();
+      refreshThumbs(); drawPreview();
+    };
+    wrap.appendChild(rm);
+    const name = document.createElement('div');
+    name.style.cssText = 'font-size:8px;color:var(--text3);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:56px;margin-top:3px;';
+    name.textContent = art.logoFile.name;
+    wrap.appendChild(name);
+    container.appendChild(wrap);
+  });
+}
+
+// ─── Per-product logo ─────────────────────────────────────────────────────────
+function refreshArtworkList() {
+  const c = document.getElementById('artwork-list');
+  const sel = PRODUCTS.filter(p => S.products[p.id].selected);
+  if (!sel.length) { c.innerHTML='<div class="empty-state">No products selected yet.</div>'; return; }
+  c.innerHTML = '';
+  sel.forEach(pt => {
+    const prod = S.products[pt.id];
+    const hasFront = !!prod.front?.logoImg;
+    const hasBack  = !!prod.back?.logoImg;
+    const hasAny   = hasFront || hasBack;
+    const item = document.createElement('div');
+    item.className = 'artwork-item'; item.id = 'aw-'+pt.id;
+    const badge = hasAny ? `<span class="artwork-badge custom">Custom</span>` : `<span class="artwork-badge shared">Shared</span>`;
+    const subText = hasAny ? [(hasFront?'Front':''), (hasBack?'Back':'')].filter(Boolean).join(' + ') + ' custom' : 'Using shared artwork';
+    item.innerHTML = `
+      <div class="artwork-item-header" onclick="toggleArtworkItem('${pt.id}')">
+        <div class="artwork-item-left">
+          <div class="artwork-item-thumb" id="aw-thumb-${pt.id}"><span style="font-size:14px;color:var(--text3);">◻</span></div>
+          <div><div class="artwork-item-name">${pt.label}</div><div class="artwork-item-sub">${subText}</div></div>
+        </div>${badge}
+      </div>
+      <div class="artwork-item-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;">Front</div>
+            <label for="aw-front-${pt.id}" class="upload-zone-sm"><strong>${hasFront?'Replace':'Upload front'}</strong><p>Overrides shared</p></label>
+            <input type="file" id="aw-front-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="front">
+            ${hasFront?`<div style="font-size:12px;color:var(--green-fg);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.front.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:11px;margin-top:4px;" onclick="clearProductSide('${pt.id}','front')">Remove</button>`:''}
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text3);margin-bottom:6px;letter-spacing:0.06em;text-transform:uppercase;">Back</div>
+            <label for="aw-back-${pt.id}" class="upload-zone-sm"><strong>${hasBack?'Replace':'Upload back'}</strong><p>Overrides shared</p></label>
+            <input type="file" id="aw-back-${pt.id}" accept=".png,.svg,.jpg,.jpeg" data-ptid="${pt.id}" data-side="back">
+            ${hasBack?`<div style="font-size:12px;color:var(--green-fg);margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">✓ ${prod.back.logoFile.name}</div><button class="btn btn-ghost btn-sm" style="width:100%;font-size:11px;margin-top:4px;" onclick="clearProductSide('${pt.id}','back')">Remove</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    c.appendChild(item);
+    const thumbImg = prod.front?.logoImg || prod.back?.logoImg || S.sharedArtwork[0]?.logoImg;
+    if (thumbImg) {
+      const thumbEl = document.getElementById('aw-thumb-'+pt.id);
+      const cnv = document.createElement('canvas'); cnv.width=32; cnv.height=32;
+      thumbEl.innerHTML=''; thumbEl.appendChild(cnv); drawLogoThumb(cnv, thumbImg);
+    }
+    ['front','back'].forEach(side => {
+      const inputEl = document.getElementById(`aw-${side}-${pt.id}`);
+      const zoneEl  = inputEl?.previousElementSibling; // the label above the input
+
+      function applyArtFile(file, pid, sd) {
+        processImageFile(file, (img, f) => {
+          S.products[pid][sd] = {logoImg: img, logoFile: f};
+          refreshArtworkList(); refreshThumbs();
+          if (S.activeProduct === pid) drawPreview();
+        });
+      }
+
+      if (inputEl) {
+        inputEl.addEventListener('change', function(e) {
+          if (e.target.files[0]) applyArtFile(e.target.files[0], this.dataset.ptid, this.dataset.side);
+        });
+      }
+      // Wire the label (zone) for drag-and-drop
+      const pid = pt.id;
+      if (zoneEl && zoneEl.tagName === 'LABEL') {
+        addDropZone(zoneEl, file => applyArtFile(file, pid, side));
+      }
+    });
+  });
+}
+
+function clearProductSide(ptId, side) {
+  S.products[ptId][side] = {logoImg: null, logoFile: null};
+  const inp = document.getElementById(`aw-${side}-${ptId}`);
+  if (inp) inp.value = '';
+  refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview();
+}
+
+
+function toggleArtworkItem(ptId) {
+  const item=document.getElementById('aw-'+ptId);
+  const wasOpen=item.classList.contains('open');
+  document.querySelectorAll('.artwork-item').forEach(i=>i.classList.remove('open'));
+  if(!wasOpen) item.classList.add('open');
+  S.activeProduct=ptId; refreshThumbs(); drawPreview();
+}
+
+function clearProductLogo(ptId) {
+  S.products[ptId].logoImg=null; S.products[ptId].logoFile=null;
+  const inp=document.getElementById('aw-upload-'+ptId); if(inp) inp.value='';
+  refreshArtworkList(); refreshThumbs(); if(S.activeProduct===ptId) drawPreview();
+}
+
+// ─── Logo colours ─────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: LOGO COLOURS
+function initLogoColors() {
+  const c=document.getElementById('logo-color-grid');
+  c.innerHTML = ''; // clear before re-rendering
+  LOGO_COLORS.forEach(lc=>{
+    const s=document.createElement('div');
+    const isSel=(!S.logoColor&&!lc.hex)||(S.logoColor?.name===lc.name);
+    Object.assign(s.style,{
+      width:'26px',height:'26px',borderRadius:'50%',cursor:'pointer',transition:'all 0.15s',
+      outline:isSel?'2px solid var(--text)':'2px solid transparent',outlineOffset:'2px',flexShrink:'0',
+      background:lc.hex||'conic-gradient(#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#ff6b6b)',
+      border:lc.light?'1px solid rgba(0,0,0,0.14)':'1px solid transparent',
+    });
+    s.title=lc.name;
+    s.addEventListener('click',()=>{
+      S.logoColor=lc.hex?lc:null;
+      document.getElementById('logo-color-name').textContent=lc.name;
+      initLogoColors(); refreshThumbs(); drawPreview();
+    });
+    c.appendChild(s);
+  });
+}
+
+// ─── Placements ───────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: PLACEMENTS
+function initPlacements() {
+  renderPlacementGrid();
+}
+
+function renderLogoAdjustPanel() {
+  const c = document.getElementById('logo-adjust-panel');
+  if (!c) return;
+  c.innerHTML = '';
+  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
+  if (!selected.length) {
+    c.innerHTML = '<div style="font-size:13px;color:var(--text3);">Select products first.</div>';
+    return;
+  }
+  selected.forEach(pt => {
+    const prod = S.products[pt.id];
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;';
+    const name = document.createElement('span');
+    name.style.cssText = 'font-size:13px;font-weight:500;flex:1;';
+    name.textContent = pt.label;
+    row.appendChild(name);
+    const sides = pt.isTote ? ['front'] : ['front', 'back'];
+    sides.forEach(side => {
+      const hasCustomPos = prod.logoPos?.[side] != null;
+      const hasCustomScale = prod.logoScale?.[side] != null && prod.logoScale[side] !== 1.0;
+      const hasCustom = hasCustomPos || hasCustomScale;
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-ghost btn-sm';
+      btn.style.cssText = 'font-size:12px;opacity:' + (hasCustom ? '1' : '0.35') + ';';
+      btn.textContent = 'Reset ' + side;
+      btn.disabled = !hasCustom;
+      btn.onclick = () => {
+        prod.logoPos[side]   = null;
+        prod.logoScale[side] = 1.0;
+        renderLogoAdjustPanel();
+        drawPreview();
+      };
+      row.appendChild(btn);
+    });
+    c.appendChild(row);
+  });
+}
+
+function renderPlacementGrid() {
+  const c = document.getElementById('placement-grid');
+  if (!c) return;
+  c.innerHTML = '';
+  c.style.gridTemplateColumns = '1fr';
+
+  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
+  if (!selected.length) {
+    c.innerHTML = '<div style="font-size:11px;color:var(--text3);padding:4px 0;">Select products first.</div>';
+    return;
+  }
+
+  selected.forEach(pt => {
+    const prod = S.products[pt.id];
+    if (!prod.placements) prod.placements = new Set(['front-top-right']);
+
+    const section = document.createElement('div');
+    section.style.cssText = 'margin-bottom:14px;';
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:11px;font-weight:500;color:var(--text2);margin-bottom:8px;';
+    lbl.textContent = pt.label;
+    section.appendChild(lbl);
+
+    if (pt.isTote) {
+      prod.placements = new Set(['tote-front']);
+      const b = document.createElement('button');
+      b.className = 'placement-opt selected';
+      b.style.cssText = 'width:100%;pointer-events:none;';
+      b.innerHTML = '<b>Front</b><span>Large — centre</span>';
+      section.appendChild(b);
+    } else {
+      const grid = document.createElement('div');
+      grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+      const allowed = PRODUCT_PLACEMENTS[pt.id] || [];
+      PLACEMENTS.filter(p => allowed.includes(p.id)).forEach(p => {
+        const isSel = prod.placements.has(p.id);
+        const b = document.createElement('button');
+        b.className = 'placement-opt' + (isSel ? ' selected' : '');
+        b.innerHTML = `<b>${p.label}</b><span>${p.sub}</span>`;
+        b.onclick = () => {
+          if (prod.placements.has(p.id)) {
+            if (prod.placements.size > 1) { prod.placements.delete(p.id); b.classList.remove('selected'); }
+          } else {
+            prod.placements.add(p.id); b.classList.add('selected');
+          }
+          updateFooter(); refreshThumbs(); drawPreview();
+        };
+        grid.appendChild(b);
+      });
+      section.appendChild(grid);
+    }
+    c.appendChild(section);
+  });
+}
+
+
+let _customTextWired = false;
+function initCustomText() {
+  const input = document.getElementById('custom-text-input');
+  if (input && !_customTextWired) {
+    _customTextWired = true;
+    input.addEventListener('input', () => {
+      S.customText = input.value;
+      drawPreview();
+    });
+  }
+  const grid = document.getElementById('text-font-grid');
+  if (grid) {
+    grid.innerHTML = '';
+    TEXT_FONTS.forEach(f => {
+      const chip = document.createElement('div');
+      chip.className = 'font-chip' + (S.customTextFont === f.value ? ' selected' : '');
+      chip.textContent = f.label;
+      chip.style.fontFamily = f.value;
+      chip.onclick = () => {
+        S.customTextFont = f.value;
+        grid.querySelectorAll('.font-chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        drawPreview();
+      };
+      grid.appendChild(chip);
+    });
+  }
+}
+
+function setTextSide(side) {
+  S.customTextSide = side;
+  ['front','back','both'].forEach(s => {
+    const el = document.getElementById('text-side-' + s);
+    if (el) el.classList.toggle('selected', s === side);
+  });
+  drawPreview();
+}
+
+function clearCustomText() {
+  S.customText = '';
+  S.customTextSide = 'front';
+  const input = document.getElementById('custom-text-input');
+  if (input) input.value = '';
+  setTextSide('front');
+  drawPreview();
+}
+
+function updateLogoSize(v) {
+  S.logoSize=parseInt(v);
+  document.getElementById('logo-size-val').textContent=v+'%';
+  refreshThumbs(); drawPreview();
+}
+
+// ─── Sizes & order ────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: ORDER / SIZES / PRICING
+function initSizes() { renderOrderByProduct(); }
+function renderSizesByProduct() { renderOrderByProduct(); }
+function buildPriceGrid() { renderOrderByProduct(); }
+
+function renderOrderByProduct() {
+  const c = document.getElementById('order-by-product');
+  if (!c) return;
+  c.innerHTML = '';
+  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
+  if (!selected.length) {
+    c.innerHTML = '<div style="font-size:14px;color:var(--text3);padding:4px 0;">No products selected yet.</div>';
+    return;
+  }
+  selected.forEach(pt => {
+    const prod = S.products[pt.id];
+    if (!prod.prices)  prod.prices  = {};
+    if (!prod.excl)    prod.excl    = 'unlimited';
+    if (!prod.exclNum) prod.exclNum = 100;
+
+    const card = document.createElement('div');
+    card.style.cssText = 'border:0.5px solid var(--border2);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-size:15px;font-weight:600;margin-bottom:16px;';
+    hdr.textContent = pt.label;
+    card.appendChild(hdr);
+
+    // SIZES
+    const szTitle = document.createElement('div');
+    szTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    szTitle.textContent = 'Available sizes';
+    card.appendChild(szTitle);
+    if (prod.isTote) {
+      const pill = document.createElement('div');
+      pill.style.cssText = 'font-size:13px;color:var(--text3);background:var(--surface2);padding:8px 12px;border-radius:var(--r-sm);margin-bottom:16px;';
+      pill.textContent = 'One size only';
+      card.appendChild(pill);
+    } else {
+      const szGrid = document.createElement('div');
+      szGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;margin-bottom:16px;';
+      SIZES.forEach(sz => {
+        const b = document.createElement('button');
+        b.className = 'size-btn' + (prod.sizes.includes(sz) ? ' selected' : '');
+        b.textContent = sz;
+        b.onclick = () => {
+          const i = prod.sizes.indexOf(sz);
+          if (i > -1) { prod.sizes.splice(i, 1); b.classList.remove('selected'); }
+          else         { prod.sizes.push(sz);      b.classList.add('selected'); }
+          updateFooter();
+        };
+        szGrid.appendChild(b);
+      });
+      card.appendChild(szGrid);
+    }
+
+    // RUN EXCLUSIVITY
+    const runTitle = document.createElement('div');
+    runTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    runTitle.textContent = 'Run exclusivity';
+    card.appendChild(runTitle);
+    const chips = document.createElement('div');
+    chips.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;';
+    const numRow = document.createElement('div');
+    numRow.style.cssText = 'display:' + (prod.excl==='limited'?'flex':'none') + ';align-items:center;gap:8px;margin-bottom:8px;';
+    numRow.innerHTML = '<input type="number" class="num-input" min="1" value="' + prod.exclNum + '" style="width:80px;"><span style="font-size:13px;color:var(--text2);">total max</span>';
+    numRow.querySelector('input').addEventListener('input', function() { prod.exclNum = parseInt(this.value)||100; updateFooter(); });
+    ['Unlimited','Limited run'].forEach(opt => {
+      const isU = opt === 'Unlimited';
+      const b = document.createElement('div');
+      b.className = 'chip' + ((isU && prod.excl==='unlimited')||(!isU && prod.excl==='limited')?' selected':'');
+      b.textContent = opt;
+      b.onclick = () => {
+        prod.excl = isU ? 'unlimited' : 'limited';
+        chips.querySelectorAll('.chip').forEach(x=>x.classList.remove('selected')); b.classList.add('selected');
+        numRow.style.display = prod.excl==='limited' ? 'flex' : 'none';
+        updateFooter();
+      };
+      chips.appendChild(b);
+    });
+    card.appendChild(chips);
+    card.appendChild(numRow);
+    const notice = document.createElement('div');
+    notice.className = 'notice'; notice.style.marginBottom = '16px';
+    notice.textContent = 'Limits the total ever sold for this product. Unlimited has no cap.';
+    card.appendChild(notice);
+
+    // SELL PRICE
+    const minPrice = MIN_PRICES[pt.id] || 0;
+    const priceTitle = document.createElement('div');
+    priceTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;';
+    priceTitle.textContent = 'Sell price (all sizes)';
+    card.appendChild(priceTitle);
+
+    const priceRow = document.createElement('div');
+    priceRow.className = 'price-row';
+    priceRow.style.marginBottom = '6px';
+    priceRow.innerHTML = `<span class="price-prefix">$</span><input class="price-row-input" type="number" min="${minPrice}" step="0.01" placeholder="${minPrice}.00" value="${prod.price||''}"><span style="font-size:11px;color:var(--text3);white-space:nowrap;">min $${minPrice}</span>`;
+    priceRow.querySelector('input').addEventListener('input', function() {
+      prod.price = this.value;
+      if (parseFloat(this.value) < minPrice) { this.style.borderColor='var(--red,#e53)'; }
+      else { this.style.borderColor=''; }
+    });
+    card.appendChild(priceRow);
+
+    // SHIPPING
+    const shipTitle = document.createElement('div');
+    shipTitle.style.cssText = 'font-size:10px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;margin-top:12px;';
+    shipTitle.textContent = 'Shipping (per item)';
+    card.appendChild(shipTitle);
+
+    const shipRow = document.createElement('div');
+    shipRow.className = 'price-row';
+    shipRow.innerHTML = `<span class="price-prefix">$</span><input class="price-row-input" type="number" min="0" step="0.01" placeholder="0.00" value="${prod.shipping||''}">`;
+    shipRow.querySelector('input').addEventListener('input', function() { prod.shipping = this.value; });
+    card.appendChild(shipRow);
+
+    c.appendChild(card);
+  });
+}
+
+// refreshPriceRows removed — single price per product now
+
+
+
+// #endregion
+// #region JS: FOOTER & SUMMARY
+function updateFooter() {
+  const _allSizes = PRODUCTS.filter(p=>S.products[p.id]?.selected).flatMap(p=>S.products[p.id].sizes);
+  document.getElementById('pf-sizes').textContent = _allSizes.length ? [...new Set(_allSizes)].join(' ') : '—';
+  const _rSel = PRODUCTS.filter(p=>S.products[p.id]?.selected);
+  document.getElementById('pf-run').textContent = _rSel.length ? _rSel.map(p=>S.products[p.id].excl==='limited'?'Max '+S.products[p.id].exclNum:'Unlimited').join(' / ') : 'Unlimited';
+  const _prod = S.products[S.activeProduct];
+  const _pls = _prod ? [...(_prod.placements||[])] : [];
+  document.getElementById('pf-placement').textContent = _pls.map(id=>PLACEMENTS.find(p=>p.id===id)?.label||id).join(' + ') || '—';
+}
+
+// ─── Summary ──────────────────────────────────────────────────────────────────
+function buildSummary() {
+  const sel=PRODUCTS.filter(p=>S.products[p.id].selected);
+  const ap=S.activeProduct;
+  const aprod=ap?S.products[ap]:null;
+  const selCol=ap?(COLOUR_PALETTE[aprod?.color]||null):null;
+  const rows=[
+    {label:'Products',val:sel.length?sel.map(p=>p.label).join(', '):'None'},
+    {label:'Active colour',val:selCol?.label||'—'},
+    {label:'Sizes', val: (() => {
+      const sel = PRODUCTS.filter(p=>S.products[p.id]?.selected);
+      if (!sel.length) return 'None';
+      return sel.map(p => {
+        const prod = S.products[p.id];
+        const szs = prod.isTote ? ['One size'] : prod.sizes;
+        return p.label + ': ' + (szs.length ? szs.join(', ') : 'none selected');
+      }).join(' | ');
+    })()},
+    {label:'Placements', val: PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p => {
+      const pls = [...(S.products[p.id].placements||[])];
+      return p.label + ': ' + (pls.map(id=>PLACEMENTS.find(pl=>pl.id===id)?.label||id).join(' + ') || 'none');
+    }).join(' | ') || '—'},
+    {label:'Logo scale',val:S.logoSize+'%'},
+    {label:'Artwork',val:S.sharedArtwork.length?S.sharedArtwork.map(a=>a.logoFile.name).join(', '):'None uploaded'},
+    {label:'Overrides',val:sel.filter(p=>S.products[p.id].logoImg).map(p=>p.label).join(', ')||'None'},
+    {label:'Run', val:PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p=>p.label+': '+(S.products[p.id].excl==='limited'?'Max '+S.products[p.id].exclNum:'Unlimited')).join(', ')||'—'},
+  ];
+  document.getElementById('summary-rows').innerHTML=rows.map(r=>`<div class="summary-row"><span class="sr-label">${r.label}</span><span class="sr-val">${r.val}</span></div>`).join('');
+}
+
+function publish() {
+  const sel=PRODUCTS.filter(p=>S.products[p.id].selected);
+  const payload={
+    products:sel.map(p=>{
+      const prod=S.products[p.id];
+      const colName=COLOUR_PALETTE[prod.color]?.label||prod.color;
+      return {type:p.label,color:colName,weight:prod.weight,artwork:prod.logoFile?{file:prod.logoFile.name,source:'custom'}:{file:S.sharedSmall?.logoFile?.name||null,source:'shared'}};
+    }),
+    design:{placement:[...(S.products[sel[0]?.id]?.placements||[])].join('+'),logo_color:S.logoColor?.name||'as-uploaded'},
+    variants: PRODUCTS.filter(p=>S.products[p.id]?.selected).map(p => ({
+      product: p.label,
+      sizes: S.products[p.id].isTote ? ['ONE SIZE'] : S.products[p.id].sizes,
+      price: S.products[p.id].price || '',
+      shipping: S.products[p.id].shipping || '',
+      run: S.products[p.id].excl==='limited' ? {limit:S.products[p.id].exclNum} : 'unlimited',
+    })),
+
+    status:'published',created_at:new Date().toISOString(),
+  };
+  document.getElementById('publish-success').style.display='block';
+  document.getElementById('payload-wrap').style.display='block';
+  document.getElementById('medusa-payload').textContent=JSON.stringify(payload,null,2);
+}
+
+function saveDraft(btn){const o=btn.textContent;btn.textContent='✓ Saved';setTimeout(()=>btn.textContent=o,2000);}
+function shareLink(btn){navigator.clipboard?.writeText(window.location.href).then(()=>{const o=btn.textContent;btn.textContent='✓ Copied';setTimeout(()=>btn.textContent=o,2000);});}
+function resetAll(){if(confirm('Start over?'))location.reload();}
+
+// ─── Canvas drawing ───────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: CANVAS DRAWING
+function getLogoAnchor(W, H, ptId, viewOverride) {
+  const prod = ptId ? S.products[ptId] : null;
+  const resolvedView = viewOverride !== undefined ? viewOverride : S.view;
+  const side = resolvedView === 'back' ? 'back' : 'front';
+  // Use stored per-product position if dragged
+  if (prod?.logoPos?.[side]) {
+    return {x: prod.logoPos[side].cx * W, y: prod.logoPos[side].cy * H};
+  }
+  // Fall back to placement preset default
+  const placements = prod?.placements || new Set();
+  let pid;
+  const _isTote = PRODUCTS.find(p => p.id === ptId)?.isTote;
+  if (_isTote) {
+    pid = 'tote-front';
+  } else if (side === 'back') {
+    pid = placements.has('back-center') ? 'back-center' : null;
+  } else {
+    pid = placements.has('front-top-right') ? 'front-top-right' : null;
+  }
+  if (!pid && placements.size > 0) pid = [...placements][0];
+  const preset = pid ? PLACEMENT_PRESETS[pid] : null;
+  if (preset) return {x: preset.cx * W, y: preset.cy * H};
+  const zone = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
+  return {x: zone.cx * W, y: zone.cy * H};
+}
+
+function getEffectiveLogo(ptId, view) {
+  const side = view || S.view;
+  const prod = ptId ? S.products[ptId] : null;
+  // Return the artwork explicitly placed on this product's side via drag-drop
+  return prod?.[side]?.logoImg || null;
+}
+
+function applyLogoColor(ctx, logoImg, dx, dy, dw, dh) {
+  if (!logoImg) return;
+  if (S.logoColor?.hex) {
+    const off=document.createElement('canvas');
+    off.width=logoImg.width; off.height=logoImg.height;
+    const oc=off.getContext('2d');
+    oc.drawImage(logoImg,0,0);
+    oc.globalCompositeOperation='source-in';
+    oc.fillStyle=S.logoColor.hex;
+    oc.fillRect(0,0,off.width,off.height);
+    ctx.drawImage(off,dx,dy,dw,dh);
+  } else {
+    ctx.drawImage(logoImg,dx,dy,dw,dh);
+  }
+}
+
+async function drawToCanvas(canvas, ptId, W, H) {
+  const currentView = S.view;
+  const ctx = canvas.getContext('2d');
+  canvas.width=W; canvas.height=H;
+  ctx.clearRect(0,0,W,H);
+
+  const prod = ptId ? S.products[ptId] : null;
+
+  // Try to get real product photo
+  let productImg = null;
+  if (prod && prod.color) {
+    productImg = await loadProductImage(ptId, prod.weight, prod.color);
+  }
+
+  if (productImg) {
+    // Draw real product photo
+    ctx.drawImage(productImg, 0, 0, W, H);
+  } else if (PRODUCT_PREVIEW_FALLBACKS[ptId] && currentView !== 'back') {
+    // No colour-specific photo — use product fallback image (front only)
+    const fbKey = ptId;
+    if (!S.imgCache['__fb_'+fbKey]) {
+      const fbImg = new Image();
+      await new Promise(resolve => {
+        fbImg.onload = () => { S.imgCache['__fb_'+fbKey] = fbImg; resolve(); };
+        fbImg.src = PRODUCT_PREVIEW_FALLBACKS[fbKey];
+      });
+    }
+    if (S.imgCache['__fb_'+fbKey]) {
+      ctx.drawImage(S.imgCache['__fb_'+fbKey], 0, 0, W, H);
+    } else {
+      const palEntry = COLOUR_PALETTE[prod?.color] || {hex:'#CCCCCC', light:true};
+      ctx.fillStyle = palEntry.hex;
+      drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
+    }
+  } else {
+    // Final fallback: coloured silhouette
+    const palEntry = COLOUR_PALETTE[prod?.color] || {hex:'#CCCCCC', light:true};
+    ctx.fillStyle = palEntry.hex;
+    drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
+  }
+
+  // Draw logo overlay
+  const prod_placements = prod?.placements || new Set();
+  const viewHasPlacement = currentView === 'back'
+    ? (prod_placements.has('back-center') || prod_placements.has('tote-front'))
+    : (prod_placements.has('front-top-right') || prod_placements.has('tote-front'));
+  const logo = viewHasPlacement ? getEffectiveLogo(ptId, currentView) : null;
+  if (logo) {
+    const zone = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
+    const baseFrac = (currentView === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+    const side = currentView === 'back' ? 'back' : 'front';
+    const logoScale = prod?.logoScale?.[side] ?? 1.0;
+    const lw = baseFrac * logoScale * W;
+    const lh = lw * (logo.height / logo.width);
+    const anchor = getLogoAnchor(W, H, ptId, currentView);
+    ctx.save();
+    applyLogoColor(ctx, logo, anchor.x - lw/2, anchor.y - lh/2, lw, lh);
+    ctx.restore();
+  } else if (prod && viewHasPlacement) {
+    // Show placement guide
+    const anchor = getLogoAnchor(W, H, ptId, currentView);
+    const pw = W * 0.22, ph = pw * 0.4;
+    ctx.save(); ctx.setLineDash([3,3]);
+    ctx.strokeStyle='rgba(128,128,128,0.5)'; ctx.lineWidth=1.5;
+    ctx.strokeRect(anchor.x-pw/2, anchor.y-ph/2, pw, ph); ctx.restore();
+    ctx.fillStyle='rgba(100,100,100,0.6)';
+    ctx.font=`${Math.max(9, W*0.035)}px Instrument Sans,sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('logo here', anchor.x, anchor.y);
+  }
+
+  // Draw custom text overlay
+  const showText = S.customText && (
+    S.customTextSide === 'both' ||
+    (S.customTextSide === 'front' && currentView === 'front') ||
+    (S.customTextSide === 'back'  && currentView === 'back')
+  );
+  if (showText) {
+    const fontSize = Math.round(W * 0.06);
+    const textColor = S.logoColor?.hex || '#000000';
+    ctx.save();
+    ctx.font = `${fontSize}px ${S.customTextFont}`;
+    ctx.fillStyle = textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Position: below logo anchor, or centre bottom third
+    const anchor = getLogoAnchor(W, H, ptId, currentView);
+    const textY = Math.min(anchor.y + (logo ? Math.round(W * 0.08) : 0) + fontSize * 1.2, H * 0.88);
+    ctx.fillText(S.customText, W / 2, textY);
+    ctx.restore();
+  }
+}
+
+function drawFallbackShirt(ctx, W, H, isLight, type) {
+  const sw=W*0.76, sh=H*0.68, sx=(W-sw)/2, sy=H*0.14, cx=W/2;
+  ctx.beginPath();
+  ctx.moveTo(cx-sw*0.22,sy); ctx.lineTo(sx,sy+sh*0.18); ctx.lineTo(sx,sy+sh);
+  ctx.lineTo(sx+sw,sy+sh); ctx.lineTo(sx+sw,sy+sh*0.18); ctx.lineTo(cx+sw*0.22,sy);
+  ctx.quadraticCurveTo(cx,sy-sh*0.04,cx-sw*0.22,sy); ctx.fill();
+  if(isLight){ctx.strokeStyle='rgba(0,0,0,0.10)';ctx.lineWidth=1;ctx.stroke();}
+}
+
+// ─── Main preview ─────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: DRAW PREVIEW
+async function drawPreview() {
+  const pt = S.activeProduct;
+  const prod = pt ? S.products[pt] : null;
+  const orig = S.view;
+  S.view = 'front';
+  await drawToCanvas(document.getElementById('preview-canvas-front'), pt, 480, 480);
+  S.view = 'back';
+  await drawToCanvas(document.getElementById('preview-canvas-back'), pt, 480, 480);
+  S.view = orig;
+  const ptData = PRODUCTS.find(p=>p.id===pt);
+  const colName = prod ? (COLOUR_PALETTE[prod.color]?.label || prod.color) : '';
+  document.getElementById('preview-name').textContent = ptData ? ptData.label : '—';
+  document.getElementById('preview-sub').textContent = ptData ? colName : 'Select a product to begin';
+  document.getElementById('preview-tags').innerHTML = [colName,...(prod?.sizes||[]).slice(0,4)].filter(Boolean).map(t=>`<span class="preview-tag">${t}</span>`).join('');
+  updateRemoveButtons();
+}
+
+// ─── Thumbnails ───────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: THUMBNAILS
+async function refreshThumbs() {
+  const strip = document.getElementById('preview-thumbs');
+  strip.innerHTML='';
+  const sel = PRODUCTS.filter(p=>S.products[p.id].selected);
+  if (!sel.length) {
+    strip.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px 0;align-self:center;">No products yet</div>';
+    return;
+  }
+  for (const pt of sel) {
+    const wrap=document.createElement('div');
+    wrap.className='thumb-wrap'+(S.activeProduct===pt.id?' active':'');
+    const cnv=document.createElement('canvas'); cnv.width=62; cnv.height=62;
+    wrap.appendChild(cnv);
+    const label=document.createElement('div'); label.className='thumb-label'; label.textContent=pt.label;
+    wrap.appendChild(label);
+    const _sv = S.view; S.view = 'front';
+    await drawToCanvas(cnv, pt.id, 62, 62);
+    S.view = _sv;
+    wrap.addEventListener('click',()=>{
+      S.activeProduct=pt.id;
+      refreshThumbs(); drawPreview();
+    });
+    strip.appendChild(wrap);
+  }
+  const addBtn=document.createElement('div'); addBtn.className='thumb-add';
+  addBtn.innerHTML='+<span>Add</span>'; addBtn.onclick=()=>switchTab('products');
+  strip.appendChild(addBtn);
+}
+
+// ─── View toggle ──────────────────────────────────────────────────────────────
+// setView removed — both views shown simultaneously
+
+// ─── Drag to reposition logo ──────────────────────────────────────────────────
+
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function drawLogoThumb(canvasOrId, img) {
+  const c=typeof canvasOrId==='string'?document.getElementById(canvasOrId):canvasOrId;
+  if(!c||!img) return;
+  const ctx=c.getContext('2d'); const w=c.width,h=c.height;
+  ctx.clearRect(0,0,w,h);
+  const ar=img.width/img.height;
+  const [dw,dh]=ar>1?[w,w/ar]:[h*ar,h];
+  ctx.drawImage(img,(w-dw)/2,(h-dh)/2,dw,dh);
+}
+
+function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+
+// #endregion
+// #region JS: DRAG + SCROLL LOGO INTERACTION
+// ─── Drag + scroll logo positioning ─────────────────────────────────────────
+// Single shared drag state — avoids double-firing across front/back canvases
+(function setupLogoInteraction() {
+  let activeSide = null;   // which canvas is being dragged
+  let dragging   = false;
+  let dragOff    = {x: 0, y: 0};
+  let lastPinchDist = null;
+
+  function ptId() { return S.activeProduct; }
+
+  function canvasForSide(side) {
+    return document.getElementById('preview-canvas-' + side);
+  }
+
+  function ensureState(prod) {
+    if (!prod.logoPos)   prod.logoPos   = {front: null, back: null};
+    if (!prod.logoScale) prod.logoScale = {front: 1.0,  back: 1.0};
+  }
+
+  function clientToCanvas(e, cv) {
+    const r = cv.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) * (cv.width  / r.width),
+      y: (e.clientY - r.top)  * (cv.height / r.height),
+    };
+  }
+
+  function getRect(prod, side) {
+    const cv = canvasForSide(side); if (!cv) return null;
+    const W = cv.width, H = cv.height;
+    const pid = ptId();
+    const zone = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
+    const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
+    const sc = prod.logoScale?.[side] ?? 1.0;
+    const lw = baseFrac * sc * W;
+    const viewSave = S.view; S.view = side;
+    const anchor = getLogoAnchor(W, H, pid);
+    S.view = viewSave;
+    const effLogo = getEffectiveLogo(pid, side);
+    const lh = effLogo ? lw * (effLogo.height / effLogo.width) : lw;
+    return {x: anchor.x - lw/2, y: anchor.y - lh/2, w: lw, h: lh, cx: anchor.x, cy: anchor.y};
+  }
+
+  function redraw(side) {
+    const cv = canvasForSide(side); if (!cv) return;
+    const viewSave = S.view; S.view = side;
+    drawToCanvas(cv, ptId(), cv.width, cv.height);
+    S.view = viewSave;
+  }
+
+  // ── Mouse down — determine which canvas was clicked ───────────────────────
+  function onDown(e, side) {
+    const pid = ptId(); if (!pid) return;
+    const prod = S.products[pid]; if (!prod?.selected) return;
+    const cv = canvasForSide(side); if (!cv) return;
+    const m = clientToCanvas(e, cv);
+    const lr = getRect(prod, side);
+    // Hit test: if logo exists check if clicking near it; otherwise allow drag anywhere
+    const hasLogo = !!getEffectiveLogo(pid, side);
+    const hit = !lr || !hasLogo || (
+      m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
+      m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12
+    );
+    if (hit) {
+      dragging   = true;
+      activeSide = side;
+      dragOff    = lr ? {x: m.x - lr.cx, y: m.y - lr.cy} : {x: 0, y: 0};
+      cv.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+  }
+
+  // ── Mouse move — only move on the active side ─────────────────────────────
+  function onMove(e) {
+    if (!dragging || !activeSide) return;
+    const pid = ptId(); if (!pid) return;
+    const prod = S.products[pid];
+    const cv = canvasForSide(activeSide); if (!cv) return;
+    const m = clientToCanvas(e, cv);
+    ensureState(prod);
+    prod.logoPos[activeSide] = {
+      cx: Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width)),
+      cy: Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height)),
+    };
     redraw(activeSide);
   }
 
