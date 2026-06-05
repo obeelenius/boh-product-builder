@@ -78,7 +78,19 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
 .preview-title { font-family: 'Instrument Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text3); }
 
 
-.preview-body { flex: 1; display: flex; flex-direction: column; overflow-y: auto; min-height: 0; }
+.preview-body { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+/* Design panel: canvases center + drop right */
+#preview-design-panel { display:flex; flex-direction:row; flex:1; min-height:0; overflow:hidden; }
+#preview-canvas-center { flex:1; min-width:0; display:flex; flex-direction:column; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--surface3) transparent; }
+#preview-side-drop { width:260px; flex-shrink:0; border-left:0.5px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+/* Order panel: full-area grid */
+#preview-order-panel { flex:1; overflow-y:auto; padding:1.25rem; scrollbar-width:thin; scrollbar-color:var(--surface3) transparent; }
+.order-preview-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px,1fr)); gap:10px; }
+.order-preview-card { border-radius:var(--r-lg); overflow:hidden; background:var(--surface2); border:1px solid var(--border); }
+.order-preview-img { width:100%; aspect-ratio:1; object-fit:cover; display:block; }
+.order-preview-body { padding:5px 8px 8px; }
+.order-preview-name { font-size:10px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.order-preview-colour { font-size:9px; color:var(--text3); margin-top:1px; }
 .preview-side { padding: 1rem 1.5rem 0.75rem; flex-shrink: 0; }
 .preview-side + .preview-side { border-top: 0.5px solid var(--border); }
 .preview-side-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
@@ -93,6 +105,23 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
 }
 .canvas-remove-btn:hover { background: rgba(0,0,0,0.8); }
 .canvas-remove-btn.visible { display: flex; }
+.text-item-card {
+  border: 0.5px solid var(--border2); border-radius: var(--r-md);
+  padding: 10px; margin-bottom: 10px; background: var(--surface);
+  position: relative;
+}
+.text-item-remove {
+  position: absolute; top: 8px; right: 8px; width: 20px; height: 20px;
+  border-radius: 50%; border: none; cursor: pointer;
+  background: var(--surface2); color: var(--text2); font-size: 14px;
+  display: flex; align-items: center; justify-content: center; padding: 0; line-height: 1;
+}
+.text-item-remove:hover { background: var(--border2); }
+.text-thumb-canvas {
+  width: 100%; height: 62px; display: block; border-radius: var(--r-sm);
+  border: 0.5px solid var(--border); background: var(--surface2);
+  cursor: grab; margin-bottom: 8px;
+}
 #preview-canvas-front, #preview-canvas-back {
   border-radius: var(--r-lg); display: block; cursor: grab;
   width: 100%; max-width: 460px;
@@ -142,6 +171,106 @@ body { font-family: 'Instrument Sans', sans-serif; background: var(--bg); color:
   border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
   transition: opacity 0.2s;
 }
+
+/* ── Products screen redesign ──────────────────────────── */
+/* Catalog grid */
+/* Collapsible category headers */
+.cat-section-label { display:flex; align-items:center; justify-content:space-between; font-size:10px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--text3); padding:0.85rem 0 0.45rem; border-top:0.5px solid var(--border); margin-top:0.35rem; cursor:pointer; user-select:none; }
+.cat-section-label:first-child { border-top:none; margin-top:0; padding-top:0; }
+.cat-section-label:hover { color:var(--text2); }
+.cat-chevron { font-size:10px; transition:transform 0.2s; flex-shrink:0; opacity:0.5; }
+.cat-section-label.collapsed .cat-chevron { transform:rotate(-90deg); }
+.cat-section-body { overflow:hidden; transition:none; }
+.cat-section-body.collapsed { display:none; }
+.cat-section-empty { font-size:11px; color:var(--text3); font-style:italic; padding:0 0 0.5rem; }
+/* 3-col compact cards */
+.prod-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:0.5rem; }
+.prod-card { border-radius:var(--r-md); background:var(--surface2); border:1.5px solid var(--border); cursor:pointer; overflow:hidden; transition:border-color 0.15s, box-shadow 0.15s; }
+.prod-card:hover { border-color:var(--border3); box-shadow:0 2px 8px rgba(0,0,0,0.07); }
+.prod-card.in-drop { border-color:var(--text); }
+.prod-card-img { width:100%; aspect-ratio:1; object-fit:cover; display:block; background:var(--surface3); }
+.prod-card-body { padding:5px 7px 7px; }
+.prod-card-name { font-size:10px; font-weight:600; color:var(--text); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prod-card-dots { display:flex; align-items:center; gap:2px; margin-bottom:3px; overflow:hidden; }
+.pcd { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.pcd.pcd-lt { box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12); }
+.pcd-more { font-size:8px; color:var(--text3); flex-shrink:0; }
+.prod-card-badge { font-size:8px; font-weight:600; color:var(--accent); display:none; }
+.prod-card.in-drop .prod-card-badge { display:block; }
+.prod-card.focused { border-color:var(--text); box-shadow:0 0 0 2px rgba(0,0,0,0.06); }
+
+/* ── 3-panel Products layout ──────────────────────────── */
+/* panel = flex column: [product detail] / [drop footer] */
+#preview-products-panel { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; }
+#pdp-main-row { display:flex; flex-direction:row; flex:1; min-height:0; overflow:hidden; }
+
+/* Product detail — hero + product info stacked vertically */
+#pdp-center { flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+.pdp-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:2.5rem 2rem; text-align:center; color:var(--text3); }
+.pdp-empty-icon { font-size:36px; margin-bottom:14px; opacity:0.18; }
+.pdp-empty-msg { font-size:13px; font-weight:600; color:var(--text2); margin-bottom:4px; }
+.pdp-empty-sub { font-size:11px; line-height:1.55; }
+
+/* Hero fills remaining height, product info bar sits below */
+.pdp-hero-wrap { flex:1; min-height:0; position:relative; overflow:hidden; background:var(--surface); }
+.pdp-hero { position:absolute; top:5%; left:5%; width:90%; height:90%; object-fit:contain; object-position:center; display:block; }
+.pdp-hero-fb { flex:1; min-height:0; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:48px; color:var(--text3); }
+/* Product info bottom bar: title → spec → swatches → description → details */
+.pdp-product-bar { flex-shrink:0; border-top:0.5px solid var(--border); overflow-y:auto; max-height:45%; scrollbar-width:thin; scrollbar-color:var(--surface3) transparent; }
+.pdp-info-header { flex-shrink:0; padding:0.85rem 1.25rem 0.7rem; border-bottom:0.5px solid var(--border); }
+.pdp-name  { font-size:15px; font-weight:700; color:var(--text); margin-bottom:2px; line-height:1.2; }
+.pdp-spec  { font-size:10px; color:var(--text3); line-height:1.45; }
+.pdp-swatches-scroll { flex-shrink:0; padding:0.85rem 1.25rem 0.75rem; border-bottom:0.5px solid var(--border); }
+.pdp-desc-body    { flex-shrink:0; padding:0.75rem 1.25rem 0.5rem; font-size:11px; color:var(--text3); line-height:1.65; border-bottom:0.5px solid var(--border); }
+.pdp-desc-body p  { margin:0; }
+.pdp-desc-details { flex-shrink:0; padding:0.65rem 1.25rem 0.85rem; font-size:11px; color:var(--text3); line-height:1.65; }
+.pdp-desc-details ul { margin:0 0 0 14px; padding:0; }
+.pdp-desc-details li { margin-bottom:4px; }
+.pdp-desc-details b { color:var(--text2); font-weight:600; }
+.pdp-info { flex-shrink:0; padding:0; }
+.pdp-swatches { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+.pdp-sw { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2.5px solid transparent; position:relative; transition:transform 0.1s; flex-shrink:0; }
+.pdp-sw:hover { transform:scale(1.12); }
+.pdp-sw.on { border-color:var(--text); }
+.pdp-sw.lt { box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12); }
+.pdp-sw-ck { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,0.5); pointer-events:none; }
+.pdp-sw.lt .pdp-sw-ck { color:#222; text-shadow:none; }
+.pdp-hover-name { font-size:11px; color:var(--text2); height:16px; margin-top:2px; }
+.pdp-desc-wrap { flex-shrink:0; border-top:0.5px solid var(--border); padding:1rem 1.1rem; font-size:11px; color:var(--text3); line-height:1.65; }
+.pdp-desc-wrap p { margin:0 0 6px; }
+.pdp-desc-wrap ul { margin:4px 0 0 16px; padding:0; }
+.pdp-desc-wrap li { margin-bottom:3px; }
+.pdp-desc-wrap b { color:var(--text2); font-weight:600; }
+/* unused legacy */
+.pdp-meta { font-size:11px; color:var(--text3); margin-bottom:1.25rem; }
+.pdp-colours-bar { display:none; }
+.pdp-colours-lbl, .pdp-colours-count { display:none; }
+
+/* Your Drop — vertical right panel */
+#pdp-drop { width:260px; flex-shrink:0; border-left:0.5px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+.drp-hdr { padding:1rem 1rem 0.75rem; border-bottom:0.5px solid var(--border); flex-shrink:0; }
+.drp-hdr-title { font-size:9px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; color:var(--text3); }
+.drp-hdr-count { font-size:14px; font-weight:700; color:var(--text); line-height:1.2; margin-top:1px; }
+.drp-scroll { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--surface3) transparent; }
+.drp-group { padding:0.7rem 1rem 0.75rem; border-bottom:0.5px solid var(--border); }
+.drp-group-name { font-size:9px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text2); margin-bottom:6px; }
+.drp-row { display:flex; gap:6px; flex-wrap:wrap; }
+.drp-empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:2rem 1rem; text-align:center; color:var(--text3); font-size:11px; line-height:1.6; }
+/* Copy-design picker */
+.dcp-wrap { flex-shrink:0; border-bottom:0.5px solid var(--border); padding:0.85rem 1rem; background:var(--surface2); }
+.dcp-label { font-size:11px; color:var(--text2); margin-bottom:8px; line-height:1.45; }
+.dcp-row { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--text); padding:3px 0; cursor:pointer; }
+.dcp-row input { accent-color:var(--text); cursor:pointer; }
+.dcp-btns { display:flex; gap:6px; margin-top:10px; }
+.drp-ct { position:relative; flex-shrink:0; }
+.drp-ct-img { width:44px; height:44px; border-radius:var(--r-md); object-fit:cover; display:block; background:var(--surface2); }
+.drp-ct-fb { width:44px; height:44px; border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; font-size:14px; }
+.drp-ct-name { font-size:8px; color:var(--text3); margin-top:2px; text-align:center; width:44px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.drp-ct-rm { position:absolute; top:2px; right:2px; width:15px; height:15px; background:rgba(0,0,0,0.5); border:none; border-radius:50%; color:#fff; font-size:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.15s; line-height:1; padding:0; }
+.drp-ct:hover .drp-ct-rm { opacity:1; }
+.drp-ct { transition:opacity 0.12s; }
+.drp-ct:hover { opacity:0.8; }
+.drp-ct-active .drp-ct-img, .drp-ct-active .drp-ct-fb { outline:2.5px solid var(--text); outline-offset:2px; border-radius:var(--r-md); }
 
 .preview-footer {
   padding: 10px 1.25rem; border-top: 0.5px solid var(--border); flex-shrink: 0;
@@ -338,8 +467,6 @@ input[type=file] { display: none; }
      ─────────────────────────────────────────────────────── -->
 
 <div class="header">
-  <img src="data:image/png;base64,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zQRn0bxmcu8xDfl+H2Hf+lWA0Xa+spmsbI/UMtd8TNuFObhmutxHo/iN8TIa7kfV5eXf3ILZeFXe+T/if/qL6SIOeeqrPu5pHqg1Fr/SW3WobjJT3uulo5X2OqmppmSeJHyBYByBa8kEHHke6z9w7h1Pb20dNpa66BuVuoGzCZ8LbTJQQyPHZrpJJz3Dck4DgO+SCQMX9RBH3Tvt/NtltNadJ1lVFVV0PiTVksQPhmWRxcQ3PctbkNBOM8c4GcCQURAREQUd3m0ZrneLqwpqWu0jqOl0lS1cduZWz22eKD0SIl0zxKW8fXd4vF2Rnkwe5Tp+tU2Pz9ylR/OlV/eKbkQUf6eNJa82g6nq61HSepajStbUTWx9wjts8lM6FzuVPOXtbw7EMBcThoc/JGCrwIiAiIg0nfqirblsrrK326kqKysqLNUxwU8EZkkleYyA1rRkkk+wKkey196hdpbTcLZpnaq9TQ187Z5TW6brZHBwbxGOPHAx+FdEkQc/9QaQ6keoHUNuZq2xVdnt1K8tY6tpDQ01IHY5PEb/ALZITgexx/AMq8e32l6DReibRpW2FzqW2UrKdj3AB0hA9Z5x2y52XH6yV91EBERAVTernp71Hf8AVo3M22D5LyfDfXUcU/hTGWMAMnhcSAHANbloIOWgjJJVskQUit/UP1J2ugjtFw20fW3KNgYKiqsFWyaT2cnMYWtJP7kNH1LN2Z2h3W3D3not3N1WTWdlHVRVkcM0IhqJnxEGKJsOPtcbcDJdhxA9pcXC6CICIiAiIg5n6QtO/W32uLrqHReiNX0VZUianM32NyzB0LpQ8gB8Th3LGnI79vrW7ndDrFx/kTVw/wBzh/8AXV+UQV++yreT/Qrz/Mg/u0VgUQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQEREBERAREQatuRuFo/buzNuur73BbYJCWwsIL5ZnDHZkbQXO8xkgYGckgKGYOszaWS4ilfRaphh5cfSn0MRix+2wJS/H/lz9Sr3d6a49Q3V5UWW41tRFamV01M0xnPo9BTF3ZmezXP4+eCA+TOCOyt7cenbZus0y6wjRFvpovDDGVUGW1TCPJwmyXl3t9YkH2gjIQbzofV+mdb2GO+aUvNLdaB54+JC7ux2AeL2nDmOwQeLgD3Hbuvurn302Vl52f6sZ9v56wy0NZWyWmsGCGzgBxp5Q3PZ2S0jzwJHj2roIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiCE9R9UW0un9Q3Kw3K43NldbauWjqWsoHuaJI3ljgCPMZae6wP13OzH+tLt/NsiqXNHoKbq41XHuZKYtLnUV39LcDKMHxJvD+a9f5fHy/P2Ux0dm6I6urgpKavmknnkbFGwPufrOcQAPk+8oLFfqxaL/AO+r/wCSlF7fqRaH/wBXVP8AK5P/AJRBSjT11OxnWTXVOpI5YLW25VLJ5BGXE0lTyMco9pA5MccZPquAyeyvhcteaKt2mXalrNVWeOziLxRWCrY6N7fZxIJ5E+wDJJIABK1vezZjRW7VDCzUdNNT3CmbxprlRuDKiNuc8CSCHMzn1XA4ycYJJUD0/Q5am3PxJ9xa2Sg5fMstbWy493iGQjP18EEZ7OSVW8HWgNXUVHKy3x3N92kLgAYKeEYh5/uiRE049rj7F0LWk7Q7W6P2ssL7VpSgdG6ctdV1k7g+oqnNzgyPwOwycNADRk4Ayc7sgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiDnPpbR1j191sak0tqOGaa21eoLy6VkUpjcSx0724cO47tCtHQdKGz1DXU9bT226tmp5Wyxk3F5w5pBB/jCy9IdPNj05vhVbq0+oblNX1FdWVjqN8bBEDU+JybkDOB4hx+BTUgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICKouhN4tyLl1nVG3tdqQzaZZd7jTtovQqduI4op3Rt8QRh/Ysb35ZOO+e6sfvHd7jp/afVl8tFR6NcLfZ6mppZuDX+HIyJzmu4uBBwQOxBCDa0VeOiDcjWm4+mdR1utL18aT0dZFFTu9Fhh4NLCSMRMaD39+VYdARFWXqq6kqzQF/8AsG0NRwVmofDa6rq5m+IykLxlkbIx8uQgh3fsAW9nEkNCzSKjckvWvDZTqh0l3MQj8Y04iojMG4z+xuPLP7jhy+pSn0odSD9y7gdIaup6Wj1IInSUk8HqRVzWjLm8STxkABdgdiA4gNxhBZFERARVm6590td7a/Yd9hV9+KvjH070v/BIJvE8P0fh86x2Mc3+WM57+xbx0n7tt3V25ZLcp2HUlqLae6tAa0ynHqThrcAB4B7AABzXgAABBMKKplx3g3Fi61G7dx6i46YNzigND6FT/INO15HicPE+USc8sq2aAiLQ99dzrPtRoOfU10idVTOeIKGiY/i6pnIJDc/RaACXOwcAHAJwCG+IqJ6d1/1W7wyVN40WXUNpjkLG+ixU9NTtcPotkm9eQ+/1jj24yszSXUdu1thr1ult7bfLV0ri0zOkpo46mCN3YSxOiAZMzs735IIDhjCC8CLxoKulr6GnrqKeOopamJs0M0buTZGOALXA+0EEHK9kBFrO7F0r7HtZq292uf0evt9kraqll4Nd4cscD3MdhwIOHAHBBHvUHdDO6Gutyo9Xu1rffjU280Qpf8Egh8PxPH5/NMbnPBvnnGO2O6Cy6KBetncHV+3O3lmuujbv8V1lTdm08sno0U3KPwZHccSNcB3aDkDPZSFsHfrtqfZvS+oL7V+mXKuoWzVM/hsZzeSe/FgDR+YBBvCItZ3YulfY9rNW3u1z+j19vslbVUsvBrvDljge5jsOBBw4A4II96DZkXP7bndXqw3EirpdG3qS7MoCwVRZQ22Pwy/lx+XG3OeLvLPkt72S6k9wKLdSk243dt0fpFTVsoDUupRT1NPUPwI+bWgMcxxLRkAdncskdkFxkREHNDVeoNT6W6vNS37RtvNwvtLfrh6LTimdUc+QlY/7W3u7DHOPbyxn2LcNc739RN50ZebTf9EPpbTWUM0FbMdP1EfhwuYQ93Nxw3AJ7nyWRtiQfhE6vBB/x/d/0FSre9Qn3itdfkCt/QuQQL8Gt9xmr/yjB+jKtoqlfBrfcbq8f+IwfoyraoC557PQQX7rwlOoAJ5BqK5ztZKOQ8aITvjHfy4uY0j3cAB7F0MVHeqvajWehd2/1YNvqOpno5aptxmdSRl76GrBzI57B3MTzlxd3GXPa7AI5BeJc8tYRRaa6/II9PnwGO1VQkiLAyagxGdv1ZMsg/Ot5qOuCuOmTHBoGnZfTHx8Z9eTStfj5fDjyIz9DkO30l59IW0OsdRbmneHcGnq6dkc8lZTCsj8OWuqpAftvDA4xt5FwOACePHIBQXYREQUz+E0/wA33+0v+VUbW1l96b9w9F68oW1NVpnUdopqmZgIPjRyRRuqKc+Q5scQ9p7fQ7n1lJPwmn+b7/aX/KqZ6zbu17p9LOmtMVro2TSaeoJ7fVkZ9HqG0zOEg+ruWnHm1zggrTFdLfevhA6C72qrirKCtudNPTzxnLZGOo2EEfmKv2uYvTtZrlp3qm0xY7zSPpLhQ3d0FRC/zY9rXA/UR7iOxGCF06QFSn4S6pqTdtE0hc4Uogq5Gt9heXRAn6yAB/H9ausoR6wtoqvdTb+B9iZG/UVlkfPQxvcGioY4ASQ8j2aXcWkE9ssAOASQG9bFW622rZnR1HaWMbRizUsjCwAB5fG17n9va5znOJ95KgD4Se125+itK3pzGi4w3GSljdnBML4y5wPvAdGz8GT7yo82d6l9T7RafZoDXGja2tFsyylE0jqWqp2ZJEb2vaeTRn1T2wO3cYx8PU9z3L6sdxaCO2WE26yW/MUeC59Nb2vLTJJLMQOchAb6oAJDWgN8yQtx0e11ZcOm3R09cXGVtNNA3Ix9rjqJY4//AEMapaXyNFaeoNJ6RtWmbYHeh2ykjpoi75TgxoHI/WT3P1kr66DTN9vvIa8/g3cf6tIq0fBmOHha/bnvytxx/KVbvUVrp75p+42Ssz6NcKSWlmx+0kYWu/oJXPbbLWGsulnce9WrUmln1lLXtbFNGZDC2oEbj4c8EpaQ5uHu7Y+lg8SOwTr8JCf+ibTw9vx639BKpY6Wv+r1or8mM/8Acqmu9u6+qupG/wBj0npPSFVDDSyukio4pPHkmkdhviyO4hsbGjtk9hycXO8sXz2x00NG7eaf0t4zJ32u3w00krAQ2R7WgPcAfIF2Tj60GxLTN9vvIa8/g3cf6tItzWmb7feQ15/Bu4/1aRBz46et8rts3S3qO22Cjuguz4S51RK5nhmIPxjj5/OKStn9A7jb2770G7+qrOLTZDWwXF9RwMUc4gDBFFAxxLnA+GwF/lgOPLOAcbo127sW6O2242lbzhjzLQy0dS1odJST8agMlaP4wR25DIyPMfR6c9yb7sNuNW7SbmvNNZX1PGKZ78xUUrvkzMcf+wkyCfIAnlgHnkL0IvD0yk/0qD/iBEHlF+zT+Mf7VlTfNP8AxSiIPCh8n/mWSiICIiCJab76rv30qWkRAREQY1f9D8694fmmfihEQY0n7NH4QstEQEREEe7yfMUP462/Sv3O0P7yERB9NERAWqbp/crL+MiIMHZz/IU/74P7VvKIgL8zfNP/ABSiIPCg+n+Zfit+dH4qIg8EREH/2Q==" alt="Badge of Honour" style="height:28px;width:28px;object-fit:contain;display:block;">
-  <div class="brand">Badge of Honour <span style="font-family:'Instrument Sans',sans-serif;font-weight:300;">/ Product Builder</span></div>
   <div class="header-spacer"></div>
   <div class="progress-steps" id="progress-steps"></div>
 </div>
@@ -354,9 +481,11 @@ input[type=file] { display: none; }
     <div class="tab-content">
 
       <div class="tab-pane active" id="tab-products">
-        <div class="section-title">Products</div>
-        <div class="section-sub">Select products for this range and choose a colour per product.</div>
-        <div id="product-cards"></div>
+        <div id="prod-catalog-view">
+          <div class="section-title" style="margin-bottom:3px;">Products</div>
+          <div class="section-sub" style="margin-bottom:1rem;">Click any product to pick colours and add them to your drop.</div>
+          <div id="product-cards"></div>
+        </div>
       </div>
 
       
@@ -384,39 +513,16 @@ input[type=file] { display: none; }
             </div>
         </div>
 
-        <!-- ARTWORK: Colour -->
-        <div class="field-group">
-          <span class="field-label">Artwork colour</span>
-          <div class="logo-color-grid" id="logo-color-grid"></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:7px;" id="logo-color-name">As uploaded</div>
-        </div>
-
         <div class="divider"></div>
 
         <!-- CUSTOM TEXT -->
         <div class="field-group">
           <span class="field-label">Custom text</span>
-          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Add a line of custom text as an additional design element. It can be dragged and scaled on the preview just like artwork.</div>
-          <textarea id="custom-text-input" placeholder="e.g. Yeah this is custom" rows="2" style="width:100%;padding:9px 11px;border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface);color:var(--text);margin-bottom:8px;"></textarea>
-          <div class="field-label" style="margin-bottom:6px;">Font</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="text-font-grid"></div>
-          <div class="field-label" style="margin-bottom:6px;">Show on</div>
-          <div style="display:flex;gap:6px;margin-bottom:8px;">
-            <div class="chip selected" id="text-side-front" onclick="setTextSide('front')">Front</div>
-            <div class="chip" id="text-side-back" onclick="setTextSide('back')">Back</div>
-            <div class="chip" id="text-side-both" onclick="setTextSide('both')">Both</div>
-          </div>
-          <button class="btn btn-ghost btn-sm" onclick="clearCustomText()" style="width:100%;">Clear text</button>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Add text, then drag its thumbnail onto the front or back preview to place it.</div>
+          <div id="custom-text-items"></div>
+          <button class="btn btn-ghost btn-sm" onclick="addCustomText()" style="width:100%;">+ Add text</button>
         </div>
 
-        <div class="divider"></div>
-
-        <!-- POSITION & SCALE -->
-        <div class="field-group">
-          <span class="field-label">Position &amp; scale</span>
-          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.5;">Drag the logo on the preview to reposition. Scroll over it to resize.</div>
-          <div id="logo-adjust-panel"></div>
-        </div>
 
       </div>
 
@@ -471,36 +577,47 @@ input[type=file] { display: none; }
      HTML: PREVIEW PANEL
      ─────────────────────────────────────────────────────── -->
 <div class="preview-panel">
-    <div class="preview-header">
-      <div class="preview-header-row">
-        <div class="preview-title">Preview</div>
-      </div>
-    </div>
     <div class="preview-body">
+      <!-- Design / Finalise: canvases left, Your Drop right -->
+      <div id="preview-design-panel">
+        <div id="preview-canvas-center">
 
-      <div class="preview-side">
-        <div class="preview-side-label">Front</div>
-        <div class="preview-main-canvas-wrap">
-          <canvas id="preview-canvas-front" width="480" height="480"></canvas>
-          <button class="canvas-remove-btn" id="remove-artwork-front" title="Remove artwork from front">×</button>
-        </div>
-      </div>
+          <div class="preview-side">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 0;">
+              <div class="preview-side-label">Front</div>
+              <button id="reset-btn-front" onclick="resetPreviewSide('front')" title="Reset front placement" style="display:none;background:none;border:none;cursor:pointer;padding:2px 4px;font-size:11px;color:var(--text3);opacity:0.7;line-height:1;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">↺ Reset</button>
+            </div>
+            <div class="preview-main-canvas-wrap">
+              <canvas id="preview-canvas-front" width="480" height="480"></canvas>
+            </div>
+          </div>
 
-      <div class="preview-side">
-        <div class="preview-side-label">Back</div>
-        <div class="preview-main-canvas-wrap">
-          <canvas id="preview-canvas-back" width="480" height="480"></canvas>
-          <button class="canvas-remove-btn" id="remove-artwork-back" title="Remove artwork from back">×</button>
-        </div>
-      </div>
+          <div class="preview-side">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px 0 0;">
+              <div class="preview-side-label">Back</div>
+              <button id="reset-btn-back" onclick="resetPreviewSide('back')" title="Reset back placement" style="display:none;background:none;border:none;cursor:pointer;padding:2px 4px;font-size:11px;color:var(--text3);opacity:0.7;line-height:1;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">↺ Reset</button>
+            </div>
+            <div class="preview-main-canvas-wrap">
+              <canvas id="preview-canvas-back" width="480" height="480"></canvas>
+            </div>
+          </div>
 
-      <div style="padding: 0.5rem 1.25rem 0.75rem; flex-shrink:0;">
-        <div class="preview-product-name" id="preview-name">—</div>
-        <div class="preview-product-sub" id="preview-sub">Select a product to begin</div>
-        <div class="preview-tags" id="preview-tags"></div>
-      </div>
+          <div style="padding: 0.5rem 1.25rem 0.75rem; flex-shrink:0;">
+            <div class="preview-product-name" id="preview-name">—</div>
+            <div class="preview-product-sub" id="preview-sub">Select a product to begin</div>
+            <div class="preview-tags" id="preview-tags"></div>
+          </div>
 
-      <div class="preview-thumbs" id="preview-thumbs"></div>
+        </div><!-- /preview-canvas-center -->
+
+        <div id="preview-side-drop"></div>
+      </div><!-- /preview-design-panel -->
+
+      <!-- Order: grid of all drop items -->
+      <div id="preview-order-panel" style="display:none;"></div>
+
+      <!-- Products tab -->
+      <div id="preview-products-panel" style="display:none;"></div>
     </div>
     <!-- preview footer removed -->
     <span id="pf-sizes" style="display:none"></span>
@@ -704,6 +821,14 @@ const PRODUCT_DESCRIPTIONS = {
   '1001': `<p>The AS Colour Carrie Tote Bag. A classic canvas tote with a generous main compartment, long handles, and a clean, minimal design. Available in a wide range of colours, it's the perfect canvas for your brand. Built to last.</p>`,
 };
 
+const PRODUCT_SPECS = {
+  '5001': '180 GSM · Regular fit · 100% combed cotton',
+  '5082': '240 GSM · Relaxed fit · 100% carded cotton',
+  '5101': '290 GSM · Regular fit · 80% cotton / 20% polyester',
+  '5171': '350 GSM · Relaxed fit · 80% cotton / 20% polyester',
+  '1001': 'Canvas tote · Long handles · Wide range of colours',
+};
+
 const PRODUCT_PLACEMENTS = {
   '1001': ['tote-front'],
   '5001': ['front-top-right','back-center'],
@@ -741,11 +866,8 @@ const S = {
                     //        front:{logoImg,logoFile}, back:{logoImg,logoFile},
                     //        placements: Set of active placement ids}
   activeProduct: null,
-  sharedArtwork: [],  // [{id, logoImg, logoFile}] — shared artwork library
-  logoColor: null,
-  customText: '',        // custom text overlay
-  customTextFont: 'Helvetica, Arial, sans-serif',
-  customTextSide: 'front', // which canvas the text appears on
+  sharedArtwork: [],  // [{id, logoImg, logoFile, color}] — shared artwork library
+  customTexts: [],  // [{id, text, font, align}]
   view: 'front',
   excl: 'unlimited', exclNum: 100, prices: {},
   imgCache: {},
@@ -805,7 +927,29 @@ function switchTab(id) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id==='tab-'+id));
   updateProgress(id);
   if (id==='finalise') buildSummary();
-  if (id==='design') { renderLogoAdjustPanel(); initLogoColors(); initCustomText(); setupSharedUploadOnce(); renderSharedArtworkThumbs(); }
+  if (id==='design') { renderLogoAdjustPanel(); setupSharedUploadOnce(); renderSharedArtworkThumbs(); renderCustomTextItems(); }
+  // Switch preview panels
+  const designPanel = document.getElementById('preview-design-panel');
+  const orderPanel  = document.getElementById('preview-order-panel');
+  const prodPanel   = document.getElementById('preview-products-panel');
+  if (designPanel && orderPanel && prodPanel) {
+    if (id === 'products') {
+      designPanel.style.display = 'none';
+      orderPanel.style.display  = 'none';
+      prodPanel.style.display   = '';
+      renderProductsPreview();
+    } else if (id === 'order') {
+      designPanel.style.display = 'none';
+      orderPanel.style.display  = '';
+      prodPanel.style.display   = 'none';
+      renderOrderPreview();
+    } else {
+      designPanel.style.display = '';
+      orderPanel.style.display  = 'none';
+      prodPanel.style.display   = 'none';
+      renderDesignDrop();
+    }
+  }
 }
 
 function initProgress() {
@@ -840,7 +984,7 @@ function initProducts() {
     const availCols = PRODUCT_COLOURS[pt.id] || [];
     const defaultColor = availCols.includes('BLACK') ? 'BLACK' : (availCols.includes('FADED_BLACK') ? 'FADED_BLACK' : (availCols[0] || 'BLACK'));
     S.products[pt.id] = {
-      selected: false, color: defaultColor, weight: 'default',
+      selected: false, color: defaultColor, colors: [], weight: 'default',
       sizes: isTote ? ['ONE SIZE'] : [], isTote,
       hasWeight: false,
       placements: isTote ? new Set(['tote-front']) : new Set(['front-top-right', 'back-center']),
@@ -849,65 +993,77 @@ function initProducts() {
       excl: 'unlimited', exclNum: 100, price: '', shipping: '',
       logoPos:   {front: null, back: null},
       logoScale: {front: 1.0,  back: 1.0},
+      textPos:      {},
+      textScale:    {},
+      textRotation: {},
+      artworkPos:      {},  // {[artworkId]: {front:{cx,cy}|null, back:{cx,cy}|null}}
+      artworkScale:    {},  // {[artworkId]: {front:1.0, back:1.0}}
+      artworkRotation: {},  // {[artworkId]: {front:0, back:0}} degrees
     };
   });
 
-  // Render collapsible categories
-  PRODUCT_CATEGORIES.forEach(cat => {
-    const section = document.createElement('div');
-    section.className = 'product-category';
-    section.id = 'cat-' + cat.id;
+  // Render catalog grid
+  PRODUCT_CATEGORIES.forEach((cat, catIdx) => {
+    const isEmpty = cat.products.length === 0;
+    // Start "coming soon" categories collapsed
+    const startCollapsed = isEmpty;
 
-    // Header
-    const header = document.createElement('div');
-    header.className = 'product-category-header';
-    header.innerHTML = `<span class="product-category-label">${cat.label}</span><span class="product-category-chevron">▼</span>`;
-    header.addEventListener('click', () => {
-      section.classList.toggle('collapsed');
-    });
-    section.appendChild(header);
+    const label = document.createElement('div');
+    label.className = 'cat-section-label' + (startCollapsed ? ' collapsed' : '');
+    label.innerHTML = `<span>${cat.label}</span><span class="cat-chevron">▾</span>`;
+    c.appendChild(label);
 
-    // Body
     const body = document.createElement('div');
-    body.className = 'product-category-body';
+    body.className = 'cat-section-body' + (startCollapsed ? ' collapsed' : '');
+    c.appendChild(body);
 
-    if (cat.products.length === 0) {
+    label.addEventListener('click', () => {
+      const isCollapsed = body.classList.toggle('collapsed');
+      label.classList.toggle('collapsed', isCollapsed);
+    });
+
+    if (isEmpty) {
       const empty = document.createElement('div');
-      empty.className = 'product-category-empty';
+      empty.className = 'cat-section-empty';
       empty.textContent = 'Coming soon';
       body.appendChild(empty);
-    } else {
-      cat.products.forEach(pid => {
-        const pt = PRODUCTS.find(p => p.id === pid);
-        if (!pt) return;
-
-        const thumb = document.createElement('div');
-        thumb.className = 'product-thumb'; thumb.id = 'thumb-' + pt.id;
-        thumb.title = pt.label;
-
-        const _thumbColour = PRODUCT_COLOURS[pt.id]?.includes('BLACK') ? 'BLACK' : (PRODUCT_COLOURS[pt.id]?.includes('FADED_BLACK') ? 'FADED_BLACK' : (PRODUCT_COLOURS[pt.id] || [])[0] || '');
-        const _thumbUrl = _thumbColour ? getImageUrl(pt.id, _thumbColour, 'front') : '';
-        thumb.innerHTML = `
-          <div class="product-thumb-img-wrap">
-            ${_thumbUrl ? `<img src="${_thumbUrl}" alt="${pt.label}" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r-md);">` : `<div class="product-thumb-placeholder">${pt.label[0]}</div>`}
-            <div class="product-thumb-check" id="pchk-${pt.id}"></div>
-          </div>
-          <div class="product-thumb-label">${pt.label}</div>`;
-
-        thumb.addEventListener('click', () => toggleProduct(pt.id));
-        body.appendChild(thumb);
-      });
+      return;
     }
 
-    section.appendChild(body);
-    c.appendChild(section);
-  });
+    const grid = document.createElement('div');
+    grid.className = 'prod-grid';
 
-  // Config panel appended at bottom (shown when product selected)
-  const configPanel = document.createElement('div');
-  configPanel.id = 'product-config-panel';
-  configPanel.style.marginTop = '1rem';
-  c.appendChild(configPanel);
+    cat.products.forEach(pid => {
+      const pt = PRODUCTS.find(p => p.id === pid);
+      if (!pt) return;
+      const colours = PRODUCT_COLOURS[pid] || [];
+      const dispCol = colours.includes('BLACK') ? 'BLACK' : (colours.includes('FADED_BLACK') ? 'FADED_BLACK' : (colours[0] || ''));
+      const imgUrl  = dispCol ? getImageUrl(pid, dispCol, 'front') : '';
+      const maxDots = 14;
+      const dotCols = colours.slice(0, maxDots);
+      const extra   = colours.length - maxDots;
+
+      const card = document.createElement('div');
+      card.className = 'prod-card';
+      card.id = 'prod-card-' + pid;
+      card.innerHTML = `
+        ${imgUrl
+          ? `<img class="prod-card-img" src="${imgUrl}" alt="${pt.label}" loading="lazy">`
+          : `<div class="prod-card-img" style="display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--text3);">${pt.label[0]}</div>`}
+        <div class="prod-card-body">
+          <div class="prod-card-name">${pt.label}</div>
+          <div class="prod-card-dots">
+            ${dotCols.map(ck => { const p=COLOUR_PALETTE[ck]||{hex:'#888',light:false}; return `<div class="pcd${p.light?' pcd-lt':''}" style="background:${p.hex}"></div>`; }).join('')}
+            ${extra > 0 ? `<span class="pcd-more">+${extra}</span>` : ''}
+          </div>
+          <div class="prod-card-badge" id="pcard-badge-${pid}"></div>
+        </div>`;
+      card.addEventListener('click', () => showProductDetail(pid));
+      grid.appendChild(card);
+    });
+
+    body.appendChild(grid);
+  });
 }
 
 
@@ -942,25 +1098,8 @@ function renderConfigPanel(ptId) {
 }
 
 function toggleProduct(id) {
-  const p = S.products[id];
-  p.selected = !p.selected;
-  document.getElementById('thumb-'+id).classList.toggle('selected', p.selected);
-  document.getElementById('pchk-'+id).textContent = p.selected ? '✓' : '';
-  if (p.selected) {
-    S.activeProduct = id;
-    renderConfigPanel(id);
-  } else {
-    if (S.activeProduct===id) {
-      S.activeProduct = Object.keys(S.products).find(k=>S.products[k].selected) || null;
-      if (S.activeProduct) renderConfigPanel(S.activeProduct);
-      else document.getElementById('product-config-panel').innerHTML='';
-    }
-  }
-  renderPlacementGrid();
-  renderLogoAdjustPanel();
-  renderOrderByProduct();
-  refreshThumbs();
-  drawPreview();
+  // Legacy stub — new flow uses showProductDetail + toggleProductColour
+  showProductDetail(id);
 }
 
 function renderProductColors(ptId) {
@@ -981,11 +1120,15 @@ function renderProductColors(ptId) {
     s.title = palEntry.label;
     s.addEventListener('click', () => {
       prod.color = colKey;
+      // Also add to multi-colour selection if not already there
+      if (!prod.colors.includes(colKey)) prod.colors.push(colKey);
       renderProductColors(ptId);
       const nameEl = document.getElementById('pclr-name-'+ptId);
       if (nameEl) nameEl.textContent = palEntry.label;
       if (S.activeProduct===ptId) drawPreview();
       refreshThumbs();
+      const activeTab = document.querySelector('.tab-btn.active')?.dataset?.tab;
+      if (activeTab === 'products') renderProductsPreview();
     });
     c.appendChild(s);
   });
@@ -994,6 +1137,369 @@ function renderProductColors(ptId) {
   if (nameEl) nameEl.textContent = selEntry?.label || prod.color;
 }
 // toggleWeight removed — no weight variants
+
+// ─── Product catalog / detail / drop ────────────────────────────────────────
+
+function showProductDetail(ptId) {
+  // Toggle deselect if clicking already-focused card
+  if (S.activeProduct === ptId) {
+    S.activeProduct = null;
+    document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('focused'));
+    _updateDetailPanel();
+    return;
+  }
+  S.activeProduct = ptId;
+  document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('focused'));
+  document.getElementById('prod-card-' + ptId)?.classList.add('focused');
+  _updateDetailPanel();
+}
+
+function closePicker() {
+  S.activeProduct = null;
+  document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('focused'));
+  _updateDetailPanel();
+}
+
+function showCatalog() {
+  PRODUCTS.forEach(pt => _updateCardBadge(pt.id));
+}
+
+function _updateCardBadge(ptId) {
+  const prod  = S.products[ptId];
+  const badge = document.getElementById('pcard-badge-' + ptId);
+  const card  = document.getElementById('prod-card-' + ptId);
+  if (!badge || !card) return;
+  const n = prod?.colors?.length || 0;
+  badge.textContent = n > 0 ? n + (n === 1 ? ' colour' : ' colours') + ' in drop' : '';
+  card.classList.toggle('in-drop', n > 0);
+}
+
+function _updateDetailPanel() {
+  const center = document.getElementById('pdp-center');
+  if (!center) return;
+  const ptId = S.activeProduct;
+  if (!ptId || !S.products[ptId]) {
+    center.innerHTML = `
+      <div class="pdp-empty">
+        <div class="pdp-empty-icon">👕</div>
+        <div class="pdp-empty-msg">Select a product</div>
+        <div class="pdp-empty-sub">Click any product on the left<br>to browse colours and details</div>
+      </div>`;
+    return;
+  }
+  _renderDetailContent(ptId, center);
+}
+
+function _renderDetailContent(ptId, container) {
+  const pt      = PRODUCTS.find(p => p.id === ptId);
+  const prod    = S.products[ptId];
+  const colours = PRODUCT_COLOURS[ptId] || [];
+  const selected = prod.colors || [];
+  const count   = selected.length;
+
+  const dispCol = selected.length
+    ? selected[selected.length - 1]
+    : (colours.includes('BLACK') ? 'BLACK' : (colours[0] || ''));
+  const imgUrl = dispCol ? getImageUrl(ptId, dispCol, 'front') : '';
+
+  const swatchesHtml = colours.map(ck => {
+    const pal   = COLOUR_PALETTE[ck] || {label: ck, hex: '#888'};
+    const isSel = selected.includes(ck);
+    return `<div class="pdp-sw${pal.light?' lt':''}${isSel?' on':''}" style="background:${pal.hex}" title="${pal.label}"
+      onmouseenter="(function(){const n=document.getElementById('pdp-hn');if(n)n.textContent='${pal.label.replace(/['"\\]/g,'')}'})()"
+      onmouseleave="(function(){const n=document.getElementById('pdp-hn');if(n)n.textContent=''})()"
+      onclick="toggleProductColour('${ptId}','${ck}')">
+      ${isSel ? '<div class="pdp-sw-ck">✓</div>' : ''}
+    </div>`;
+  }).join('');
+
+  // Split description paragraph from the fit/fabric/construction details
+  let descBody = '', descDetails = '';
+  if (PRODUCT_DESCRIPTIONS?.[ptId]) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = PRODUCT_DESCRIPTIONS[ptId];
+    descBody    = Array.from(tmp.querySelectorAll('p')).map(el => el.outerHTML).join('');
+    descDetails = Array.from(tmp.querySelectorAll('ul')).map(el => el.outerHTML).join('');
+  }
+
+  container.innerHTML = `
+    ${imgUrl
+      ? `<div class="pdp-hero-wrap"><img class="pdp-hero" src="${imgUrl}" alt="${pt?.label||''}"></div>`
+      : `<div class="pdp-hero-fb">${(pt?.label||'?')[0]}</div>`}
+    <div class="pdp-product-bar">
+      <div class="pdp-info-header">
+        <div class="pdp-name">${pt?.label || ptId}</div>
+        ${PRODUCT_SPECS[ptId] ? `<div class="pdp-spec">${PRODUCT_SPECS[ptId]}</div>` : ''}
+      </div>
+      <div class="pdp-swatches-scroll">
+        <div class="pdp-swatches">${swatchesHtml}</div>
+        <div class="pdp-hover-name" id="pdp-hn"></div>
+      </div>
+      ${descBody    ? `<div class="pdp-desc-body">${descBody}</div>`       : ''}
+      ${descDetails ? `<div class="pdp-desc-details">${descDetails}</div>` : ''}
+    </div>`;
+}
+
+function toggleProductColour(ptId, colKey) {
+  const prod = S.products[ptId];
+  if (!prod) return;
+  if (!prod.colors) prod.colors = [];
+
+  const idx = prod.colors.indexOf(colKey);
+  if (idx === -1) {
+    prod.colors.push(colKey);
+    prod.color = colKey;
+  } else {
+    prod.colors.splice(idx, 1);
+    if (prod.color === colKey) prod.color = prod.colors[0] || colKey;
+  }
+
+  const wasSelected = prod.selected;
+  prod.selected = prod.colors.length > 0;
+  S.activeProduct = ptId;
+
+  // Update center detail if showing this product
+  if (S.activeProduct === ptId) _updateDetailPanel();
+
+  _updateCardBadge(ptId);
+  renderProductsPreview();
+
+  if (prod.selected !== wasSelected) {
+    renderPlacementGrid();
+    renderLogoAdjustPanel();
+    renderOrderByProduct();
+    refreshThumbs();
+    drawPreview();
+  }
+}
+
+function renderProductsPreview() {
+  const panel = document.getElementById('preview-products-panel');
+  if (!panel) return;
+
+  // Ensure: [pdp-main-row: [pdp-center] [pdp-drop]]
+  if (!document.getElementById('pdp-main-row')) {
+    panel.innerHTML = `<div id="pdp-main-row"><div id="pdp-center"></div><div id="pdp-drop"></div></div>`;
+  }
+
+  const combos = [];
+  PRODUCTS.forEach(pt => {
+    const prod = S.products[pt.id];
+    if (!prod?.colors?.length) return;
+    prod.colors.forEach(ck => combos.push({ptId: pt.id, pt, ck}));
+  });
+
+  // Update product detail
+  _updateDetailPanel();
+
+  // Update drop right panel
+  const drop = document.getElementById('pdp-drop');
+  if (!drop) return;
+
+  if (combos.length === 0) {
+    drop.innerHTML = `
+      <div class="drp-hdr">
+        <div class="drp-hdr-title">Your Drop</div>
+        <div class="drp-hdr-count">0 items</div>
+      </div>
+      <div class="drp-empty-state">Click colours on a product to add items to your drop</div>`;
+    return;
+  }
+
+  const groupsHtml = PRODUCTS.map(pt => {
+    const ptCombos = combos.filter(c => c.ptId === pt.id);
+    if (!ptCombos.length) return '';
+    const thumbs = ptCombos.map(({ptId, ck}) => {
+      const pal    = COLOUR_PALETTE[ck] || {label: ck, hex: '#888'};
+      const imgUrl = getImageUrl(ptId, ck, 'front');
+      const shd    = pal.light ? 'box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1);' : '';
+      return `<div class="drp-ct">
+        ${imgUrl
+          ? `<img class="drp-ct-img" src="${imgUrl}" loading="lazy" alt="${pal.label}">`
+          : `<div class="drp-ct-fb" style="background:${pal.hex};${shd}">${pt.label[0]}</div>`}
+        <div class="drp-ct-name">${pal.label}</div>
+        <button class="drp-ct-rm" onclick="toggleProductColour('${ptId}','${ck}')" title="Remove">×</button>
+      </div>`;
+    }).join('');
+    return `<div class="drp-group">
+      <div class="drp-group-name">${pt.label}</div>
+      <div class="drp-row">${thumbs}</div>
+    </div>`;
+  }).join('');
+
+  drop.innerHTML = `
+    <div class="drp-hdr">
+      <div class="drp-hdr-title">Your Drop</div>
+      <div class="drp-hdr-count">${combos.length} item${combos.length !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="drp-scroll">${groupsHtml}</div>`;
+}
+
+// ─── Design tab drop panel ────────────────────────────────────────────────────
+let _designCopyMode = false;
+
+function renderDesignDrop() {
+  const el = document.getElementById('preview-side-drop');
+  if (!el) return;
+
+  // Collect distinct products in the drop
+  const dropProducts = PRODUCTS.filter(pt => S.products[pt.id]?.colors?.length);
+  const combos = [];
+  dropProducts.forEach(pt => S.products[pt.id].colors.forEach(ck => combos.push({ptId: pt.id, pt, ck})));
+
+  if (combos.length === 0) {
+    _designCopyMode = false;
+    el.innerHTML = `
+      <div class="drp-hdr">
+        <div class="drp-hdr-title">Your Drop</div>
+        <div class="drp-hdr-count">0 items</div>
+      </div>
+      <div class="drp-empty-state">Add products &amp; colours on the Products tab</div>`;
+    return;
+  }
+
+  const scroll = el.querySelector('.drp-scroll') || null;
+  const prevScrollTop = scroll ? scroll.scrollTop : 0;
+
+  const activePt = PRODUCTS.find(p => p.id === S.activeProduct);
+  const otherProducts = dropProducts.filter(pt => pt.id !== S.activeProduct);
+
+  // In copy mode: render checkboxes per product
+  let copyPickerHtml = '';
+  if (_designCopyMode && activePt) {
+    const checkRows = otherProducts.map(pt => `
+      <label class="dcp-row">
+        <input type="checkbox" class="dcp-cb" data-ptid="${pt.id}" checked>
+        <span>${pt.label}</span>
+      </label>`).join('');
+    copyPickerHtml = `
+      <div class="dcp-wrap">
+        <div class="dcp-label">Apply <strong>${activePt.label}</strong> design to:</div>
+        ${checkRows || '<div style="font-size:11px;color:var(--text3);">No other products in drop</div>'}
+        <div class="dcp-btns">
+          <button class="btn btn-primary btn-sm" id="dcp-apply" style="flex:1;">Apply</button>
+          <button class="btn btn-ghost btn-sm" id="dcp-cancel">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  // Items list
+  const groupsHtml = dropProducts.map(pt => {
+    const ptCombos = combos.filter(c => c.ptId === pt.id);
+    const thumbs = ptCombos.map(({ptId, ck}) => {
+      const pal    = COLOUR_PALETTE[ck] || {label:ck, hex:'#888'};
+      const imgUrl = getImageUrl(ptId, ck, 'front');
+      const shd    = pal.light ? 'box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1);' : '';
+      const isActive = S.activeProduct === ptId && S.products[ptId]?.color === ck;
+      return `<div class="drp-ct${isActive ? ' drp-ct-active' : ''}" data-ptid="${ptId}" data-ck="${ck}" style="cursor:pointer;">
+        ${imgUrl
+          ? `<img class="drp-ct-img" src="${imgUrl}" loading="lazy" alt="${pal.label}">`
+          : `<div class="drp-ct-fb" style="background:${pal.hex};${shd}">${pt.label[0]}</div>`}
+        <div class="drp-ct-name">${pal.label}</div>
+      </div>`;
+    }).join('');
+    return `<div class="drp-group">
+      <div class="drp-group-name">${pt.label}</div>
+      <div class="drp-row">${thumbs}</div>
+    </div>`;
+  }).join('');
+
+  // Copy-design button — only show when a product is active and others exist
+  const copyBtn = (activePt && otherProducts.length > 0 && !_designCopyMode)
+    ? `<button class="btn btn-ghost btn-sm" id="dcp-open" style="width:100%;margin-top:8px;font-size:11px;">Copy design to other items →</button>`
+    : '';
+
+  el.innerHTML = `
+    <div class="drp-hdr">
+      <div class="drp-hdr-title">Your Drop</div>
+      <div class="drp-hdr-count">${combos.length} item${combos.length !== 1 ? 's' : ''}</div>
+    </div>
+    ${copyPickerHtml}
+    <div class="drp-scroll">${groupsHtml}${copyBtn ? `<div style="padding:0 0 0.75rem;">${copyBtn}</div>` : ''}</div>`;
+
+  // Restore scroll
+  const newScroll = el.querySelector('.drp-scroll');
+  if (newScroll) newScroll.scrollTop = prevScrollTop;
+
+  // Item click → switch active product/colour
+  el.querySelectorAll('.drp-ct[data-ptid]').forEach(card => {
+    card.addEventListener('click', () => {
+      _designCopyMode = false;
+      S.activeProduct = card.dataset.ptid;
+      S.products[card.dataset.ptid].color = card.dataset.ck;
+      renderDesignDrop();
+      drawPreview();
+    });
+  });
+
+  // Open copy mode
+  el.querySelector('#dcp-open')?.addEventListener('click', () => {
+    _designCopyMode = true;
+    renderDesignDrop();
+  });
+
+  // Cancel copy mode
+  el.querySelector('#dcp-cancel')?.addEventListener('click', () => {
+    _designCopyMode = false;
+    renderDesignDrop();
+  });
+
+  // Apply design to selected products
+  el.querySelector('#dcp-apply')?.addEventListener('click', () => {
+    const selected = [...el.querySelectorAll('.dcp-cb:checked')].map(cb => cb.dataset.ptid);
+    if (selected.length) copyDesignTo(S.activeProduct, selected);
+    _designCopyMode = false;
+    renderDesignDrop();
+  });
+}
+
+function copyDesignTo(fromPtId, toPtIds) {
+  const src = S.products[fromPtId];
+  if (!src) return;
+  const clone = o => JSON.parse(JSON.stringify(o || {}));
+  toPtIds.forEach(toPtId => {
+    const dst = S.products[toPtId];
+    if (!dst || toPtId === fromPtId) return;
+    dst.artworkPos      = clone(src.artworkPos);
+    dst.artworkScale    = clone(src.artworkScale);
+    dst.artworkRotation = clone(src.artworkRotation);
+    dst.textPos         = clone(src.textPos);
+    dst.textScale       = clone(src.textScale);
+    dst.textRotation    = clone(src.textRotation);
+    dst.placements      = new Set([...(src.placements || [])]);
+  });
+  drawPreview();
+}
+
+// ─── Order tab preview ─────────────────────────────────────────────────────────
+function renderOrderPreview() {
+  const el = document.getElementById('preview-order-panel');
+  if (!el) return;
+  const combos = [];
+  PRODUCTS.forEach(pt => {
+    const prod = S.products[pt.id];
+    if (!prod?.colors?.length) return;
+    prod.colors.forEach(ck => combos.push({ptId: pt.id, pt, ck}));
+  });
+  if (combos.length === 0) {
+    el.innerHTML = `<div style="color:var(--text3);font-size:13px;padding:1rem 0;">No products in your drop yet.</div>`;
+    return;
+  }
+  const cardsHtml = combos.map(({ptId, pt, ck}) => {
+    const pal = COLOUR_PALETTE[ck] || {label:ck, hex:'#888'};
+    const imgUrl = getImageUrl(ptId, ck, 'front');
+    return `<div class="order-preview-card">
+      ${imgUrl
+        ? `<img class="order-preview-img" src="${imgUrl}" loading="lazy" alt="${pal.label}">`
+        : `<div class="order-preview-img" style="background:${pal.hex};display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;">${pt.label[0]}</div>`}
+      <div class="order-preview-body">
+        <div class="order-preview-name">${pt.label.replace(/ \(\d+\)$/, '')}</div>
+        <div class="order-preview-colour">${pal.label}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML = `<div class="order-preview-grid">${cardsHtml}</div>`;
+}
 
 // ─── Shared logo ──────────────────────────────────────────────────────────────
 
@@ -1007,7 +1513,7 @@ function setupSharedArtworkUpload() {
   function applyFile(file) {
     processImageFile(file, (img, f) => {
       const id = Date.now() + '_' + Math.random().toString(36).slice(2);
-      S.sharedArtwork.push({id, logoImg: img, logoFile: f});
+      S.sharedArtwork.push({id, logoImg: img, logoFile: f, color: null});
       renderSharedArtworkThumbs();
       refreshThumbs(); drawPreview();
     });
@@ -1054,6 +1560,8 @@ function renderSharedArtworkThumbs() {
     name.style.cssText = 'font-size:8px;color:var(--text3);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:56px;margin-top:3px;';
     name.textContent = art.logoFile.name;
     wrap.appendChild(name);
+
+
     container.appendChild(wrap);
   });
 }
@@ -1097,7 +1605,8 @@ function refreshArtworkList() {
         </div>
       </div>`;
     c.appendChild(item);
-    const thumbImg = prod.front?.logoImg || prod.back?.logoImg || S.sharedArtwork[0]?.logoImg;
+    const placedArt = S.sharedArtwork.find(a => prod.artworkPos?.[a.id]?.front || prod.artworkPos?.[a.id]?.back);
+    const thumbImg = placedArt?.logoImg || S.sharedArtwork[0]?.logoImg;
     if (thumbImg) {
       const thumbEl = document.getElementById('aw-thumb-'+pt.id);
       const cnv = document.createElement('canvas'); cnv.width=32; cnv.height=32;
@@ -1155,25 +1664,24 @@ function clearProductLogo(ptId) {
 
 // #endregion
 // #region JS: LOGO COLOURS
-function initLogoColors() {
-  const c=document.getElementById('logo-color-grid');
-  c.innerHTML = ''; // clear before re-rendering
-  LOGO_COLORS.forEach(lc=>{
-    const s=document.createElement('div');
-    const isSel=(!S.logoColor&&!lc.hex)||(S.logoColor?.name===lc.name);
-    Object.assign(s.style,{
-      width:'26px',height:'26px',borderRadius:'50%',cursor:'pointer',transition:'all 0.15s',
-      outline:isSel?'2px solid var(--text)':'2px solid transparent',outlineOffset:'2px',flexShrink:'0',
-      background:lc.hex||'conic-gradient(#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#ff6b6b)',
-      border:lc.light?'1px solid rgba(0,0,0,0.14)':'1px solid transparent',
+function renderColorPicker(container, getColor, setColor) {
+  container.innerHTML = '';
+  LOGO_COLORS.forEach(lc => {
+    const s = document.createElement('div');
+    const isSel = (!getColor() && !lc.hex) || (getColor()?.name === lc.name);
+    Object.assign(s.style, {
+      width:'22px', height:'22px', borderRadius:'50%', cursor:'pointer', flexShrink:'0',
+      outline: isSel ? '2px solid var(--text)' : '2px solid transparent', outlineOffset:'2px',
+      background: lc.hex || 'conic-gradient(#ff6b6b,#ffd93d,#6bcb77,#4d96ff,#ff6b6b)',
+      border: lc.light ? '1px solid rgba(0,0,0,0.14)' : '1px solid transparent',
     });
-    s.title=lc.name;
-    s.addEventListener('click',()=>{
-      S.logoColor=lc.hex?lc:null;
-      document.getElementById('logo-color-name').textContent=lc.name;
-      initLogoColors(); refreshThumbs(); drawPreview();
+    s.title = lc.name;
+    s.addEventListener('click', () => {
+      setColor(lc.hex ? lc : null);
+      renderColorPicker(container, getColor, setColor);
+      refreshThumbs(); drawPreview();
     });
-    c.appendChild(s);
+    container.appendChild(s);
   });
 }
 
@@ -1185,42 +1693,28 @@ function initPlacements() {
   renderPlacementGrid();
 }
 
+function resetPreviewSide(side) {
+  const pid = S.activeProduct;
+  if (!pid) return;
+  const prod = S.products[pid];
+  if (!prod) return;
+  S.sharedArtwork.forEach(a => { if (prod.artworkPos?.[a.id]) delete prod.artworkPos[a.id][side]; });
+  S.customTexts.forEach(t => { if (prod.textPos?.[t.id]) delete prod.textPos[t.id][side]; });
+  renderLogoAdjustPanel(); drawPreview();
+}
+
 function renderLogoAdjustPanel() {
-  const c = document.getElementById('logo-adjust-panel');
-  if (!c) return;
-  c.innerHTML = '';
-  const selected = PRODUCTS.filter(p => S.products[p.id]?.selected);
-  if (!selected.length) {
-    c.innerHTML = '<div style="font-size:13px;color:var(--text3);">Select products first.</div>';
-    return;
-  }
-  selected.forEach(pt => {
-    const prod = S.products[pt.id];
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;';
-    const name = document.createElement('span');
-    name.style.cssText = 'font-size:13px;font-weight:500;flex:1;';
-    name.textContent = pt.label;
-    row.appendChild(name);
-    const sides = pt.isTote ? ['front'] : ['front', 'back'];
-    sides.forEach(side => {
-      const hasCustomPos = prod.logoPos?.[side] != null;
-      const hasCustomScale = prod.logoScale?.[side] != null && prod.logoScale[side] !== 1.0;
-      const hasCustom = hasCustomPos || hasCustomScale;
-      const btn = document.createElement('button');
-      btn.className = 'btn btn-ghost btn-sm';
-      btn.style.cssText = 'font-size:12px;opacity:' + (hasCustom ? '1' : '0.35') + ';';
-      btn.textContent = 'Reset ' + side;
-      btn.disabled = !hasCustom;
-      btn.onclick = () => {
-        prod.logoPos[side]   = null;
-        prod.logoScale[side] = 1.0;
-        renderLogoAdjustPanel();
-        drawPreview();
-      };
-      row.appendChild(btn);
-    });
-    c.appendChild(row);
+  // Update preview reset button visibility
+  ['front', 'back'].forEach(side => {
+    const btn = document.getElementById('reset-btn-' + side);
+    if (!btn) return;
+    const pid = S.activeProduct;
+    const prod = pid && S.products[pid];
+    const hasPlaced = prod && (
+      S.sharedArtwork.some(a => prod.artworkPos?.[a.id]?.[side]) ||
+      S.customTexts.some(t => prod.textPos?.[t.id]?.[side])
+    );
+    btn.style.display = hasPlaced ? 'block' : 'none';
   });
 }
 
@@ -1280,51 +1774,194 @@ function renderPlacementGrid() {
 }
 
 
-let _customTextWired = false;
-function initCustomText() {
-  const input = document.getElementById('custom-text-input');
-  if (input && !_customTextWired) {
-    _customTextWired = true;
-    input.addEventListener('input', () => {
-      S.customText = input.value;
+function addCustomText() {
+  const id = 'ct-' + Date.now();
+  S.customTexts.push({ id, text: '', font: TEXT_FONTS[0].value, align: 'center', color: null, _editorOpen: true });
+  renderCustomTextItems();
+}
+
+function removeCustomTextItem(id) {
+  S.customTexts = S.customTexts.filter(t => t.id !== id);
+  Object.values(S.products).forEach(prod => {
+    if (prod.textPos)      delete prod.textPos[id];
+    if (prod.textScale)    delete prod.textScale[id];
+    if (prod.textRotation) delete prod.textRotation[id];
+  });
+  renderCustomTextItems();
+  drawPreview();
+}
+
+function drawTextThumb(canvas, item) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  if (!item.text) return;
+  const fontSize = Math.round(H * 0.35);
+  ctx.font = `${fontSize}px ${item.font}`;
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#111';
+  ctx.textAlign = item.align === 'left' ? 'left' : item.align === 'right' ? 'right' : 'center';
+  ctx.textBaseline = 'middle';
+  const pad = 12;
+  const x = item.align === 'left' ? pad : item.align === 'right' ? W - pad : W / 2;
+  const lines = item.text.split('\n');
+  const lineH = fontSize * 1.3;
+  const totalH = lineH * lines.length;
+  let startY = H / 2 - totalH / 2 + lineH / 2;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x, startY + i * lineH, W - pad * 2);
+  });
+}
+
+function renderCustomTextItems() {
+  const container = document.getElementById('custom-text-items');
+  if (!container) return;
+  container.innerHTML = '';
+  S.customTexts.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'text-item-card';
+
+    // Thumbnail canvas (draggable) — wrap so we can overlay buttons
+    const thumbWrap = document.createElement('div');
+    thumbWrap.style.cssText = 'position:relative;';
+    const thumbCanvas = document.createElement('canvas');
+    thumbCanvas.className = 'text-thumb-canvas';
+    thumbCanvas.width = 600; thumbCanvas.height = 124;
+    thumbCanvas.draggable = true;
+    thumbCanvas.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('textId', item.id);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    drawTextThumb(thumbCanvas, item);
+    thumbWrap.appendChild(thumbCanvas);
+
+    // ✎ edit toggle (top-right of thumbnail)
+    const textEditBtn = document.createElement('button');
+    textEditBtn.title = 'Edit text';
+    textEditBtn.style.cssText = 'position:absolute;top:-5px;right:20px;width:16px;height:16px;padding:0;font-size:9px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;z-index:1;';
+    textEditBtn.textContent = '✎';
+    thumbWrap.appendChild(textEditBtn);
+
+    // Remove button (top-right corner)
+    const removeBtn = document.createElement('button');
+    removeBtn.style.cssText = 'position:absolute;top:-5px;right:0px;width:16px;height:16px;padding:0;font-size:8px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;z-index:1;';
+    removeBtn.textContent = '✕';
+    removeBtn.title = 'Remove this text';
+    removeBtn.onclick = () => removeCustomTextItem(item.id);
+    thumbWrap.appendChild(removeBtn);
+
+    card.appendChild(thumbWrap);
+
+    // Collapsible edit section — auto-open for newly created items
+    const startOpen = !!item._editorOpen;
+    if (startOpen) item._editorOpen = false; // consume the flag
+    const editSection = document.createElement('div');
+    editSection.style.cssText = `display:${startOpen ? 'block' : 'none'};margin-top:8px;`;
+
+    // Textarea
+    const ta = document.createElement('textarea');
+    ta.value = item.text;
+    ta.placeholder = 'Enter your text...';
+    ta.rows = 2;
+    ta.style.cssText = 'width:100%;padding:9px 11px;border:0.5px solid var(--border2);border-radius:var(--r-md);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface);color:var(--text);margin-bottom:8px;box-sizing:border-box;display:block;';
+    ta.addEventListener('input', () => {
+      item.text = ta.value;
+      drawTextThumb(thumbCanvas, item);
       drawPreview();
     });
-  }
-  const grid = document.getElementById('text-font-grid');
-  if (grid) {
-    grid.innerHTML = '';
+    editSection.appendChild(ta);
+
+    // Font label + chips
+    const fontLabel = document.createElement('div');
+    fontLabel.className = 'field-label';
+    fontLabel.style.marginBottom = '6px';
+    fontLabel.textContent = 'Font';
+    editSection.appendChild(fontLabel);
+
+    const fontGrid = document.createElement('div');
+    fontGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
     TEXT_FONTS.forEach(f => {
       const chip = document.createElement('div');
-      chip.className = 'font-chip' + (S.customTextFont === f.value ? ' selected' : '');
+      chip.className = 'font-chip' + (item.font === f.value ? ' selected' : '');
       chip.textContent = f.label;
       chip.style.fontFamily = f.value;
       chip.onclick = () => {
-        S.customTextFont = f.value;
-        grid.querySelectorAll('.font-chip').forEach(c => c.classList.remove('selected'));
+        item.font = f.value;
+        fontGrid.querySelectorAll('.font-chip').forEach(c => c.classList.remove('selected'));
         chip.classList.add('selected');
+        drawTextThumb(thumbCanvas, item);
         drawPreview();
       };
-      grid.appendChild(chip);
+      fontGrid.appendChild(chip);
     });
-  }
-}
+    editSection.appendChild(fontGrid);
 
-function setTextSide(side) {
-  S.customTextSide = side;
-  ['front','back','both'].forEach(s => {
-    const el = document.getElementById('text-side-' + s);
-    if (el) el.classList.toggle('selected', s === side);
+    // Align label + chips
+    const alignLabel = document.createElement('div');
+    alignLabel.className = 'field-label';
+    alignLabel.style.marginBottom = '6px';
+    alignLabel.textContent = 'Align';
+    editSection.appendChild(alignLabel);
+
+    const alignRow = document.createElement('div');
+    alignRow.style.cssText = 'display:flex;gap:6px;margin-bottom:0;';
+    ['left', 'center', 'right'].forEach(a => {
+      const chip = document.createElement('div');
+      chip.className = 'chip' + (item.align === a ? ' selected' : '');
+      chip.textContent = a.charAt(0).toUpperCase() + a.slice(1);
+      chip.onclick = () => {
+        item.align = a;
+        alignRow.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        drawTextThumb(thumbCanvas, item);
+        drawPreview();
+      };
+      alignRow.appendChild(chip);
+    });
+    editSection.appendChild(alignRow);
+
+    // Colour picker
+    const colourLabel = document.createElement('div');
+    colourLabel.className = 'field-label';
+    colourLabel.style.cssText = 'margin-top:8px;margin-bottom:6px;';
+    colourLabel.textContent = 'Colour';
+    editSection.appendChild(colourLabel);
+    const colourRow = document.createElement('div');
+    colourRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;';
+    renderColorPicker(colourRow, () => item.color, v => { item.color = v; });
+    editSection.appendChild(colourRow);
+
+    // Save button — closes the editor
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save';
+    saveBtn.className = 'btn btn-primary btn-sm';
+    saveBtn.style.cssText = 'width:100%;margin-top:12px;';
+    saveBtn.onclick = () => {
+      editSection.style.display = 'none';
+      textEditBtn.style.background = 'var(--surface)';
+      textEditBtn.style.color = '';
+      textEditBtn.style.borderColor = 'var(--border2)';
+    };
+    editSection.appendChild(saveBtn);
+
+    card.appendChild(editSection);
+
+    // Wire edit toggle — sync initial state if auto-opened
+    if (startOpen) {
+      textEditBtn.style.background = 'var(--accent)';
+      textEditBtn.style.color = '#fff';
+      textEditBtn.style.borderColor = 'var(--accent)';
+    }
+    textEditBtn.onclick = e => {
+      e.stopPropagation();
+      const open = editSection.style.display !== 'none';
+      editSection.style.display = open ? 'none' : 'block';
+      textEditBtn.style.background = open ? 'var(--surface)' : 'var(--accent)';
+      textEditBtn.style.color = open ? '' : '#fff';
+      textEditBtn.style.borderColor = open ? 'var(--border2)' : 'var(--accent)';
+    };
+
+    container.appendChild(card);
   });
-  drawPreview();
-}
-
-function clearCustomText() {
-  S.customText = '';
-  S.customTextSide = 'front';
-  const input = document.getElementById('custom-text-input');
-  if (input) input.value = '';
-  setTextSide('front');
-  drawPreview();
 }
 
 function updateLogoSize(v) {
@@ -1569,15 +2206,15 @@ function getEffectiveLogo(ptId, view) {
   return prod?.[side]?.logoImg || null;
 }
 
-function applyLogoColor(ctx, logoImg, dx, dy, dw, dh) {
+function applyLogoColor(ctx, logoImg, dx, dy, dw, dh, colorHex) {
   if (!logoImg) return;
-  if (S.logoColor?.hex) {
+  if (colorHex) {
     const off=document.createElement('canvas');
     off.width=logoImg.width; off.height=logoImg.height;
     const oc=off.getContext('2d');
     oc.drawImage(logoImg,0,0);
     oc.globalCompositeOperation='source-in';
-    oc.fillStyle=S.logoColor.hex;
+    oc.fillStyle=colorHex;
     oc.fillRect(0,0,off.width,off.height);
     ctx.drawImage(off,dx,dy,dw,dh);
   } else {
@@ -1626,56 +2263,198 @@ async function drawToCanvas(canvas, ptId, W, H) {
     drawFallbackShirt(ctx, W, H, palEntry.light, ptId);
   }
 
-  // Draw logo overlay
-  const prod_placements = prod?.placements || new Set();
-  const viewHasPlacement = currentView === 'back'
-    ? (prod_placements.has('back-center') || prod_placements.has('tote-front'))
-    : (prod_placements.has('front-top-right') || prod_placements.has('tote-front'));
-  const logo = viewHasPlacement ? getEffectiveLogo(ptId, currentView) : null;
-  if (logo) {
-    const zone = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
-    const baseFrac = (currentView === 'back') ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
-    const side = currentView === 'back' ? 'back' : 'front';
-    const logoScale = prod?.logoScale?.[side] ?? 1.0;
-    const lw = baseFrac * logoScale * W;
-    const lh = lw * (logo.height / logo.width);
-    const anchor = getLogoAnchor(W, H, ptId, currentView);
+  // Draw all placed artworks
+  const zone_draw = PRINT_ZONES[ptId] || PRINT_ZONES['5001'];
+  const baseFrac_draw = (currentView === 'back') ? (zone_draw.backLogoFrac || zone_draw.maxLogoFrac) : zone_draw.maxLogoFrac;
+  let anyArtworkPlaced = false;
+  S.sharedArtwork.forEach(art => {
+    const pos = prod?.artworkPos?.[art.id]?.[currentView];
+    if (!pos || !art.logoImg) return;
+    anyArtworkPlaced = true;
+    const scale = prod?.artworkScale?.[art.id]?.[currentView] ?? 1.0;
+    const lw = baseFrac_draw * scale * W;
+    const lh = lw * (art.logoImg.height / art.logoImg.width);
     ctx.save();
-    applyLogoColor(ctx, logo, anchor.x - lw/2, anchor.y - lh/2, lw, lh);
+    const angle = (prod?.artworkRotation?.[art.id]?.[currentView] ?? 0) * Math.PI / 180;
+    if (angle) {
+      ctx.translate(pos.cx * W, pos.cy * H);
+      ctx.rotate(angle);
+      ctx.drawImage(art.logoImg, -lw/2, -lh/2, lw, lh);
+    } else {
+      ctx.drawImage(art.logoImg, pos.cx * W - lw/2, pos.cy * H - lh/2, lw, lh);
+    }
     ctx.restore();
-  } else if (prod && viewHasPlacement) {
-    // Show placement guide
-    const anchor = getLogoAnchor(W, H, ptId, currentView);
-    const pw = W * 0.22, ph = pw * 0.4;
-    ctx.save(); ctx.setLineDash([3,3]);
-    ctx.strokeStyle='rgba(128,128,128,0.5)'; ctx.lineWidth=1.5;
-    ctx.strokeRect(anchor.x-pw/2, anchor.y-ph/2, pw, ph); ctx.restore();
-    ctx.fillStyle='rgba(100,100,100,0.6)';
-    ctx.font=`${Math.max(9, W*0.035)}px Instrument Sans,sans-serif`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('logo here', anchor.x, anchor.y);
+  });
+  // Show placement guide if nothing placed
+  if (!anyArtworkPlaced) {
+    const prod_placements = prod?.placements || new Set();
+    const viewHasPlacement = currentView === 'back'
+      ? (prod_placements.has('back-center') || prod_placements.has('tote-front'))
+      : (prod_placements.has('front-top-right') || prod_placements.has('tote-front'));
+    if (prod && viewHasPlacement) {
+      const anchor = getLogoAnchor(W, H, ptId, currentView);
+      const pw = W * 0.22, ph = pw * 0.4;
+      ctx.save(); ctx.setLineDash([3,3]);
+      ctx.strokeStyle='rgba(128,128,128,0.5)'; ctx.lineWidth=1.5;
+      ctx.strokeRect(anchor.x-pw/2, anchor.y-ph/2, pw, ph); ctx.restore();
+      ctx.fillStyle='rgba(100,100,100,0.6)';
+      ctx.font=`${Math.max(9, W*0.035)}px Instrument Sans,sans-serif`;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('logo here', anchor.x, anchor.y);
+    }
   }
 
-  // Draw custom text overlay
-  const showText = S.customText && (
-    S.customTextSide === 'both' ||
-    (S.customTextSide === 'front' && currentView === 'front') ||
-    (S.customTextSide === 'back'  && currentView === 'back')
-  );
-  if (showText) {
-    const fontSize = Math.round(W * 0.06);
-    const textColor = S.logoColor?.hex || '#000000';
+  // Draw custom text overlays
+  const iconR = Math.max(9, W * 0.022);
+  S.customTexts.forEach(item => {
+    if (!item.text) return;
+    const pos = prod?.textPos?.[item.id]?.[currentView];
+    if (!pos) return;
+    const scale = prod?.textScale?.[item.id]?.[currentView] ?? 1.0;
+    const fontSize = Math.round(W * 0.06 * scale);
+    const boxW = (pos.boxW ?? 0.55) * W;
+    ctx.font = `${fontSize}px ${item.font}`;
+    const lines = wrapText(ctx, item.text, boxW);
+    const lineH = fontSize * 1.35;
+    const totalH = lineH * lines.length;
+    const ax = pos.cx * W, ay = pos.cy * H;
+    const angle = (prod?.textRotation?.[item.id]?.[currentView] ?? 0) * Math.PI / 180;
+    const cosA = Math.cos(angle), sinA = Math.sin(angle);
+    // Draw text (rotated around centre)
     ctx.save();
-    ctx.font = `${fontSize}px ${S.customTextFont}`;
-    ctx.fillStyle = textColor;
-    ctx.textAlign = 'center';
+    ctx.translate(ax, ay);
+    ctx.rotate(angle);
+    ctx.fillStyle = item.color?.hex || '#000000';
+    ctx.textAlign = item.align;
     ctx.textBaseline = 'middle';
-    // Position: below logo anchor, or centre bottom third
-    const anchor = getLogoAnchor(W, H, ptId, currentView);
-    const textY = Math.min(anchor.y + (logo ? Math.round(W * 0.08) : 0) + fontSize * 1.2, H * 0.88);
-    ctx.fillText(S.customText, W / 2, textY);
+    const textX_r = item.align === 'left' ? -boxW/2 : item.align === 'right' ? boxW/2 : 0;
+    lines.forEach((line, i) => { ctx.fillText(line, textX_r, -totalH/2 + lineH/2 + i*lineH); });
     ctx.restore();
-  }
+    // Dashed bounding box + 4 corner scale handles
+    const hw = boxW/2, hh = totalH/2;
+    const rp = (px, py) => ({ x: ax + px*cosA - py*sinA, y: ay + px*sinA + py*cosA });
+    const corners = [rp(-hw,-hh), rp(hw,-hh), rp(hw,hh), rp(-hw,hh)];
+    ctx.save();
+    ctx.setLineDash([4,3]);
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    corners.forEach((c,i) => i===0 ? ctx.moveTo(c.x,c.y) : ctx.lineTo(c.x,c.y));
+    ctx.closePath(); ctx.stroke();
+    ctx.setLineDash([]);
+    const hs = Math.max(5, iconR * 0.55);
+    corners.forEach(c => {
+      ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(angle);
+      ctx.fillStyle='#fff'; ctx.strokeStyle='rgba(0,0,0,0.5)'; ctx.lineWidth=1;
+      ctx.fillRect(-hs/2,-hs/2,hs,hs); ctx.strokeRect(-hs/2,-hs/2,hs,hs);
+      ctx.restore();
+    });
+    ctx.restore();
+    // × at top edge centre, offset outward
+    drawRemoveIcon(ctx, ax + sinA*(hh + iconR*1.5), ay - cosA*(hh + iconR*1.5), iconR);
+    // ↻ at bottom-right corner, pushed outward
+    const brRX = hw*cosA - hh*sinA, brRY = hw*sinA + hh*cosA;
+    const brLen = Math.hypot(brRX,brRY) || 1;
+    drawRotateHandle(ctx, ax + brRX + brRX/brLen*iconR*2.2, ay + brRY + brRY/brLen*iconR*2.2, iconR);
+  });
+
+  // Artwork bounding box, corner scale handles, × and ↻ icons
+  S.sharedArtwork.forEach(art => {
+    const pos = prod?.artworkPos?.[art.id]?.[currentView];
+    if (!pos || !art.logoImg) return;
+    const scale = prod?.artworkScale?.[art.id]?.[currentView] ?? 1.0;
+    const lw = baseFrac_draw * scale * W;
+    const lh = lw * (art.logoImg.height / art.logoImg.width);
+    const angle = (prod?.artworkRotation?.[art.id]?.[currentView] ?? 0) * Math.PI / 180;
+    const cosA = Math.cos(angle), sinA = Math.sin(angle);
+    const cxA = pos.cx * W, cyA = pos.cy * H;
+    // Helper: rotate local point relative to artwork centre
+    const rp = (px, py) => ({ x: cxA + px*cosA - py*sinA, y: cyA + px*sinA + py*cosA });
+    // 4 corners in rotated space
+    const corners = [
+      rp(-lw/2, -lh/2), // TL
+      rp( lw/2, -lh/2), // TR
+      rp( lw/2,  lh/2), // BR
+      rp(-lw/2,  lh/2), // BL
+    ];
+    // Dashed bounding box
+    ctx.save();
+    ctx.setLineDash([4, 3]);
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    corners.forEach((c, i) => i === 0 ? ctx.moveTo(c.x, c.y) : ctx.lineTo(c.x, c.y));
+    ctx.closePath();
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Corner scale handles (small squares)
+    const hs = Math.max(5, iconR * 0.55);
+    corners.forEach(c => {
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      ctx.rotate(angle);
+      ctx.fillStyle = '#fff';
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.lineWidth = 1;
+      ctx.fillRect(-hs/2, -hs/2, hs, hs);
+      ctx.strokeRect(-hs/2, -hs/2, hs, hs);
+      ctx.restore();
+    });
+    ctx.restore();
+    // × centred on top edge, offset outward along top-edge normal
+    // Top-edge outward normal in canvas space: (sinA, -cosA)
+    const topMidX = cxA + sinA * (lh/2 + iconR * 1.5);
+    const topMidY = cyA - cosA * (lh/2 + iconR * 1.5);
+    drawRemoveIcon(ctx, topMidX, topMidY, iconR);
+    // ↻ at bottom-right corner, pushed further out to clear the corner square
+    const brRX = lw/2*cosA - lh/2*sinA, brRY = lw/2*sinA + lh/2*cosA;
+    const brLen = Math.hypot(brRX, brRY) || 1;
+    drawRotateHandle(ctx, cxA + brRX + brRX/brLen*iconR*2.2, cyA + brRY + brRY/brLen*iconR*2.2, iconR);
+  });
+}
+
+function drawRemoveIcon(ctx, x, y, r) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${Math.round(r * 1.4)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('×', x, y);
+  ctx.restore();
+}
+
+function drawRotateHandle(ctx, x, y, r) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(30,30,30,0.72)';
+  ctx.fill();
+  // Curved arc
+  const ar = r * 0.52;
+  ctx.beginPath();
+  ctx.arc(x, y, ar, -Math.PI * 0.75, Math.PI * 0.45, false);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = Math.max(1, r * 0.18);
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  // Arrowhead at end of arc
+  const ea = Math.PI * 0.45;
+  const tx = -Math.sin(ea), ty = Math.cos(ea); // tangent
+  const ax = x + ar * Math.cos(ea), ay = y + ar * Math.sin(ea);
+  const al = r * 0.28;
+  ctx.beginPath();
+  ctx.moveTo(ax + tx*al - ty*al*0.5, ay + ty*al + tx*al*0.5);
+  ctx.lineTo(ax, ay);
+  ctx.lineTo(ax - tx*al*0.5 - ty*al, ay - ty*al*0.5 + tx*al);
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = Math.max(1, r * 0.18);
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  ctx.restore();
 }
 
 function drawFallbackShirt(ctx, W, H, isLight, type) {
@@ -1705,7 +2484,6 @@ async function drawPreview() {
   document.getElementById('preview-name').textContent = ptData ? ptData.label : '—';
   document.getElementById('preview-sub').textContent = ptData ? colName : 'Select a product to begin';
   document.getElementById('preview-tags').innerHTML = [colName,...(prod?.sizes||[]).slice(0,4)].filter(Boolean).map(t=>`<span class="preview-tag">${t}</span>`).join('');
-  updateRemoveButtons();
 }
 
 // ─── Thumbnails ───────────────────────────────────────────────────────────────
@@ -1713,32 +2491,8 @@ async function drawPreview() {
 // #endregion
 // #region JS: THUMBNAILS
 async function refreshThumbs() {
-  const strip = document.getElementById('preview-thumbs');
-  strip.innerHTML='';
-  const sel = PRODUCTS.filter(p=>S.products[p.id].selected);
-  if (!sel.length) {
-    strip.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px 0;align-self:center;">No products yet</div>';
-    return;
-  }
-  for (const pt of sel) {
-    const wrap=document.createElement('div');
-    wrap.className='thumb-wrap'+(S.activeProduct===pt.id?' active':'');
-    const cnv=document.createElement('canvas'); cnv.width=62; cnv.height=62;
-    wrap.appendChild(cnv);
-    const label=document.createElement('div'); label.className='thumb-label'; label.textContent=pt.label;
-    wrap.appendChild(label);
-    const _sv = S.view; S.view = 'front';
-    await drawToCanvas(cnv, pt.id, 62, 62);
-    S.view = _sv;
-    wrap.addEventListener('click',()=>{
-      S.activeProduct=pt.id;
-      refreshThumbs(); drawPreview();
-    });
-    strip.appendChild(wrap);
-  }
-  const addBtn=document.createElement('div'); addBtn.className='thumb-add';
-  addBtn.innerHTML='+<span>Add</span>'; addBtn.onclick=()=>switchTab('products');
-  strip.appendChild(addBtn);
+  // Thumbnail strip removed — drop panel is used instead
+  renderDesignDrop();
 }
 
 // ─── View toggle ──────────────────────────────────────────────────────────────
@@ -1765,12 +2519,40 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
 // #endregion
 // #region JS: DRAG + SCROLL LOGO INTERACTION
 // ─── Drag + scroll logo positioning ─────────────────────────────────────────
+function wrapText(ctx, text, maxPxW) {
+  const out = [];
+  text.split('\n').forEach(para => {
+    if (!para) { out.push(''); return; }
+    const words = para.split(' ');
+    let line = '';
+    words.forEach(word => {
+      const test = line ? line + ' ' + word : word;
+      if (!line || ctx.measureText(test).width <= maxPxW) { line = test; }
+      else { out.push(line); line = word; }
+    });
+    if (line) out.push(line);
+  });
+  return out;
+}
+
 // Single shared drag state — avoids double-firing across front/back canvases
 (function setupLogoInteraction() {
   let activeSide = null;   // which canvas is being dragged
   let dragging   = false;
   let dragOff    = {x: 0, y: 0};
   let lastPinchDist = null;
+  let resizingTextId = null; // non-null while resizing a text box width
+  let activeItem = null;  // null | 'logo' | string (textId)
+  let rotatingArtId = null;  // artworkId being rotated
+  let rotateCenter  = null;  // {x,y} canvas coords of artwork centre
+  let rotateStartMouseAngle = 0;  // atan2 at drag start
+  let rotateStartDeg = 0;         // rotation in degrees at drag start
+  let scalingArtId   = null;  // artworkId being scaled via corner handle
+  let scalingTextId  = null;  // textId being scaled via corner handle
+  let scaleStartDist = 1;     // distance from centre to mouse at drag start
+  let scaleStartVal  = 1;     // scale value at drag start
+  let scaleStartBoxW = 0.55;  // boxW fraction at drag start (text only)
+  let rotatingTextId = null;  // textId being rotated
 
   function ptId() { return S.activeProduct; }
 
@@ -1779,8 +2561,14 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
   }
 
   function ensureState(prod) {
-    if (!prod.logoPos)   prod.logoPos   = {front: null, back: null};
-    if (!prod.logoScale) prod.logoScale = {front: 1.0,  back: 1.0};
+    if (!prod.logoPos)     prod.logoPos     = {front: null, back: null};
+    if (!prod.logoScale)   prod.logoScale   = {front: 1.0,  back: 1.0};
+    if (!prod.textPos)      prod.textPos      = {};
+    if (!prod.textScale)    prod.textScale    = {};
+    if (!prod.textRotation) prod.textRotation = {};
+    if (!prod.artworkPos)      prod.artworkPos      = {};
+    if (!prod.artworkScale)    prod.artworkScale    = {};
+    if (!prod.artworkRotation) prod.artworkRotation = {};
   }
 
   function clientToCanvas(e, cv) {
@@ -1820,48 +2608,290 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     const prod = S.products[pid]; if (!prod?.selected) return;
     const cv = canvasForSide(side); if (!cv) return;
     const m = clientToCanvas(e, cv);
-    const lr = getRect(prod, side);
-    // Hit test: if logo exists check if clicking near it; otherwise allow drag anywhere
-    const hasLogo = !!getEffectiveLogo(pid, side);
-    const hit = !lr || !hasLogo || (
-      m.x >= lr.x - 12 && m.x <= lr.x + lr.w + 12 &&
-      m.y >= lr.y - 12 && m.y <= lr.y + lr.h + 12
-    );
-    if (hit) {
-      dragging   = true;
-      activeSide = side;
-      dragOff    = lr ? {x: m.x - lr.cx, y: m.y - lr.cy} : {x: 0, y: 0};
-      cv.style.cursor = 'grabbing';
-      e.preventDefault();
+    const W = cv.width, H = cv.height;
+    const iconR = Math.max(9, W * 0.022);
+
+    const zone_hit = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
+    const baseFrac_hit = side === 'back' ? (zone_hit.backLogoFrac || zone_hit.maxLogoFrac) : zone_hit.maxLogoFrac;
+
+    // Helper: artwork icon positions (must match draw code exactly)
+    function artCorners(art, pos_a, lw_a, lh_a) {
+      const angle = (prod.artworkRotation?.[art.id]?.[side] ?? 0) * Math.PI / 180;
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      const cxA = pos_a.cx * W, cyA = pos_a.cy * H;
+      // × at top edge centre, offset outward
+      const removeX = cxA + sinA * (lh_a/2 + iconR * 1.5);
+      const removeY = cyA - cosA * (lh_a/2 + iconR * 1.5);
+      // ↻ at bottom-right corner, pushed further out
+      const brRX = lw_a/2*cosA - lh_a/2*sinA, brRY = lw_a/2*sinA + lh_a/2*cosA;
+      const brLen = Math.hypot(brRX, brRY) || 1;
+      return {
+        cxA, cyA,
+        removeX, removeY,
+        rotHX: cxA + brRX + brRX/brLen*iconR*2.2,
+        rotHY: cyA + brRY + brRY/brLen*iconR*2.2,
+      };
+    }
+
+    // ── Check rotation handles (before × so handle wins at corners) ──────────
+    for (const art of S.sharedArtwork) {
+      const pos = prod.artworkPos?.[art.id]?.[side];
+      if (!pos || !art.logoImg) continue;
+      const scale = prod.artworkScale?.[art.id]?.[side] ?? 1.0;
+      const lw = baseFrac_hit * scale * W;
+      const lh = lw * (art.logoImg.height / art.logoImg.width);
+      const c = artCorners(art, pos, lw, lh);
+      if (Math.hypot(m.x - c.rotHX, m.y - c.rotHY) <= iconR * 1.8) {
+        rotatingArtId = art.id;
+        rotateCenter  = {x: c.cxA, y: c.cyA};
+        rotateStartMouseAngle = Math.atan2(m.y - c.cyA, m.x - c.cxA);
+        rotateStartDeg = prod.artworkRotation?.[art.id]?.[side] ?? 0;
+        activeSide = side;
+        cv.style.cursor = 'crosshair';
+        e.preventDefault(); return;
+      }
+    }
+
+    // ── Check corner scale handles ────────────────────────────────────────────
+    for (const art of S.sharedArtwork) {
+      const pos = prod.artworkPos?.[art.id]?.[side];
+      if (!pos || !art.logoImg) continue;
+      const scale = prod.artworkScale?.[art.id]?.[side] ?? 1.0;
+      const lw = baseFrac_hit * scale * W;
+      const lh = lw * (art.logoImg.height / art.logoImg.width);
+      const angle = (prod.artworkRotation?.[art.id]?.[side] ?? 0) * Math.PI / 180;
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      const cxA = pos.cx * W, cyA = pos.cy * H;
+      const rp = (px, py) => ({ x: cxA + px*cosA - py*sinA, y: cyA + px*sinA + py*cosA });
+      const corners = [rp(-lw/2,-lh/2), rp(lw/2,-lh/2), rp(lw/2,lh/2), rp(-lw/2,lh/2)];
+      const hitR = Math.max(10, iconR * 0.9);
+      const hit = corners.find(c => Math.hypot(m.x - c.x, m.y - c.y) <= hitR);
+      if (hit) {
+        scalingArtId  = art.id;
+        activeSide    = side;
+        scaleStartDist = Math.max(1, Math.hypot(m.x - cxA, m.y - cyA));
+        scaleStartVal  = scale;
+        cv.style.cursor = 'nwse-resize';
+        e.preventDefault(); return;
+      }
+    }
+
+    // ── Check × icons (removal) ──────────────────────────────────────────────
+    for (const art of S.sharedArtwork) {
+      const pos = prod.artworkPos?.[art.id]?.[side];
+      if (!pos || !art.logoImg) continue;
+      const scale = prod.artworkScale?.[art.id]?.[side] ?? 1.0;
+      const lw = baseFrac_hit * scale * W;
+      const lh = lw * (art.logoImg.height / art.logoImg.width);
+      const c = artCorners(art, pos, lw, lh);
+      if (Math.hypot(m.x - c.removeX, m.y - c.removeY) <= iconR * 1.8) {
+        delete prod.artworkPos[art.id][side];
+        redraw(side); renderLogoAdjustPanel(); e.preventDefault(); return;
+      }
+    }
+    // ── Text: rotate handle → corner scale → × → drag (one loop) ───────────
+    const off_m = document.createElement('canvas');
+    const mctx2 = off_m.getContext('2d');
+    for (const item of S.customTexts) {
+      if (!item.text) continue;
+      const pos = prod.textPos?.[item.id]?.[side];
+      if (!pos) continue;
+      const scale = prod.textScale?.[item.id]?.[side] ?? 1.0;
+      const fontSize = Math.round(W * 0.06 * scale);
+      const boxW = (pos.boxW ?? 0.55) * W;
+      mctx2.font = `${fontSize}px ${item.font}`;
+      const lines = wrapText(mctx2, item.text, boxW);
+      const lineH = fontSize * 1.35;
+      const totalH = lineH * lines.length;
+      const ax = pos.cx * W, ay = pos.cy * H;
+      const angle = (prod.textRotation?.[item.id]?.[side] ?? 0) * Math.PI / 180;
+      const cosA = Math.cos(angle), sinA = Math.sin(angle);
+      const hw = boxW/2, hh = totalH/2;
+      // ↻ rotation handle
+      const brRX = hw*cosA - hh*sinA, brRY = hw*sinA + hh*cosA;
+      const brLen = Math.hypot(brRX,brRY) || 1;
+      const rotHX = ax + brRX + brRX/brLen*iconR*2.2;
+      const rotHY = ay + brRY + brRY/brLen*iconR*2.2;
+      if (Math.hypot(m.x - rotHX, m.y - rotHY) <= iconR * 1.8) {
+        rotatingTextId = item.id;
+        rotateCenter = {x: ax, y: ay};
+        rotateStartMouseAngle = Math.atan2(m.y - ay, m.x - ax);
+        rotateStartDeg = prod.textRotation?.[item.id]?.[side] ?? 0;
+        activeSide = side; cv.style.cursor = 'crosshair';
+        e.preventDefault(); return;
+      }
+      // Corner scale handles
+      const rp = (px, py) => ({ x: ax + px*cosA - py*sinA, y: ay + px*sinA + py*cosA });
+      const corners = [rp(-hw,-hh), rp(hw,-hh), rp(hw,hh), rp(-hw,hh)];
+      const hitR = Math.max(10, iconR * 0.9);
+      if (corners.some(c => Math.hypot(m.x - c.x, m.y - c.y) <= hitR)) {
+        scalingTextId  = item.id;
+        activeSide     = side;
+        scaleStartDist = Math.max(1, Math.hypot(m.x - ax, m.y - ay));
+        scaleStartVal  = scale;
+        scaleStartBoxW = pos.boxW ?? 0.55;
+        cv.style.cursor = 'nwse-resize';
+        e.preventDefault(); return;
+      }
+      // × remove
+      const removeX = ax + sinA*(hh + iconR*1.5);
+      const removeY = ay - cosA*(hh + iconR*1.5);
+      if (Math.hypot(m.x - removeX, m.y - removeY) <= iconR * 1.8) {
+        if (!prod.textPos[item.id]) prod.textPos[item.id] = {};
+        delete prod.textPos[item.id][side];
+        redraw(side); e.preventDefault(); return;
+      }
+      // Drag (circle check works for any rotation)
+      const approxR = Math.hypot(hw, hh) + Math.max(16, iconR);
+      if (Math.hypot(m.x - ax, m.y - ay) <= approxR) {
+        dragging = true; activeSide = side; activeItem = item.id;
+        dragOff = {x: m.x - ax, y: m.y - ay};
+        cv.style.cursor = 'grabbing'; e.preventDefault(); return;
+      }
+    }
+
+    // ── Artwork drag ─────────────────────────────────────────────────────────
+    for (const art of S.sharedArtwork) {
+      const pos = prod.artworkPos?.[art.id]?.[side];
+      if (!pos || !art.logoImg) continue;
+      const scale = prod.artworkScale?.[art.id]?.[side] ?? 1.0;
+      const lw = baseFrac_hit * scale * W;
+      const lh = lw * (art.logoImg.height / art.logoImg.width);
+      const ax = pos.cx * W, ay = pos.cy * H;
+      if (m.x >= ax - lw/2 - 12 && m.x <= ax + lw/2 + 12 &&
+          m.y >= ay - lh/2 - 12 && m.y <= ay + lh/2 + 12) {
+        dragging = true; activeSide = side; activeItem = 'art:' + art.id;
+        dragOff  = {x: m.x - ax, y: m.y - ay};
+        cv.style.cursor = 'grabbing'; e.preventDefault(); return;
+      }
     }
   }
 
   // ── Mouse move — only move on the active side ─────────────────────────────
   function onMove(e) {
+    if (scalingArtId && activeSide) {
+      const pid = ptId(); if (!pid) return;
+      const cv = canvasForSide(activeSide); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const prod = S.products[pid];
+      const pos = prod.artworkPos?.[scalingArtId]?.[activeSide];
+      if (pos) {
+        const cxA = pos.cx * cv.width, cyA = pos.cy * cv.height;
+        const dist = Math.max(1, Math.hypot(m.x - cxA, m.y - cyA));
+        const newScale = Math.max(0.1, Math.min(6.0, scaleStartVal * dist / scaleStartDist));
+        if (!prod.artworkScale[scalingArtId]) prod.artworkScale[scalingArtId] = {};
+        prod.artworkScale[scalingArtId][activeSide] = newScale;
+        redraw(activeSide);
+      }
+      return;
+    }
+    if (scalingTextId && activeSide) {
+      const pid = ptId(); if (!pid) return;
+      const cv = canvasForSide(activeSide); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const prod = S.products[pid];
+      const pos = prod.textPos?.[scalingTextId]?.[activeSide];
+      if (pos) {
+        const ax = pos.cx * cv.width, ay = pos.cy * cv.height;
+        const ratio = Math.max(1, Math.hypot(m.x - ax, m.y - ay)) / scaleStartDist;
+        if (!prod.textScale[scalingTextId]) prod.textScale[scalingTextId] = {};
+        prod.textScale[scalingTextId][activeSide] = Math.max(0.1, Math.min(6.0, scaleStartVal * ratio));
+        pos.boxW = Math.max(0.1, Math.min(0.95, scaleStartBoxW * ratio));
+        redraw(activeSide);
+      }
+      return;
+    }
+    if (rotatingTextId && activeSide && rotateCenter) {
+      const pid = ptId(); if (!pid) return;
+      const cv = canvasForSide(activeSide); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const currentAngle = Math.atan2(m.y - rotateCenter.y, m.x - rotateCenter.x);
+      const deltaDeg = (currentAngle - rotateStartMouseAngle) * 180 / Math.PI;
+      const newDeg = ((rotateStartDeg + deltaDeg) % 360 + 360) % 360;
+      const prod = S.products[pid];
+      if (!prod.textRotation[rotatingTextId]) prod.textRotation[rotatingTextId] = {};
+      prod.textRotation[rotatingTextId][activeSide] = newDeg;
+      redraw(activeSide);
+      return;
+    }
+    if (rotatingArtId && activeSide && rotateCenter) {
+      const pid = ptId(); if (!pid) return;
+      const cv = canvasForSide(activeSide); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const currentAngle = Math.atan2(m.y - rotateCenter.y, m.x - rotateCenter.x);
+      const deltaDeg = (currentAngle - rotateStartMouseAngle) * 180 / Math.PI;
+      const newDeg = ((rotateStartDeg + deltaDeg) % 360 + 360) % 360;
+      const prod = S.products[pid];
+      if (!prod.artworkRotation[rotatingArtId]) prod.artworkRotation[rotatingArtId] = {};
+      prod.artworkRotation[rotatingArtId][activeSide] = newDeg;
+      redraw(activeSide);
+      return;
+    }
+    if (resizingTextId && activeSide) {
+      const pid = ptId(); if (!pid) return;
+      const cv = canvasForSide(activeSide); if (!cv) return;
+      const m = clientToCanvas(e, cv);
+      const pos = S.products[pid]?.textPos?.[resizingTextId]?.[activeSide];
+      if (pos) {
+        const ax = pos.cx * cv.width;
+        pos.boxW = Math.max(0.1, Math.min(0.95, (m.x - ax + cv.width * 0.02) / cv.width * 2));
+        redraw(activeSide);
+      }
+      return;
+    }
     if (!dragging || !activeSide) return;
     const pid = ptId(); if (!pid) return;
     const prod = S.products[pid];
     const cv = canvasForSide(activeSide); if (!cv) return;
     const m = clientToCanvas(e, cv);
     ensureState(prod);
-    prod.logoPos[activeSide] = {
-      cx: Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width)),
-      cy: Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height)),
-    };
+    const nx = Math.max(0.05, Math.min(0.95, (m.x - dragOff.x) / cv.width));
+    const ny = Math.max(0.05, Math.min(0.95, (m.y - dragOff.y) / cv.height));
+    if (activeItem?.startsWith('art:')) {
+      const artId = activeItem.slice(4);
+      if (!prod.artworkPos[artId]) prod.artworkPos[artId] = {};
+      const existing = prod.artworkPos[artId][activeSide] || {};
+      prod.artworkPos[artId][activeSide] = {...existing, cx: nx, cy: ny};
+    } else if (activeItem && activeItem !== 'logo') {
+      if (!prod.textPos[activeItem]) prod.textPos[activeItem] = {};
+      prod.textPos[activeItem][activeSide] = {
+        cx: nx, cy: ny,
+        boxW: prod.textPos[activeItem][activeSide]?.boxW ?? 0.55,
+      };
+    }
     redraw(activeSide);
   }
 
   // ── Mouse up ──────────────────────────────────────────────────────────────
   function onUp() {
+    if (scalingTextId) {
+      scalingTextId = null;
+      if (activeSide) { const cv = canvasForSide(activeSide); if (cv) cv.style.cursor = 'grab'; }
+      activeSide = null; return;
+    }
+    if (rotatingTextId) {
+      rotatingTextId = null; rotateCenter = null;
+      if (activeSide) { const cv = canvasForSide(activeSide); if (cv) cv.style.cursor = 'grab'; }
+      activeSide = null; return;
+    }
+    if (scalingArtId) {
+      scalingArtId = null;
+      if (activeSide) { const cv = canvasForSide(activeSide); if (cv) cv.style.cursor = 'grab'; }
+      activeSide = null;
+      return;
+    }
+    if (rotatingArtId) {
+      rotatingArtId = null; rotateCenter = null;
+      if (activeSide) { const cv = canvasForSide(activeSide); if (cv) cv.style.cursor = 'grab'; }
+      activeSide = null;
+      return;
+    }
     if (!dragging) return;
     dragging = false;
-    if (activeSide) {
-      const cv = canvasForSide(activeSide);
-      if (cv) cv.style.cursor = 'grab';
-    }
+    if (activeSide) { const cv = canvasForSide(activeSide); if (cv) cv.style.cursor = 'grab'; }
     activeSide = null;
+    activeItem = null;
     renderLogoAdjustPanel();
-    updateRemoveButtons();
   }
 
   // ── Scroll to scale — per canvas ─────────────────────────────────────────
@@ -1869,16 +2899,9 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     const pid = ptId(); if (!pid) return;
     const prod = S.products[pid]; if (!prod?.selected) return;
     const cv = canvasForSide(side); if (!cv) return;
-    // Only prevent default (and scale) if there's a logo to scale
-    const hasLogo = !!getEffectiveLogo(pid, side);
-    if (!hasLogo) return;
-    e.preventDefault();
-    ensureState(prod);
-    const delta = e.deltaY > 0 ? 0.93 : 1.07;
-    prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * delta));
-    redraw(side);
-    renderLogoAdjustPanel();
-    updateRemoveButtons();
+    const W = cv.width, H = cv.height;
+    const m = clientToCanvas(e, cv);
+
   }
 
   // ── Touch ─────────────────────────────────────────────────────────────────
@@ -1903,7 +2926,11 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
         e.touches[0].clientY - e.touches[1].clientY
       );
       ensureState(prod);
-      prod.logoScale[side] = Math.max(0.1, Math.min(6.0, (prod.logoScale[side] ?? 1.0) * (dist / lastPinchDist)));
+      if (activeItem?.startsWith('art:')) {
+        const artId = activeItem.slice(4);
+        if (!prod.artworkScale[artId]) prod.artworkScale[artId] = {};
+        prod.artworkScale[artId][side] = Math.max(0.1, Math.min(6.0, (prod.artworkScale[artId][side] ?? 1.0) * (dist / lastPinchDist)));
+      }
       lastPinchDist = dist;
       redraw(side);
       e.preventDefault();
@@ -1931,7 +2958,7 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
     ['front', 'back'].forEach(side => {
       const cv = canvasForSide(side); if (!cv) return;
       cv.addEventListener('dragover', e => {
-        if (e.dataTransfer.types.includes('artworkid')) {
+        if (e.dataTransfer.types.includes('artworkid') || e.dataTransfer.types.includes('textid')) {
           e.preventDefault();
           e.dataTransfer.dropEffect = 'copy';
           cv.style.outline = '2px solid var(--text)';
@@ -1941,78 +2968,49 @@ function formatBytes(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFix
       cv.addEventListener('drop', e => {
         e.preventDefault();
         cv.style.outline = '';
+        const pid = ptId();
+        if (!pid) return;
+
+        const textId = e.dataTransfer.getData('textId');
+        if (textId) {
+          const item = S.customTexts.find(t => t.id === textId);
+          if (!item) return;
+          ensureState(S.products[pid]);
+          if (!S.products[pid].textPos[textId]) S.products[pid].textPos[textId] = {};
+          if (!S.products[pid].textScale[textId]) S.products[pid].textScale[textId] = {};
+          const m = clientToCanvas(e, cv);
+          const existing = S.products[pid].textPos[textId][side];
+          S.products[pid].textPos[textId][side] = {
+            cx: Math.max(0.05, Math.min(0.95, m.x / cv.width)),
+            cy: Math.max(0.05, Math.min(0.95, m.y / cv.height)),
+            boxW: existing?.boxW ?? 0.55,
+          };
+          S.products[pid].textScale[textId][side] = S.products[pid].textScale[textId][side] || 1.0;
+          redraw(side);
+          return;
+        }
+
         const id = e.dataTransfer.getData('artworkId');
         const art = S.sharedArtwork.find(a => a.id === id);
-        const pid = ptId();
-        if (!art || !pid) return;
-        S.products[pid][side] = {logoImg: art.logoImg, logoFile: art.logoFile};
+        if (!art) return;
         ensureState(S.products[pid]);
-        // Place at drop point
+        if (!S.products[pid].artworkPos[id])      S.products[pid].artworkPos[id]      = {};
+        if (!S.products[pid].artworkScale[id])    S.products[pid].artworkScale[id]    = {};
+        if (!S.products[pid].artworkRotation[id]) S.products[pid].artworkRotation[id] = {};
         const m = clientToCanvas(e, cv);
-        S.products[pid].logoPos[side] = {
+        S.products[pid].artworkPos[id][side] = {
           cx: Math.max(0.05, Math.min(0.95, m.x / cv.width)),
           cy: Math.max(0.05, Math.min(0.95, m.y / cv.height)),
         };
+        S.products[pid].artworkScale[id][side] = S.products[pid].artworkScale[id][side] || 1.0;
         redraw(side);
         renderLogoAdjustPanel();
         refreshThumbs();
-        updateRemoveButtons();
       });
     });
 
-    // ── Remove artwork buttons ────────────────────────────────────────────────
-    ['front', 'back'].forEach(side => {
-      const btn = document.getElementById('remove-artwork-' + side);
-      if (!btn) return;
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const pid = ptId(); if (!pid) return;
-        delete S.products[pid][side];
-        ensureState(S.products[pid]);
-        redraw(side);
-        renderLogoAdjustPanel();
-        refreshThumbs();
-        updateRemoveButtons();
-      });
-    });
   }, 0);
 })();
-
-function updateRemoveButtons() {
-  const pid = S.activeProduct;
-  ['front', 'back'].forEach(side => {
-    const btn = document.getElementById('remove-artwork-' + side);
-    if (!btn) return;
-    const logo = pid ? getEffectiveLogo(pid, side) : null;
-    if (!logo) { btn.classList.remove('visible'); return; }
-
-    const cv = document.getElementById('preview-canvas-' + side);
-    if (!cv) { btn.classList.remove('visible'); return; }
-
-    const prod = S.products[pid];
-    const W = cv.width, H = cv.height;
-    const zone = PRINT_ZONES[pid] || PRINT_ZONES['5001'];
-    const baseFrac = side === 'back' ? (zone.backLogoFrac || zone.maxLogoFrac) : zone.maxLogoFrac;
-    const sc = prod?.logoScale?.[side] ?? 1.0;
-    const lw = baseFrac * sc * W;
-    const lh = lw * (logo.height / logo.width);
-    const anchor = getLogoAnchor(W, H, pid, side);
-
-    // Convert canvas coords to CSS pixels relative to the canvas-wrap
-    const cvRect = cv.getBoundingClientRect();
-    const wrapRect = cv.parentElement.getBoundingClientRect();
-    const scaleX = cvRect.width / W;
-    const scaleY = cvRect.height / H;
-
-    const artRight  = (anchor.x + lw / 2) * scaleX + (cvRect.left - wrapRect.left);
-    const artTop    = (anchor.y - lh / 2) * scaleY + (cvRect.top  - wrapRect.top);
-
-    btn.style.left = (artRight - 12) + 'px';
-    btn.style.top  = (artTop  - 12) + 'px';
-    btn.style.right = 'auto';
-    btn.classList.add('visible');
-  });
-}
 
 
 // #endregion
@@ -2048,9 +3046,21 @@ function processImageFile(file, onImg) {
 
 // #endregion
 // #region JS: BOOT
-initTabs(); initProgress(); initProducts(); initLogoColors();
-initPlacements(); initSizes(); initCustomText();
+initTabs(); initProgress(); initProducts();
+initPlacements(); initSizes();
 buildPriceGrid(); updateFooter(); refreshThumbs(); drawPreview();
+// Show Products panel on initial load (default tab is products)
+(function() {
+  const designPanel = document.getElementById('preview-design-panel');
+  const orderPanel  = document.getElementById('preview-order-panel');
+  const prodPanel   = document.getElementById('preview-products-panel');
+  if (designPanel && prodPanel) {
+    designPanel.style.display = 'none';
+    orderPanel.style.display  = 'none';
+    prodPanel.style.display   = '';
+    renderProductsPreview();
+  }
+})();
 // Shared upload zones wired when Design tab first opens (elements hidden at boot)
 let _sharedUploadWired = false;
 function setupSharedUploadOnce() {
@@ -2060,6 +3070,6 @@ function setupSharedUploadOnce() {
 }
 // #endregion
 </script>
-  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260505-001</div>
+  <div style="position:fixed;bottom:10px;left:14px;font-size:11px;color:rgba(0,0,0,0.25);font-family:'DM Mono',monospace;pointer-events:none;z-index:9999;">v0.1 · 20260602-009</div>
 </body>
 </html>
